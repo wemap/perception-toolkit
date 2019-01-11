@@ -4,6 +4,7 @@
 
 1. `git clone https://github.com/PolymerLabs/ambient-ar`
 1. `npm i`
+1. `npm run build`
 1. `npm run serve`
 1. [Open the demo page at localhost:8080](http://localhost:8080)
 
