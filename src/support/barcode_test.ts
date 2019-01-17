@@ -10,24 +10,11 @@
 
 const { assert } = chai;
 
-import { XRDataCard } from './data-card.js';
+import { supported } from './barcode.js';
 
-describe('XRDataCard', () => {
-  describe('Lifecycle', () => {
-    it('should have the correct tag', () => {
-      assert(XRDataCard.tagName, 'xr-data-card');
-    });
-
-    it('should set its content', (done) => {
-      const card = document.createElement(XRDataCard.tagName);
-      document.body.appendChild(card);
-
-      // Wait a frame to ensure rendering happened.
-      requestAnimationFrame(() => {
-        assert(card.shadowRoot!.textContent, 'Data Card');
-        card.remove();
-        done();
-      });
-    });
+describe('BarcodeSupport', () => {
+  it('returns a boolean', async () => {
+    const value = await supported();
+    assert.isBoolean(value);
   });
 });

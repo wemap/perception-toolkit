@@ -8,17 +8,19 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export class XRDataCard extends HTMLElement {
-  static tagName = 'xr-data-card';
+import { html, styles } from './no-support-card.template.js';
+
+export class NoSupportCard extends HTMLElement {
+  static defaultTagName = 'no-support-card';
+  static readonly DEFAULT_MESSAGE =
+      'Sorry, this browser does not support the required features';
+  message = NoSupportCard.DEFAULT_MESSAGE;
   private root = this.attachShadow({ mode: 'open' });
 
-  constructor() {
-    super();
-  }
-
   connectedCallback() {
-    this.root.textContent = 'Data Card';
+    this.root.innerHTML = `<style>${styles}</style> ${html}`;
+
+    const container = this.root.querySelector('#container')!;
+    container.textContent = this.message;
   }
 }
-
-customElements.define(XRDataCard.tagName, XRDataCard);
