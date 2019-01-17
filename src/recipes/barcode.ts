@@ -46,7 +46,7 @@ async function createCameraCapture() {
   const capture = new CameraCapture();
   capture.captureRate = 1000;
   capture.style.width = '100%';
-  capture.captureScale = 0.4;
+  capture.captureScale = 0.75;
   capture.addEventListener('click', async () => {
     try {
       await capture.requestFullscreen();
