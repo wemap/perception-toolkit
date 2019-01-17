@@ -35,3 +35,7 @@ declare const BarcodeDetector: {
 interface Window {
   BarcodeDetector: typeof BarcodeDetector
 }
+
+interface Event {
+  path: Element[];
+}

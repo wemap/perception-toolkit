@@ -8,12 +8,30 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { doubleRaf } from '../../utils/double-raf.js';
 import { html, styles } from './simple-card.template.js';
 
 export class SimpleCard extends HTMLElement {
   static defaultTagName = 'simple-card';
+
+  fadeDuration = 200;
+
   private messageInternal = '';
   private root = this.attachShadow({ mode: 'open' });
+
+  constructor() {
+    super();
+
+    this.addEventListener('click', async (evt) => {
+      const clicked =
+          evt.path ? evt.path[0] : evt.composedPath()[0] as HTMLElement;
+      if (clicked.id !== 'close') {
+        return;
+      }
+
+      await this.close(this.fadeDuration);
+    });
+  }
 
   get message() {
     return this.messageInternal;
@@ -28,10 +46,24 @@ export class SimpleCard extends HTMLElement {
     this.render();
   }
 
+  async close(fadeDuration = 0) {
+    if (fadeDuration === 0) {
+      this.remove();
+      return;
+    }
+
+    this.addEventListener('transitionend', () => {
+      this.remove();
+    }, { once: true });
+    this.style.transition =
+        `opacity ${fadeDuration}ms cubic-bezier(0, 0, 0.3, 1)`;
+
+    await doubleRaf();
+    this.style.opacity = '0';
+  }
+
   private render() {
     const container = this.root.querySelector('#container')!;
     container.textContent = this.message;
   }
 }
-
-customElements.define(SimpleCard.defaultTagName, SimpleCard);

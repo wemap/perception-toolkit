@@ -113,6 +113,7 @@ function createContainerIfRequired() {
 // Register custom elements.
 customElements.define(CameraCapture.defaultTagName, CameraCapture);
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
+customElements.define(SimpleCard.defaultTagName, SimpleCard);
 
 // Register events.
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);

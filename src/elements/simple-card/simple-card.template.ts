@@ -8,17 +8,22 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+// tslint:disable:max-line-length
 export const styles = `
 :host {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  --baseline: 8px;
   --background: #FFF;
   --borderRadius: 4px;
   --color: #333;
   --fontFamily: 'Arial', 'Helvetica', sans-serif;
-  --padding: 8px 16px;
+  --padding: calc(var(--baseline) * 4)
+      calc(var(--baseline) * 4)
+      calc(var(--baseline) * 2)
+      calc(var(--baseline) * 3);
 }
 
 #container {
@@ -28,6 +33,29 @@ export const styles = `
   background: var(--background);
   color: var(--color);
 }
+
+#close {
+  width: calc(var(--baseline) * 3);
+  height: calc(var(--baseline) * 3);
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgNi40MUwxNy41OSA1IDEyIDEwLjU5IDYuNDEgNSA1IDYuNDEgMTAuNTkgMTIgNSAxNy41OSA2LjQxIDE5IDEyIDEzLjQxIDE3LjU5IDE5IDE5IDE3LjU5IDEzLjQxIDEyeiIvPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=);
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.3s cubic-bezier(0, 0, 0.3, 1);
+}
+
+#close:hover {
+  opacity: 1;
+}
 `;
 
-export const html = `<div id="container"></div>`;
+// tslint:enable:max-line-length
+
+export const html = `
+  <button id="close">Close</button>
+  <div id="container"></div>
+`;

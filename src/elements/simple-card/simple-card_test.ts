@@ -10,7 +10,9 @@
 
 const { assert } = chai;
 
+import { doubleRaf } from '../../utils/double-raf.js';
 import { SimpleCard } from './simple-card.js';
+customElements.define(SimpleCard.defaultTagName, SimpleCard);
 
 function createCard() {
   const card =
@@ -27,7 +29,7 @@ describe('SimpleCard', () => {
     }
   });
 
-  it('should set its content', (done) => {
+  it('sets its content', (done) => {
     const card = createCard();
 
     // Wait a frame to ensure rendering happened.
@@ -37,13 +39,38 @@ describe('SimpleCard', () => {
     });
   });
 
-  it('should render custom messages', (done) => {
+  it('renders custom messages', (done) => {
     const card = createCard();
     const message = 'Foo bar!';
     card.message = message;
 
     requestAnimationFrame(() => {
       assert(card.shadowRoot!.textContent, message);
+      done();
+    });
+  });
+
+  it('removes itself on close', (done) => {
+    const card = createCard();
+    document.body.appendChild(card);
+
+    requestAnimationFrame(async () => {
+      await card.close(100);
+
+      setTimeout(() => {
+        assert.equal(card.parentNode, null);
+        done();
+      }, 150);
+    });
+  });
+
+  it('removes itself immediately when duration is 0', (done) => {
+    const card = createCard();
+    document.body.appendChild(card);
+
+    requestAnimationFrame(async () => {
+      await card.close();
+      assert.equal(card.parentNode, null);
       done();
     });
   });
