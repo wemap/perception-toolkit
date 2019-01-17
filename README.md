@@ -21,9 +21,6 @@ Included in this toolkit is:
   * Simple Card
   * (TODO) Action Card
 
-The intended use is detailed under `src/recipes`, where you can see how to set
-up barcode detection and the display of values to the end user.
-
 ## Getting started
 
 1. `git clone https://github.com/PolymerLabs/ambient-ar`
@@ -31,6 +28,9 @@ up barcode detection and the display of values to the end user.
 1. `npm run build`
 1. `npm run serve`
 1. [Open the demo page at localhost:8080](http://localhost:8080)
+
+The intended use is detailed under `src/recipes`, where you can see how to set
+up barcode detection and the display of values to the end user.
 
 ## Building
 
