@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export async function geolocation(): Promise<{latitude: number, longitude: number}> {
+export async function geolocation(): Promise<Coordinates> {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition((e) => resolve(e.coords), reject);
   });
