@@ -1,5 +1,29 @@
 # Ambient AR Toolkit
 
+This toolkit provides a set of components and utilities for developers to add an
+ambient AR experience to their website. For example, a primary use-case supported
+is the ability to detect barcodes (in -- say -- a store) with the user's device
+camera, and to show them extended information on the product, and allow them to
+add to their cart.
+
+Included in this toolkit is:
+
+* Support detection
+  * Barcodes
+  * getUserMedia and environment camera
+  * (TODO) Geolocation
+* Detectors
+  * Barcodes
+  * QR Codes
+  * (TODO) Geolocation
+  * (TODO) Planar Image / ML Image Classification
+* Card UIs
+  * Simple Card
+  * (TODO) Action Card
+
+The intended use is detailed under `src/recipes`, where you can see how to set
+up barcode detection and the display of values to the end user.
+
 ## Getting started
 
 1. `git clone https://github.com/PolymerLabs/ambient-ar`
@@ -16,4 +40,5 @@
 
 `npm test`
 
-Note: coverage is found in the generated `coverage` folder in the project root.
+_Note:_ coverage data can be found in the generated `coverage` folder located in
+the project root.
