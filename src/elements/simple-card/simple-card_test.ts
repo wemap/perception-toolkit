@@ -14,13 +14,6 @@ import { doubleRaf } from '../../utils/double-raf.js';
 import { SimpleCard } from './simple-card.js';
 customElements.define(SimpleCard.defaultTagName, SimpleCard);
 
-function createCard() {
-  const card =
-      document.createElement(SimpleCard.defaultTagName) as SimpleCard;
-  document.body.appendChild(card);
-  return card;
-}
-
 describe('SimpleCard', () => {
   afterEach(() => {
     const cards = document.body.querySelectorAll(SimpleCard.defaultTagName);
@@ -29,29 +22,18 @@ describe('SimpleCard', () => {
     }
   });
 
-  it('sets its content', (done) => {
-    const card = createCard();
-
-    // Wait a frame to ensure rendering happened.
-    requestAnimationFrame(() => {
-      assert(card.shadowRoot!.textContent, card.message);
-      done();
-    });
-  });
-
-  it('renders custom messages', (done) => {
-    const card = createCard();
+  it('renders custom messages', async () => {
+    const card = new SimpleCard();
     const message = 'Foo bar!';
     card.message = message;
+    document.body.appendChild(card);
 
-    requestAnimationFrame(() => {
-      assert(card.shadowRoot!.textContent, message);
-      done();
-    });
+    await doubleRaf();
+    assert(card.shadowRoot!.querySelector('#container')!.textContent, message);
   });
 
   it('removes itself on close', (done) => {
-    const card = createCard();
+    const card = new SimpleCard();
     document.body.appendChild(card);
 
     requestAnimationFrame(async () => {
@@ -65,7 +47,7 @@ describe('SimpleCard', () => {
   });
 
   it('removes itself immediately when duration is 0', (done) => {
-    const card = createCard();
+    const card = new SimpleCard();
     document.body.appendChild(card);
 
     requestAnimationFrame(async () => {
@@ -73,5 +55,20 @@ describe('SimpleCard', () => {
       assert.equal(card.parentNode, null);
       done();
     });
+  });
+
+  it('closes when the close button is clicked', async () => {
+    const card = new SimpleCard();
+    card.fadeDuration = 0;
+    document.body.appendChild(card);
+
+    // Wait for the render.
+    await doubleRaf();
+
+    const close =
+        card.shadowRoot!.querySelector('#close') as HTMLButtonElement;
+    close.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+
+    assert.isNull(card.parentNode, 'Parent node is not null');
   });
 });

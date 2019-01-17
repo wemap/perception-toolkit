@@ -18,19 +18,12 @@ export class SimpleCard extends HTMLElement {
 
   private messageInternal = '';
   private root = this.attachShadow({ mode: 'open' });
+  private onClickBound = this.onClick.bind(this);
 
   constructor() {
     super();
 
-    this.addEventListener('click', async (evt) => {
-      const clicked =
-          evt.path ? evt.path[0] : evt.composedPath()[0] as HTMLElement;
-      if (clicked.id !== 'close') {
-        return;
-      }
-
-      await this.close(this.fadeDuration);
-    });
+    this.addEventListener('click', this.onClickBound);
   }
 
   get message() {
@@ -52,14 +45,24 @@ export class SimpleCard extends HTMLElement {
       return;
     }
 
-    this.addEventListener('transitionend', () => {
+    setTimeout(() => {
       this.remove();
-    }, { once: true });
+    }, fadeDuration);
     this.style.transition =
         `opacity ${fadeDuration}ms cubic-bezier(0, 0, 0.3, 1)`;
 
     await doubleRaf();
     this.style.opacity = '0';
+  }
+
+  private async onClick(evt: Event) {
+    const clicked =
+        evt.path ? evt.path[0] : evt.composedPath()[0] as HTMLElement;
+    if (clicked.id !== 'close') {
+      return;
+    }
+
+    await this.close(this.fadeDuration);
   }
 
   private render() {
