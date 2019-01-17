@@ -19,17 +19,24 @@ module.exports = function(config) {
       }
     ],
 
+    exclude: ['src/recipes/*.ts'],
+
     reporters: ["dots", "karma-typescript"],
 
     preprocessors: {
       'src/**/*.ts': ['karma-typescript']
     },
 
-    frameworks: ["detectBrowsers", "mocha", "chai", "karma-typescript"],
+    frameworks: ["detectBrowsers", "mocha", "chai", "sinon", "karma-typescript"],
 
     karmaTypescriptConfig: {
+      compilerOptions: {
+        lib: ['dom', 'dom.iterable', 'es2015'],
+        downlevelIteration: true,
+        sourceMaps: false
+      },
       coverageOptions: {
-        exclude: /_test.tsx?$/
+        exclude: [/_test.tsx?$/, /recipes/]
       }
     },
 
@@ -56,6 +63,7 @@ module.exports = function(config) {
       "karma-detect-browsers",
       "karma-mocha",
       "karma-chai",
+      "karma-sinon",
       "karma-typescript"
     ],
 
