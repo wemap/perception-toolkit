@@ -11,11 +11,11 @@ Included in this toolkit is:
 * Support detection
   * Barcodes
   * getUserMedia and environment camera
-  * (TODO) Geolocation
+  * Geolocation
 * Detectors
   * Barcodes
   * QR Codes
-  * (TODO) Geolocation
+  * Geolocation
   * (TODO) Planar Image / ML Image Classification
 * Card UIs
   * Simple Card

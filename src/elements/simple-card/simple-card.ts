@@ -32,6 +32,7 @@ export class SimpleCard extends HTMLElement {
 
   set message(message: string) {
     this.messageInternal = message;
+    this.render();
   }
 
   connectedCallback() {
@@ -66,7 +67,11 @@ export class SimpleCard extends HTMLElement {
   }
 
   private render() {
-    const container = this.root.querySelector('#container')!;
+    const container = this.root.querySelector('#container');
+    if (!container) {
+      return;
+    }
+
     container.textContent = this.message;
   }
 }

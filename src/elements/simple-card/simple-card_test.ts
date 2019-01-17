@@ -32,6 +32,22 @@ describe('SimpleCard', () => {
     assert(card.shadowRoot!.querySelector('#container')!.textContent, message);
   });
 
+  it('rerenders on message change', async () => {
+    const card = new SimpleCard();
+    const message1 = 'Foo bar!';
+    const message2 = 'Bar foo!';
+
+    card.message = message1;
+    document.body.appendChild(card);
+
+    const container = card.shadowRoot!.querySelector('#container')!;
+    await doubleRaf();
+    assert(container.textContent, message1);
+
+    card.message = message2;
+    assert(container.textContent, message2);
+  });
+
   it('removes itself on close', (done) => {
     const card = new SimpleCard();
     document.body.appendChild(card);
