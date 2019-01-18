@@ -98,7 +98,7 @@ export class SimpleCard extends HTMLElement {
     } else {
       const iframe = document.createElement('iframe');
       iframe.src = this.src.toString();
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+      iframe.setAttribute('sandbox', 'allow-same-origin');
       iframe.style.border = 'none';
       iframe.id = 'external-content';
       iframe.width = (this.width || 0).toString();
