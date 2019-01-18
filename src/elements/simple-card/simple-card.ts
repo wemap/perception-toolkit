@@ -16,7 +16,9 @@ export class SimpleCard extends HTMLElement {
 
   fadeDuration = 200;
 
-  private messageInternal = '';
+  private srcInternal: string | URL = '';
+  private widthInternal: number | undefined;
+  private heightInternal: number | undefined;
   private root = this.attachShadow({ mode: 'open' });
   private onClickBound = this.onClick.bind(this);
 
@@ -26,18 +28,37 @@ export class SimpleCard extends HTMLElement {
     this.addEventListener('click', this.onClickBound);
   }
 
-  get message() {
-    return this.messageInternal;
+  get src() {
+    return this.srcInternal;
   }
 
-  set message(message: string) {
-    this.messageInternal = message;
+  set src(src: string | URL) {
+    this.srcInternal = src;
     this.render();
+  }
+
+  get width() {
+    return this.widthInternal;
+  }
+
+  set width(width: number | undefined) {
+    this.widthInternal = width;
+    this.setDimensions();
+  }
+
+  get height() {
+    return this.heightInternal;
+  }
+
+  set height(height: number | undefined) {
+    this.heightInternal = height;
+    this.setDimensions();
   }
 
   connectedCallback() {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
     this.render();
+    this.setDimensions();
   }
 
   async close(fadeDuration = 0) {
@@ -67,11 +88,42 @@ export class SimpleCard extends HTMLElement {
   }
 
   private render() {
-    const container = this.root.querySelector('#container');
+    const container = this.root.querySelector('#container') as HTMLElement;
     if (!container) {
       return;
     }
 
-    container.textContent = this.message;
+    if (this.srcIsString(this.src)) {
+      container.textContent = this.src;
+    } else {
+      const iframe = document.createElement('iframe');
+      iframe.src = this.src.toString();
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+      iframe.style.border = 'none';
+      iframe.id = 'external-content';
+      iframe.width = (this.width || 0).toString();
+      iframe.height = (this.height || 0).toString();
+
+      container.appendChild(iframe);
+    }
+  }
+
+  private srcIsString(msg: string | URL): msg is string {
+    return typeof msg === 'string';
+  }
+
+  private setDimensions() {
+    const container = this.root.querySelector('#container') as HTMLElement;
+    if (!container) {
+      return;
+    }
+
+    if (this.widthInternal) {
+      container.style.width = `${this.widthInternal}px`;
+    }
+
+    if (this.heightInternal) {
+      container.style.height = `${this.heightInternal}px`;
+    }
   }
 }

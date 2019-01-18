@@ -29,14 +29,14 @@ async function onSupports(evt: Event) {
 
   const container = createContainerIfRequired();
   const card = new SimpleCard();
-  card.message = 'Obtaining location...';
+  card.src = 'Obtaining location...';
   container.appendChild(card);
 
   try {
     const { latitude, longitude } = await geolocation();
-    card.message = `Lat: ${latitude}, Lng: ${longitude}`;
+    card.src = `Lat: ${latitude}, Lng: ${longitude}`;
   } catch (err) {
-    card.message = err.message;
+    card.src = err.message;
   }
 }
 

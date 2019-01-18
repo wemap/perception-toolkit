@@ -12,9 +12,10 @@
 export const styles = `
 :host {
   position: relative;
-  display: flex;
+  display: inline-block;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   --baseline: 8px;
   --background: #FFF;
   --borderRadius: 4px;
@@ -32,6 +33,7 @@ export const styles = `
   font-family: var(--fontFamily);
   background: var(--background);
   color: var(--color);
+  overflow: hidden;
 }
 
 #close {

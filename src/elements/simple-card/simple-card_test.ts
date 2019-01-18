@@ -25,7 +25,7 @@ describe('SimpleCard', () => {
   it('renders custom messages', async () => {
     const card = new SimpleCard();
     const message = 'Foo bar!';
-    card.message = message;
+    card.src = message;
     document.body.appendChild(card);
 
     await doubleRaf();
@@ -37,14 +37,14 @@ describe('SimpleCard', () => {
     const message1 = 'Foo bar!';
     const message2 = 'Bar foo!';
 
-    card.message = message1;
+    card.src = message1;
     document.body.appendChild(card);
 
     const container = card.shadowRoot!.querySelector('#container')!;
     await doubleRaf();
     assert(container.textContent, message1);
 
-    card.message = message2;
+    card.src = message2;
     assert(container.textContent, message2);
   });
 
@@ -86,5 +86,44 @@ describe('SimpleCard', () => {
     close.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
 
     assert.isNull(card.parentNode, 'Parent node is not null');
+  });
+
+  it('does not closes when clicked', async () => {
+    const card = new SimpleCard();
+    card.fadeDuration = 0;
+    document.body.appendChild(card);
+
+    // Wait for the render.
+    await doubleRaf();
+
+    card.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+
+    assert.isNotNull(card.parentNode);
+  });
+
+  it('allows the setting of width', async () => {
+    const card = new SimpleCard();
+    card.style.setProperty('--padding', '0');
+    card.width = 500;
+    document.body.appendChild(card);
+
+    assert.equal(card.getBoundingClientRect().width, 500);
+    assert.equal(card.width, 500);
+  });
+
+  it('allows the setting of height', async () => {
+    const card = new SimpleCard();
+    card.style.setProperty('--padding', '0');
+    card.height = 500;
+    document.body.appendChild(card);
+    assert.equal(card.getBoundingClientRect().height, 500);
+    assert.equal(card.height, 500);
+  });
+
+  it('supports embedding iframe content', async () => {
+    const card = new SimpleCard();
+    card.src = new URL('about:blank');
+    document.body.appendChild(card);
+    assert.isNotNull(card.shadowRoot!.querySelector('iframe'));
   });
 });

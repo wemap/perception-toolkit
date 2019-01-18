@@ -91,7 +91,7 @@ async function onCaptureFrame(evt: Event) {
 
     // Create a card for every found barcode.
     const card = new SimpleCard();
-    card.message = barcode.rawValue;
+    card.src = barcode.rawValue;
 
     const container = createContainerIfRequired();
     container.appendChild(card);

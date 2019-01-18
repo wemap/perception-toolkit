@@ -12,7 +12,7 @@ import { SimpleCard } from '../elements/simple-card/simple-card.js';
 customElements.define(SimpleCard.defaultTagName, SimpleCard);
 
 const card = new SimpleCard();
-card.message = 'Simple Card Message';
+card.src = 'Simple Card Message';
 
 const container = document.querySelector('#container')!;
 container.appendChild(card);
