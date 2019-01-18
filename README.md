@@ -32,6 +32,9 @@ Included in this toolkit is:
 The intended use is detailed under `src/recipes`, where you can see how to set
 up barcode detection and the display of values to the end user.
 
+**Please note:** You will need to use Chrome 73+ for the native BarcodeDetector,
+and should enable Experimental Web Platform features.
+
 ## Building
 
 `npm run build`
