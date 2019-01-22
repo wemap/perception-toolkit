@@ -8,17 +8,30 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { Card } from '../elements/card/card.js';
-customElements.define(Card.defaultTagName, Card);
+export const styles = `
+:host {
+  --baseline: 8px;
+  --height: calc(var(--baseline) * 6);
+  position: relative;
+  display: flex;
+  height: var(--height);
+}
 
-const card = new Card();
-card.src = new URL('/demo/card/content/external-frame.html',
-    window.location.toString());
+button {
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  border: none;
+  background: none;
+  font-size: 15px;
+  color: #888;
+  cursor: pointer;
+}
 
-card.width = 300;
-card.height = 196;
-card.style.setProperty('--borderRadius', '10px');
-card.style.setProperty('--padding', '0');
+button:focus,
+button:hover {
+  color: #222;
+}
+`;
 
-const container = document.querySelector('#container')!;
-container.appendChild(card);
+export const html = `<button></button>`;

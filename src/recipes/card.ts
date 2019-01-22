@@ -8,11 +8,11 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { SimpleCard } from '../elements/simple-card/simple-card.js';
-customElements.define(SimpleCard.defaultTagName, SimpleCard);
+import { Card } from '../elements/card/card.js';
+customElements.define(Card.defaultTagName, Card);
 
-const card = new SimpleCard();
-card.src = 'Simple Card Message';
+const card = new Card();
+card.src = 'Card Message';
 
 const container = document.querySelector('#container')!;
 container.appendChild(card);

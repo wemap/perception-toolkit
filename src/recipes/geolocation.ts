@@ -8,8 +8,8 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { Card } from '../elements/card/card.js';
 import { NoSupportCard } from '../elements/no-support-card/no-support-card.js';
-import { SimpleCard } from '../elements/simple-card/simple-card.js';
 import { DeviceSupport } from '../support/device-support.js';
 import * as GeolocationSupport from '../support/geolocation.js';
 import { geolocation } from '../utils/geolocation-async.js';
@@ -28,7 +28,7 @@ async function onSupports(evt: Event) {
   }
 
   const container = createContainerIfRequired();
-  const card = new SimpleCard();
+  const card = new Card();
   card.src = 'Obtaining location...';
   container.appendChild(card);
 
@@ -54,7 +54,7 @@ function createContainerIfRequired() {
 
 // Register custom elements.
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
-customElements.define(SimpleCard.defaultTagName, SimpleCard);
+customElements.define(Card.defaultTagName, Card);
 
 // Register events.
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);

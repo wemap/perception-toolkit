@@ -11,19 +11,19 @@
 const { assert } = chai;
 
 import { doubleRaf } from '../../utils/double-raf.js';
-import { SimpleCard } from './simple-card.js';
-customElements.define(SimpleCard.defaultTagName, SimpleCard);
+import { Card } from './card.js';
+customElements.define(Card.defaultTagName, Card);
 
-describe('SimpleCard', () => {
+describe('Card', () => {
   afterEach(() => {
-    const cards = document.body.querySelectorAll(SimpleCard.defaultTagName);
+    const cards = document.body.querySelectorAll(Card.defaultTagName);
     for (const card of cards) {
       card.remove();
     }
   });
 
   it('renders custom messages', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     const message = 'Foo bar!';
     card.src = message;
     document.body.appendChild(card);
@@ -33,7 +33,7 @@ describe('SimpleCard', () => {
   });
 
   it('rerenders on message change', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     const message1 = 'Foo bar!';
     const message2 = 'Bar foo!';
 
@@ -49,7 +49,7 @@ describe('SimpleCard', () => {
   });
 
   it('removes itself on close', (done) => {
-    const card = new SimpleCard();
+    const card = new Card();
     document.body.appendChild(card);
 
     requestAnimationFrame(async () => {
@@ -63,7 +63,7 @@ describe('SimpleCard', () => {
   });
 
   it('removes itself immediately when duration is 0', (done) => {
-    const card = new SimpleCard();
+    const card = new Card();
     document.body.appendChild(card);
 
     requestAnimationFrame(async () => {
@@ -74,7 +74,7 @@ describe('SimpleCard', () => {
   });
 
   it('closes when the close button is clicked', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     card.fadeDuration = 0;
     document.body.appendChild(card);
 
@@ -89,7 +89,7 @@ describe('SimpleCard', () => {
   });
 
   it('does not closes when clicked', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     card.fadeDuration = 0;
     document.body.appendChild(card);
 
@@ -102,7 +102,7 @@ describe('SimpleCard', () => {
   });
 
   it('allows the setting of width', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     card.style.setProperty('--padding', '0');
     card.width = 500;
     document.body.appendChild(card);
@@ -112,7 +112,7 @@ describe('SimpleCard', () => {
   });
 
   it('allows the setting of height', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     card.style.setProperty('--padding', '0');
     card.height = 500;
     document.body.appendChild(card);
@@ -121,7 +121,7 @@ describe('SimpleCard', () => {
   });
 
   it('supports embedding iframe content', async () => {
-    const card = new SimpleCard();
+    const card = new Card();
     card.src = new URL('about:blank');
     document.body.appendChild(card);
     assert.isNotNull(card.shadowRoot!.querySelector('iframe'));

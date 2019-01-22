@@ -9,10 +9,10 @@
  */
 
 import { doubleRaf } from '../../utils/double-raf.js';
-import { html, styles } from './simple-card.template.js';
+import { html, styles } from './card.template.js';
 
-export class SimpleCard extends HTMLElement {
-  static defaultTagName = 'simple-card';
+export class Card extends HTMLElement {
+  static defaultTagName = 'data-card';
 
   fadeDuration = 200;
 

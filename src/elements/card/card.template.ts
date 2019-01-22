@@ -11,11 +11,6 @@
 // tslint:disable:max-line-length
 export const styles = `
 :host {
-  position: relative;
-  display: inline-block;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
   --baseline: 8px;
   --background: #FFF;
   --borderRadius: 4px;
@@ -25,15 +20,20 @@ export const styles = `
       calc(var(--baseline) * 4)
       calc(var(--baseline) * 2)
       calc(var(--baseline) * 3);
-}
 
-#container {
-  padding: var(--padding);
+  position: relative;
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   border-radius: var(--borderRadius);
   font-family: var(--fontFamily);
   background: var(--background);
   color: var(--color);
-  overflow: hidden;
+}
+
+#container {
+  padding: var(--padding);
 }
 
 #close {
@@ -53,6 +53,19 @@ export const styles = `
 #close:hover {
   opacity: 1;
 }
+
+#slotted-content > * {
+  flex: 1;
+}
+
+slot {
+  display: block;
+  border-top: 1px solid #AAA;
+}
+
+:host(:empty) slot {
+  border: none;
+}
 `;
 
 // tslint:enable:max-line-length
@@ -60,4 +73,5 @@ export const styles = `
 export const html = `
   <button id="close">Close</button>
   <div id="container"></div>
+  <div id="slotted-content"><slot></slot></div>
 `;

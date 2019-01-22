@@ -8,17 +8,21 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { ActionButton } from '../elements/action-button/action-button.js';
 import { Card } from '../elements/card/card.js';
 customElements.define(Card.defaultTagName, Card);
+customElements.define(ActionButton.defaultTagName, ActionButton);
 
 const card = new Card();
-card.src = new URL('/demo/card/content/external-frame.html',
-    window.location.toString());
+card.src = 'Card with Actions';
 
-card.width = 300;
-card.height = 196;
-card.style.setProperty('--borderRadius', '10px');
-card.style.setProperty('--padding', '0');
+const button = new ActionButton();
+button.label = 'Dismiss';
+button.addEventListener('click', () => {
+  card.close();
+});
+
+card.appendChild(button);
 
 const container = document.querySelector('#container')!;
 container.appendChild(card);

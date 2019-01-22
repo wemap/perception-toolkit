@@ -17,9 +17,7 @@ Included in this toolkit is:
   * QR Codes
   * Geolocation
   * (TODO) Planar Image / ML Image Classification
-* Card UIs
-  * Simple Card
-  * (TODO) Action Card
+* Card UI
 
 ## Getting started
 

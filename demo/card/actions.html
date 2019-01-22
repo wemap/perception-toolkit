@@ -11,7 +11,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Toolkit - Barcode</title>
+    <title>Toolkit - Data Card</title>
 
     <style>
       html, body {
@@ -41,24 +41,8 @@
         z-index: 1;
       }
 
-      no-support-card {
-        opacity: 0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        animation: fadeIn 0.5s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
-      }
-
       data-card {
-        margin-top: 16px;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-
-        to {
-          opacity: 1;
-        }
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
     </style>
 
@@ -70,6 +54,6 @@
   </head>
 <body>
   <div id="container"></div>
-  <script type="module" src="/lib/recipes/barcode.js"></script>
+  <script type="module" src="/lib/recipes/card-with-actions.js"></script>
 </body>
 </html>

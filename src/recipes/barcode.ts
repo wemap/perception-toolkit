@@ -10,8 +10,8 @@
 
 import { detect as BarcodeDetect } from '../detectors/barcode.js';
 import { CameraCapture } from '../elements/camera-capture/camera-capture.js';
+import { Card } from '../elements/card/card.js';
 import { NoSupportCard } from '../elements/no-support-card/no-support-card.js';
-import { SimpleCard } from '../elements/simple-card/simple-card.js';
 import * as BarcodeDetectorSupport from '../support/barcode.js';
 import { DeviceSupport } from '../support/device-support.js';
 import * as GetUserMediaSupport from '../support/get-user-media.js';
@@ -90,7 +90,7 @@ async function onCaptureFrame(evt: Event) {
     detectedBarcodes.add(barcode.rawValue);
 
     // Create a card for every found barcode.
-    const card = new SimpleCard();
+    const card = new Card();
     card.src = barcode.rawValue;
 
     const container = createContainerIfRequired();
@@ -113,7 +113,7 @@ function createContainerIfRequired() {
 // Register custom elements.
 customElements.define(CameraCapture.defaultTagName, CameraCapture);
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
-customElements.define(SimpleCard.defaultTagName, SimpleCard);
+customElements.define(Card.defaultTagName, Card);
 
 // Register events.
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);
