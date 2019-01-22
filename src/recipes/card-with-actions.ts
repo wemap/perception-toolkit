@@ -22,7 +22,11 @@ button.addEventListener('click', () => {
   card.close();
 });
 
+const uselessButton = new ActionButton();
+uselessButton.label = 'I do nothing';
+
 card.appendChild(button);
+card.appendChild(uselessButton);
 
 const container = document.querySelector('#container')!;
 container.appendChild(card);

@@ -26,6 +26,8 @@ button {
   font-size: 15px;
   color: #888;
   cursor: pointer;
+  white-space: nowrap;
+  padding: var(--baseline) calc(var(--baseline) * 2);
 }
 
 button:focus,

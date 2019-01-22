@@ -54,12 +54,17 @@ export const styles = `
   opacity: 1;
 }
 
-#slotted-content > * {
+slot::slotted(*) {
   flex: 1;
+  border-right: 1px solid #CCC;
+}
+
+slot::slotted(*:last-child) {
+  border-right: none;
 }
 
 slot {
-  display: block;
+  display: flex;
   border-top: 1px solid #AAA;
 }
 
