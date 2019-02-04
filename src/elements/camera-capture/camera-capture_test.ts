@@ -10,6 +10,7 @@
 
 const { assert } = chai;
 
+import { isImageData } from '../../utils/is-image-data.js';
 import { CameraCapture } from './camera-capture.js';
 customElements.define(CameraCapture.defaultTagName, CameraCapture);
 
@@ -68,17 +69,40 @@ describe('CaptureCamera', function() {
   it('captures images', (done) => {
     capture.start(stream);
 
-    capture.addEventListener(CameraCapture.startEvent, () => {
-      const imgData = capture.captureFrame();
+    capture.addEventListener(CameraCapture.startEvent, async () => {
+      const imgData = await capture.captureFrame();
       assert.equal(imgData.width, 400 * capture.captureScale);
       assert.equal(imgData.height, 400 * capture.captureScale);
-      assert.isAbove(imgData.data[0], 250);
+
+      if (isImageData(imgData)) {
+        assert.isAbove(imgData.data[0], 250);
+      } else {
+        assert.fail('Expected image data');
+      }
 
       done();
     });
   });
 
-  it('emits frame events', (done) => {
+  it('creates image elements', (done) => {
+    capture.start(stream);
+    capture.capturePng = true;
+
+    capture.addEventListener(CameraCapture.startEvent, async () => {
+      const imgData = await capture.captureFrame();
+      assert.equal(imgData.width, 400 * capture.captureScale);
+      assert.equal(imgData.height, 400 * capture.captureScale);
+
+      if (isImageData(imgData)) {
+        assert.fail('Expected PNG data');
+      } else {
+        assert.equal(imgData.tagName, 'IMG');
+      }
+      done();
+    });
+  });
+
+  it('emits imageData frame events', (done) => {
     capture.start(stream);
     capture.captureRate = 100;
 
@@ -94,18 +118,38 @@ describe('CaptureCamera', function() {
     });
   });
 
+  it('emits image element frame events', (done) => {
+    capture.start(stream);
+    capture.capturePng = true;
+    capture.captureRate = 100;
+
+    capture.addEventListener(CameraCapture.frameEvent, (evt) => {
+      const { detail } = evt as CustomEvent<{imgData: HTMLImageElement}>;
+      const { imgData } = detail;
+
+      assert.equal(imgData.naturalWidth, 400 * capture.captureScale);
+      assert.equal(imgData.naturalHeight, 400 * capture.captureScale);
+
+      done();
+    });
+  });
+
   it('flips the capture if necessary', (done) => {
     capture.flipped = true;
     capture.start(stream);
 
-    capture.addEventListener(CameraCapture.startEvent, () => {
-      const imgData = capture.captureFrame();
+    capture.addEventListener(CameraCapture.startEvent, async () => {
+      const imgData = await capture.captureFrame();
       assert.equal(imgData.width, 400 * capture.captureScale);
       assert.equal(imgData.height, 400 * capture.captureScale);
 
-      // Right hand side is green, so confirm the G and R components.
-      assert.isBelow(imgData.data[0], 5);
-      assert.isAbove(imgData.data[1], 250);
+      if (isImageData(imgData)) {
+        // Right hand side is green, so confirm the G and R components.
+        assert.isBelow(imgData.data[0], 5);
+        assert.isAbove(imgData.data[1], 250);
+      } else {
+        assert.fail('Expected image data');
+      }
 
       done();
     });

@@ -19,6 +19,7 @@ export class CameraCapture extends HTMLElement {
 
   captureScale = 0.5;
   captureRate = 0;
+  capturePng = false;
   flipped = false;
 
   private video: HTMLVideoElement | undefined;
@@ -102,20 +103,35 @@ export class CameraCapture extends HTMLElement {
     }, { once: true });
   }
 
-  captureFrame() {
+  async captureFrame(): Promise<ImageData | HTMLImageElement> {
     /* istanbul ignore if */
     if (!this.ctx || !this.canvas) {
       throw new Error('Unable to capture frame');
     }
 
-    const imgData =
-        this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    return new Promise((resolve) => {
+      const canvas = this.canvas!;
+      const ctx = this.ctx!;
+      let imgData: ImageData | HTMLImageElement;
+      if (this.capturePng) {
+        imgData = new Image();
+        imgData.src = canvas.toDataURL('image/png');
+        imgData.onload = () => {
+          if (this.captureRate !== 0) {
+            fire(CameraCapture.frameEvent, this, {imgData});
+          }
 
-    if (this.captureRate !== 0) {
-      fire(CameraCapture.frameEvent, this, {imgData});
-    }
+          resolve(imgData);
+        };
+      } else {
+        imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        if (this.captureRate !== 0) {
+          fire(CameraCapture.frameEvent, this, {imgData});
+        }
 
-    return imgData;
+        resolve(imgData);
+      }
+    });
   }
 
   stop() {

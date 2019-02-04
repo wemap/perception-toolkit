@@ -34,6 +34,7 @@ export const styles = `
 
 #container {
   padding: var(--padding);
+  white-space: nowrap;
 }
 
 #close {

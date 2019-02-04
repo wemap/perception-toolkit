@@ -24,7 +24,7 @@ describe('SupportEnvironmentCamera', () => {
         }
       }
     ];
-    supportsEnvironmentCamera(supported as any);
+    assert.ok(supportsEnvironmentCamera(supported as any));
   });
 
   it('detects support correctly', () => {
@@ -38,7 +38,8 @@ describe('SupportEnvironmentCamera', () => {
         }
       }
     ];
-    supportsEnvironmentCamera(supported as any);
+
+    assert.ok(supportsEnvironmentCamera(supported as any));
   });
 
   it('handles insufficient data', () => {
@@ -53,6 +54,7 @@ describe('SupportEnvironmentCamera', () => {
         }
       }
     ];
-    supportsEnvironmentCamera(supported as any);
+
+    assert.ok(supportsEnvironmentCamera(supported as any));
   });
 });
