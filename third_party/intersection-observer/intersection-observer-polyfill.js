@@ -721,6 +721,11 @@
       return parent.assignedSlot.parentNode;
     }
 
+    if (node.assignedSlot) {
+      // If the element itself is distributed in a <slot>, return the parent.
+      return node.assignedSlot.parentNode;
+    }
+
     return parent;
   }
 
