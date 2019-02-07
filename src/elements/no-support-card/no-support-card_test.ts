@@ -14,8 +14,7 @@ import { NoSupportCard } from './no-support-card.js';
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 
 function createCard() {
-  const card =
-      document.createElement(NoSupportCard.defaultTagName) as NoSupportCard;
+  const card = new NoSupportCard();
   document.body.appendChild(card);
   return card;
 }

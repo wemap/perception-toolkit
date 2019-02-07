@@ -32,9 +32,37 @@ async function onSupports(evt: Event) {
   }
 
   customElements.define(OnboardingCard.defaultTagName, OnboardingCard);
+  const card =
+      document.querySelector(OnboardingCard.defaultTagName) as OnboardingCard;
+  if (!card) {
+    return;
+  }
+
+  card.focus();
 }
 
+window.addEventListener('keyup', (e) => {
+  const card = document.activeElement as OnboardingCard;
+  if (card.tagName !== OnboardingCard.defaultTagName.toUpperCase()) {
+    return;
+  }
+
+  switch (e.key) {
+    case ' ':
+      card.next();
+      break;
+
+    case 'Escape':
+      card.remove();
+      break;
+
+    default: return;
+  }
+});
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);
+window.addEventListener(OnboardingCard.onboardingFinishedEvent, (e) => {
+  (e.target as OnboardingCard).remove();
+});
 
 // Start the detection process.
 const deviceSupport = new DeviceSupport();

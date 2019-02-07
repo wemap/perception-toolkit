@@ -22,10 +22,9 @@ export class Card extends HTMLElement {
   private root = this.attachShadow({ mode: 'open' });
   private onClickBound = this.onClick.bind(this);
 
+  /* istanbul ignore next */
   constructor() {
     super();
-
-    this.addEventListener('click', this.onClickBound);
   }
 
   get src() {
@@ -59,6 +58,12 @@ export class Card extends HTMLElement {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
     this.render();
     this.setDimensions();
+
+    this.addEventListener('click', this.onClickBound);
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener('click', this.onClickBound);
   }
 
   async close(fadeDuration = 0) {

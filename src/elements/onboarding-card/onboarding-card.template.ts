@@ -14,13 +14,19 @@ export const styles = `
   --borderRadius: 4px;
   --color: #333;
   --fontFamily: 'Arial', 'Helvetica', sans-serif;
-  --padding: 8px 16px;
+  --padding: 8px 8px 36px 8px;
+  --buttonBottomMargin: 8px;
+  --buttonSideMargin: 4px;
+  --buttonActiveColor: #444;
+  --buttonHoverColor: #666;
+  --buttonInactiveColor: #AAA;
 
   position: relative;
   align-items: center;
   justify-content: center;
   display: flex;
   flex-direction: column;
+  outline: none;
 
   padding: var(--padding);
   border-radius: var(--borderRadius);
@@ -32,6 +38,7 @@ export const styles = `
   color: var(--color);
   overflow: hidden;
   display: block;
+  cursor: pointer;
 }
 
 slot {
@@ -53,10 +60,41 @@ slot::-webkit-scrollbar {
 #buttons {
   display: flex;
   height: 20px;
-  background: grey;
-  display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  bottom: var(--buttonBottomMargin);
+}
+
+#buttons button {
+  margin: 0 var(--buttonSideMargin);
+  font-size: 0;
+  width: 18px;
+  height: 18px;
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#buttons button::after {
+  content: '';
+  background: var(--buttonInactiveColor);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#buttons button::after:hover {
+  background: var(--buttonHoverColor);
+}
+
+#buttons button.active::after {
+  background: var(--buttonActiveColor);
 }
 `;
 

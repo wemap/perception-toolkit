@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "watch": "tsc --watch",
-    "build": "tsc",
-    "build-and-test": "npm run test",
-    "serve": "npx http-server",
+    "build": "tsc && npm run gzip",
+    "gzip": "find lib -type f -name '*.js' ! -name '*_test.js' -exec gzip -f \"{}\" \\;",
+    "serve": "npx http-server -g",
     "test": "karma start"
   },
   "author": "The Polymer Authors",

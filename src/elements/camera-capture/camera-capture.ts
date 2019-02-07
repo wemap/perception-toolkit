@@ -29,10 +29,15 @@ export class CameraCapture extends HTMLElement {
   private root = this.attachShadow({ mode: 'open' });
   private lastCapture = -1;
 
+  /* istanbul ignore next */
   constructor() {
     super();
 
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
+  }
+
+  disconnectedCallback() {
+    this.stop();
   }
 
   start(stream: MediaStream) {
@@ -155,11 +160,8 @@ export class CameraCapture extends HTMLElement {
     fire(CameraCapture.stopEvent, this);
   }
 
-  disconnectedCallback() {
-    this.stop();
-  }
-
   private initElementsIfNecessary() {
+    /* istanbul ignore else */
     if (!this.canvas) {
       this.canvas = document.createElement('canvas');
       this.ctx = this.canvas.getContext('2d');
@@ -179,6 +181,7 @@ export class CameraCapture extends HTMLElement {
       container.appendChild(this.canvas);
     }
 
+    /* istanbul ignore else */
     if (!this.video) {
       this.video = document.createElement('video');
     }

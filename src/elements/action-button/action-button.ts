@@ -17,6 +17,11 @@ export class ActionButton extends HTMLElement {
   private labelInternal = ActionButton.DEFAULT_LABEL;
   private root = this.attachShadow({ mode: 'open' });
 
+  /* istanbul ignore next */
+  constructor() {
+    super();
+  }
+
   connectedCallback() {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
     this.render();

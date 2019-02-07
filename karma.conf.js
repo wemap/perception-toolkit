@@ -14,6 +14,7 @@ module.exports = function(config) {
 
     files: [
       'node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js',
+      'third_party/intersection-observer/intersection-observer-polyfill.js',
       {
         pattern: 'src/**/*.ts'
       }
@@ -32,8 +33,7 @@ module.exports = function(config) {
     karmaTypescriptConfig: {
       compilerOptions: {
         lib: ['dom', 'dom.iterable', 'es2015'],
-        downlevelIteration: true,
-        sourceMaps: false
+        downlevelIteration: true
       },
       coverageOptions: {
         exclude: [/_test.tsx?$/, /recipes/]

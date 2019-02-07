@@ -17,6 +17,11 @@ export class NoSupportCard extends HTMLElement {
   message = NoSupportCard.DEFAULT_MESSAGE;
   private root = this.attachShadow({ mode: 'open' });
 
+  /* istanbul ignore next */
+  constructor() {
+    super();
+  }
+
   connectedCallback() {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
 

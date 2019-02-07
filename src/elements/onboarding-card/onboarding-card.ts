@@ -8,29 +8,45 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { clamp } from '../../utils/clamp.js';
+import { fade } from '../../utils/fade.js';
+import { fire } from '../../utils/fire.js';
 import { html, styles } from './onboarding-card.template.js';
 
 export class OnboardingCard extends HTMLElement {
+  static onboardingFinishedEvent = 'onboardingfinished';
+  static itemChangedEvent = 'itemchanged';
   static defaultTagName = 'onboarding-card';
   static get observedAttributes() {
-    return ['width', 'height'];
+    return ['width', 'height', 'mode'];
   }
-  private item = 0;
+
+  private modeInternal: 'scroll' | 'fade' = 'scroll';
+  private itemInternal = 0;
   private itemMax = 0;
   private widthInternal = 0;
   private heightInternal = 0;
   private root = this.attachShadow({ mode: 'open' });
+  private observer!: IntersectionObserver;
+
   private onSlotChangeBound = this.onSlotChange.bind(this);
   private onContainerClickBound = this.onContainerClick.bind(this);
   private onButtonClickBound = this.onButtonClick.bind(this);
   private onIntersectionBound = this.onIntersection.bind(this);
-  private observer!: IntersectionObserver;
+
+  /* istanbul ignore next */
+  constructor() {
+    super();
+  }
 
   get width() {
     return this.widthInternal;
   }
 
   set width(width: number) {
+    if (Number.isNaN(width)) {
+      width = 0;
+    }
     this.setAttribute('width', width.toString());
   }
 
@@ -39,7 +55,22 @@ export class OnboardingCard extends HTMLElement {
   }
 
   set height(height: number) {
+    if (Number.isNaN(height)) {
+      height = 0;
+    }
     this.setAttribute('height', height.toString());
+  }
+
+  get item() {
+    return this.itemInternal;
+  }
+
+  set mode(mode: 'scroll' | 'fade') {
+    this.setAttribute('mode', mode);
+  }
+
+  get mode() {
+    return this.modeInternal;
   }
 
   connectedCallback() {
@@ -51,12 +82,17 @@ export class OnboardingCard extends HTMLElement {
     container.addEventListener('click', this.onContainerClickBound);
     buttons.addEventListener('click', this.onButtonClickBound);
 
+    this.setAttribute('tabindex', '0');
+
     this.observer = new IntersectionObserver(this.onIntersectionBound, {
       root: container,
       rootMargin: '-1px'
     });
     this.updateCardDimensions();
     this.observeChildren();
+
+    // Call the slot change callback manually for Safari 12; it doesn't do it
+    // automatically for the initial element connection.
     this.onSlotChange();
   }
 
@@ -73,47 +109,69 @@ export class OnboardingCard extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const value = Number(newValue);
-
     switch (name) {
-      case 'width':
+      case 'width': {
+        const value = Number(newValue);
         this.widthInternal = Number.isNaN(value) ? 0 : value;
         break;
+      }
 
-      case 'height':
+      case 'height': {
+        const value = Number(newValue);
         this.heightInternal = Number.isNaN(value) ? 0 : value;
+        break;
+      }
+
+      case 'mode':
+        this.modeInternal = newValue === 'fade' ? 'fade' : 'scroll';
         break;
     }
 
     this.updateCardDimensions();
   }
 
-  next() {
-    this.item++;
-    this.gotoItem();
+  async next() {
+    const from = this.itemInternal;
+    this.itemInternal = clamp(this.itemInternal + 1, 0, this.itemMax - 1);
+    await this.gotoItem({ from });
+
+    // The user has hit the final item in the list.
+    if (from === this.itemInternal) {
+      fire(OnboardingCard.onboardingFinishedEvent, this, {id: this.itemInternal});
+    }
   }
 
-  private gotoItem(idx = this.item) {
+  async gotoItem({to = this.itemInternal, from = -1} = {}) {
     const elements = this.getSlotElements();
-    if (!elements[idx]) {
+    if (!elements[to] || (from !== -1 && !elements[from]) || from === to) {
       return;
     }
 
-    elements[idx].scrollIntoView({ behavior: 'smooth' });
+    if (this.mode === 'fade') {
+      if (from !== -1) {
+        await fade(elements[from] as HTMLElement, { from: 1, to: 0 });
+      }
+      elements[to].scrollIntoView();
+      await fade(elements[to] as HTMLElement, { from: 0, to: 1 });
+    } else {
+      elements[to].scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   private onContainerClick() {
     this.next();
   }
 
-  private onButtonClick(e: Event) {
+  private async onButtonClick(e: Event) {
     const buttons = this.root.querySelector('#buttons') as HTMLElement;
     let idx = Array.from(buttons.childNodes).indexOf(e.target as HTMLElement);
+    /* istanbul ignore if */
     if (idx === -1) {
       idx = 0;
     }
-    this.item = idx;
-    this.gotoItem();
+    const from = this.itemInternal;
+    this.itemInternal = idx;
+    await this.gotoItem({ from });
   }
 
   private onIntersection(entries: IntersectionObserverEntry[]) {
@@ -123,9 +181,13 @@ export class OnboardingCard extends HTMLElement {
         continue;
       }
 
-      console.log(this.item);
+      this.itemInternal = elements.indexOf(entry.target);
+      fire(OnboardingCard.itemChangedEvent, this, {id: this.itemInternal});
+    }
 
-      this.item = elements.indexOf(entry.target);
+    const buttons = this.root.querySelectorAll('#buttons button');
+    for (const [bIdx, button] of buttons.entries()) {
+      button.classList.toggle('active', bIdx === this.itemInternal);
     }
   }
 
@@ -146,11 +208,13 @@ export class OnboardingCard extends HTMLElement {
 
   private getSlotElements() {
     const slot = this.root.querySelector('slot') as HTMLSlotElement;
+    /* istanbul ignore if */
     if (!slot) {
       return [];
     }
 
     const supportsAssignedElements = 'assignedElements' in slot;
+    /* istanbul ignore else */
     if (supportsAssignedElements) {
       return slot.assignedElements();
     } else {
@@ -160,15 +224,16 @@ export class OnboardingCard extends HTMLElement {
   }
 
   private onSlotChange() {
+    const buttons = this.root.querySelector('#buttons');
     const elements = this.getSlotElements();
     this.itemMax = elements.length;
 
-    // Create status / control buttons for each state.
-    const buttons = this.root.querySelector('#buttons');
+    /* istanbul ignore if */
     if (!buttons) {
       return;
     }
 
+    // Create status / control buttons for each state.
     buttons.innerHTML = '';
     for (let i = 0; i < this.itemMax; i++) {
       const button = document.createElement('button');
@@ -179,6 +244,8 @@ export class OnboardingCard extends HTMLElement {
 
   private updateCardDimensions() {
     const container = this.root.querySelector('#container') as HTMLElement;
+
+    /* istanbul ignore if */
     if (!container) {
       return;
     }
