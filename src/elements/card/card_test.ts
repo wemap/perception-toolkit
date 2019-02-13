@@ -95,9 +95,10 @@ describe('Card', () => {
 
     // Wait for the render.
     await doubleRaf();
-
-    card.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
-
+    card.dispatchEvent(new MouseEvent('click', {
+      bubbles: true,
+      composed: true
+    }));
     assert.isNotNull(card.parentNode);
   });
 
@@ -125,5 +126,15 @@ describe('Card', () => {
     card.src = new URL('about:blank');
     document.body.appendChild(card);
     assert.isNotNull(card.shadowRoot!.querySelector('iframe'));
+  });
+
+  it('handles undefined content', async () => {
+    const card = new Card();
+    card.src = undefined as string;
+    document.body.appendChild(card);
+
+    const container = card.shadowRoot!.querySelector('#container')!;
+    await doubleRaf();
+    assert.ok(container.textContent !== '');
   });
 });

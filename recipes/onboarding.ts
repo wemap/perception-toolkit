@@ -8,11 +8,13 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { OnboardingCard } from '../elements/onboarding-card/onboarding-card.js';
-import { DeviceSupport } from '../support/device-support.js';
-import * as IntersectionObserverSupport from '../support/intersection-observer.js';
-import { injectScript } from '../utils/inject-script.js';
+import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
+import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
+import { DeviceSupport } from '../src/support/device-support.js';
+import * as IntersectionObserverSupport from '../src/support/intersection-observer.js';
+import { injectScript } from '../src/utils/inject-script.js';
 
+let loader: DotLoader | null;
 const IO_POLYFILL_PATH =
     '/third_party/intersection-observer/intersection-observer-polyfill.js';
 
@@ -22,6 +24,10 @@ const IO_POLYFILL_PATH =
  * @param evt The supports event from the DeviceSupport class.
  */
 async function onSupports(evt: Event) {
+  loader = new DotLoader();
+  loader.style.setProperty('--color', '#FFF');
+  document.body.appendChild(loader);
+
   const supportEvt = evt as CustomEvent<Support>;
   if (!(supportEvt.detail[IntersectionObserverSupport.name])) {
     await injectScript(IO_POLYFILL_PATH);
@@ -31,7 +37,10 @@ async function onSupports(evt: Event) {
     console.log('Loaded polyfill: IntersectionObserver');
   }
 
+  // Wait to confirm that IntersectionObservers are in place before registering
+  // the Onboarding Card element.
   customElements.define(OnboardingCard.defaultTagName, OnboardingCard);
+
   const card =
       document.querySelector(OnboardingCard.defaultTagName) as OnboardingCard;
   if (!card) {
@@ -39,6 +48,7 @@ async function onSupports(evt: Event) {
   }
 
   card.focus();
+  loader.remove();
 }
 
 window.addEventListener('keyup', (e) => {
@@ -63,6 +73,9 @@ window.addEventListener(DeviceSupport.supportsEvent, onSupports);
 window.addEventListener(OnboardingCard.onboardingFinishedEvent, (e) => {
   (e.target as OnboardingCard).remove();
 });
+
+// Register the dot loader.
+customElements.define(DotLoader.defaultTagName, DotLoader);
 
 // Start the detection process.
 const deviceSupport = new DeviceSupport();

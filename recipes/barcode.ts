@@ -8,30 +8,37 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { detect as BarcodeDetect } from '../detectors/barcode.js';
-import { CameraCapture } from '../elements/camera-capture/camera-capture.js';
-import { Card } from '../elements/card/card.js';
-import { NoSupportCard } from '../elements/no-support-card/no-support-card.js';
-import * as BarcodeDetectorSupport from '../support/barcode.js';
-import { DeviceSupport } from '../support/device-support.js';
-import * as GetUserMediaSupport from '../support/get-user-media.js';
-import * as EnvironmentCamera from '../utils/environment-camera.js';
+import { detect as BarcodeDetect } from '../src/detectors/barcode.js';
+import { CameraCapture } from '../src/elements/camera-capture/camera-capture.js';
+import { Card } from '../src/elements/card/card.js';
+import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
+import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
+import { DeviceSupport } from '../src/support/device-support.js';
+import * as GetUserMediaSupport from '../src/support/get-user-media.js';
+import * as EnvironmentCamera from '../src/utils/environment-camera.js';
+import { DEBUG_LEVEL, enableLogLevel } from '../src/utils/logger.js';
+
+enableLogLevel(DEBUG_LEVEL.WARNING);
 
 const detectedBarcodes = new Set<string>();
+let loader: DotLoader | null;
 
 /**
  * Processes the outcome of the device support testing.
  *
  * @param evt The supports event from the DeviceSupport class.
  */
-function onSupports(evt: Event) {
+async function onSupports(evt: Event) {
   const supportEvt = evt as CustomEvent<Support>;
-  if (!(supportEvt.detail[BarcodeDetectorSupport.name] &&
-        supportEvt.detail[GetUserMediaSupport.name])) {
+  if (!supportEvt.detail[GetUserMediaSupport.name]) {
     const noSupport = new NoSupportCard();
     document.body.appendChild(noSupport);
     return;
   }
+
+  loader = new DotLoader();
+  loader.style.setProperty('--color', '#FFF');
+  document.body.appendChild(loader);
 
   createCameraCapture();
 }
@@ -42,11 +49,11 @@ function onSupports(evt: Event) {
 async function createCameraCapture() {
   const devices = await navigator.mediaDevices.enumerateDevices();
   const supportsEnvironmentCamera =
-      EnvironmentCamera.supportsEnvironmentCamera(devices);
+      await EnvironmentCamera.supportsEnvironmentCamera(devices);
   const capture = new CameraCapture();
-  capture.captureRate = 1000;
+  capture.captureRate = 600;
   capture.style.width = '100%';
-  capture.captureScale = 0.75;
+  capture.captureScale = 0.6;
   capture.addEventListener('click', async () => {
     try {
       await capture.requestFullscreen();
@@ -77,6 +84,11 @@ async function createCameraCapture() {
  * @param evt The Custom Event containing the captured frame data.
  */
 async function onCaptureFrame(evt: Event) {
+  if (loader) {
+    loader.remove();
+    loader = null;
+  }
+
   const { detail } = evt as CustomEvent<{imgData: ImageData}>;
   const { imgData } = detail;
   const barcodes = await BarcodeDetect(imgData);
@@ -114,6 +126,7 @@ function createContainerIfRequired() {
 customElements.define(CameraCapture.defaultTagName, CameraCapture);
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 customElements.define(Card.defaultTagName, Card);
+customElements.define(DotLoader.defaultTagName, DotLoader);
 
 // Register events.
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);
@@ -122,6 +135,5 @@ window.addEventListener(CameraCapture.frameEvent, onCaptureFrame);
 // Start the detection process.
 const deviceSupport = new DeviceSupport();
 deviceSupport.useEvents = true;
-deviceSupport.addDetector(BarcodeDetectorSupport);
 deviceSupport.addDetector(GetUserMediaSupport);
 deviceSupport.detect();

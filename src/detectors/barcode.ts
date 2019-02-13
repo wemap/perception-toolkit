@@ -8,13 +8,32 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { injectScript } from '../utils/inject-script.js';
+import { DEBUG_LEVEL, log } from '../utils/logger.js';
+
+let detector: BarcodeDetector;
 export async function detect(data: ImageData | ImageBitmap | HTMLCanvasElement,
-                             context: {BarcodeDetector: typeof BarcodeDetector} = window) {
+                             context: {BarcodeDetector: typeof BarcodeDetector} = window,
+                             forceNewDetector = false) {
+
+  if (context === window && !('BarcodeDetector' in context)) {
+    log('Native barcode detector unavailable', DEBUG_LEVEL.WARNING);
+    await injectScript('/lib/polyfills/barcode-detector.js');
+  }
+
+  /* istanbul ignore else */
+  if (!detector || forceNewDetector) {
+    detector = new context.BarcodeDetector();
+  }
+
+  if ('isReady' in detector) {
+    await detector.isReady;
+  }
+
   try {
-    const detector = new context.BarcodeDetector();
     return await detector.detect(data);
   } catch (e) {
-    // TODO(paullewis): Fall back to using a third party lib.
+    log(`Detection failed: ${e.message}`, DEBUG_LEVEL.WARNING);
     return [];
   }
 }

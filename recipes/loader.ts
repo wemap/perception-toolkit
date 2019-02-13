@@ -8,13 +8,13 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-const { assert } = chai;
+import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 
-import { supported } from './intersection-observer.js';
+customElements.define(DotLoader.defaultTagName, DotLoader);
 
-describe('IntersectionObserverSupport', () => {
-  it('returns a boolean', async () => {
-    const value = await supported();
-    assert.isBoolean(value);
-  });
-});
+const loader = new DotLoader();
+loader.style.setProperty('--color', '#FFF');
+
+// Uncomment for vertical animation.
+// loader.setAttribute('vertical', 'vertical');
+document.body.appendChild(loader);

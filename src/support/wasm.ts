@@ -8,13 +8,8 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-const { assert } = chai;
+export const name = 'wasm';
 
-import { supported } from './intersection-observer.js';
-
-describe('IntersectionObserverSupport', () => {
-  it('returns a boolean', async () => {
-    const value = await supported();
-    assert.isBoolean(value);
-  });
-});
+export async function supported() {
+  return 'WebAssembly' in self;
+}

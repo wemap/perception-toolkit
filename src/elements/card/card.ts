@@ -100,6 +100,8 @@ export class Card extends HTMLElement {
 
     if (this.srcIsString(this.src)) {
       container.textContent = this.src;
+    } else if (typeof this.src === 'undefined') {
+      container.textContent = 'Unexpected content';
     } else {
       const iframe = document.createElement('iframe');
       iframe.src = this.src.toString();

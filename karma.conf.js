@@ -10,17 +10,42 @@
 
 module.exports = function(config) {
   const options = {
+    logLevel: config.LOG_ERROR,
+    client: {
+      captureConsole: false
+    },
+
     basePath: "",
 
     files: [
       'node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js',
-      'third_party/intersection-observer/intersection-observer-polyfill.js',
+      {
+        pattern: 'lib/polyfills/**/*.js',
+        included: false,
+        served: true,
+      },
+      {
+        pattern: 'third_party/**/*.js',
+        included: false,
+        served: true,
+      },
+      {
+        pattern: '**/*.wasm',
+        included: false,
+        served: true,
+        type: 'wasm'
+      },
       {
         pattern: 'src/**/*.ts'
       }
     ],
 
-    exclude: ['src/recipes/*.ts'],
+    proxies: {
+      '/third_party': '/base/third_party',
+      '/lib': '/base/lib'
+    },
+
+    exclude: [],
 
     reporters: ["dots", "karma-typescript"],
 
@@ -36,7 +61,7 @@ module.exports = function(config) {
         downlevelIteration: true
       },
       coverageOptions: {
-        exclude: [/_test.tsx?$/, /recipes/]
+        exclude: [/_test.tsx?$/, /worker.ts/]
       }
     },
 
@@ -66,6 +91,10 @@ module.exports = function(config) {
       "karma-sinon",
       "karma-typescript"
     ],
+
+    mime: {
+      'application/wasm': ['wasm']
+    },
 
     singleRun: true,
   };

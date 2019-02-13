@@ -14,11 +14,14 @@ export const styles = `
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 80vw;
+  text-align: center;
+
   --background: #FFF;
   --borderRadius: 4px;
   --color: #333;
   --fontFamily: 'Arial', 'Helvetica', sans-serif;
-  --padding: 8px 16px;
+  --padding: 16px 20px;
 }
 
 #container {

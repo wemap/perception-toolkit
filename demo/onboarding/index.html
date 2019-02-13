@@ -34,6 +34,13 @@
         animation: fadeIn 0.5s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
       }
 
+      dot-loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
       @keyframes fadeIn {
         from {
           opacity: 0;
@@ -53,12 +60,13 @@
   </head>
 <body>
   <div id="container">
-    <onboarding-card width="327" height="376" mode="fade">
-      <img src="images/step1.png">
-      <img src="images/step2.png">
-      <img src="images/step3.png">
+    <onboarding-card width="327" height="376" mode="scroll">
+      <img src="images/step1.png" width="327" height="376">
+      <img src="images/step2.png" width="327" height="376">
+      <img src="images/step3.png" width="327" height="376">
     </onboarding-card>
   </div>
-  <script type="module" src="/lib/recipes/onboarding.js"></script>
+  <script type="module" src="/lib/import/recipes/onboarding.js"></script>
+  <script nomodule src="/lib/bundles/recipes/onboarding.min.js"></script>
 </body>
 </html>

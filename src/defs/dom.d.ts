@@ -8,17 +8,20 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { Card } from '../elements/card/card.js';
-customElements.define(Card.defaultTagName, Card);
+interface Document {
+  fullscreenElement: null | HTMLElement;
+}
 
-const card = new Card();
-card.src = new URL('/demo/card/content/external-frame.html',
-    window.location.toString());
+interface HTMLCanvasElement {
+  captureStream(frameRate?: number): MediaStream;
+}
 
-card.width = 300;
-card.height = 196;
-card.style.setProperty('--borderRadius', '10px');
-card.style.setProperty('--padding', '0');
+interface Window {
+  BarcodeDetector: typeof BarcodeDetector
+}
 
-const container = document.querySelector('#container')!;
-container.appendChild(card);
+interface Event {
+  path: Element[];
+}
+
+declare function importScripts(...urls: string[]): void;

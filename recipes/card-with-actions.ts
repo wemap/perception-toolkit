@@ -8,26 +8,25 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-const { assert } = chai;
-
-import { ActionButton } from './action-button';
+import { ActionButton } from '../src/elements/action-button/action-button.js';
+import { Card } from '../src/elements/card/card.js';
+customElements.define(Card.defaultTagName, Card);
 customElements.define(ActionButton.defaultTagName, ActionButton);
 
-describe('ActionButton', () => {
-  afterEach(() => {
-    const ActionButtons =
-        document.body.querySelectorAll(ActionButton.defaultTagName);
-    for (const ActionButton of ActionButtons) {
-      ActionButton.remove();
-    }
-  });
+const card = new Card();
+card.src = 'Card with Actions';
 
-  it('renders custom labels', async () => {
-    const actionButton = new ActionButton();
-    const message = 'Foo bar!';
-    actionButton.label = message;
-    document.body.appendChild(actionButton);
-
-    assert(actionButton.shadowRoot!.querySelector('button')!.textContent, message);
-  });
+const button = new ActionButton();
+button.label = 'Dismiss';
+button.addEventListener('click', () => {
+  card.close();
 });
+
+const uselessButton = new ActionButton();
+uselessButton.label = 'I do nothing';
+
+card.appendChild(button);
+card.appendChild(uselessButton);
+
+const container = document.querySelector('#container')!;
+container.appendChild(card);

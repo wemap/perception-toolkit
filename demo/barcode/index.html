@@ -41,6 +41,13 @@
         z-index: 1;
       }
 
+      dot-loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
       no-support-card {
         opacity: 0;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -70,6 +77,7 @@
   </head>
 <body>
   <div id="container"></div>
-  <script type="module" src="/lib/recipes/barcode.js"></script>
+  <script type="module" src="/lib/import/recipes/barcode.js"></script>
+  <script nomodule src="/lib/bundles/recipes/barcode.min.js"></script>
 </body>
 </html>

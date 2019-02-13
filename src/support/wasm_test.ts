@@ -10,9 +10,9 @@
 
 const { assert } = chai;
 
-import { supported } from './intersection-observer.js';
+import { supported } from './wasm.js';
 
-describe('IntersectionObserverSupport', () => {
+describe('WasmSupport', () => {
   it('returns a boolean', async () => {
     const value = await supported();
     assert.isBoolean(value);

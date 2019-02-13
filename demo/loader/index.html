@@ -27,35 +27,6 @@
         justify-content: center;
         align-items: center;
       }
-
-      #container {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        padding: 32px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-        box-sizing: border-box;
-        z-index: 1;
-      }
-
-      no-support-card {
-        opacity: 0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        animation: fadeIn 0.5s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-
-        to {
-          opacity: 1;
-        }
-      }
     </style>
 
     <script>
@@ -66,7 +37,7 @@
   </head>
 <body>
   <div id="container"></div>
-  <script type="module" src="/lib/import/recipes/geolocation.js"></script>
-  <script nomodule src="/lib/bundles/recipes/geolocation.min.js"></script>
+  <script type="module" src="/lib/import/recipes/loader.js"></script>
+  <script nomodule src="/lib/bundles/recipes/loader.min.js"></script>
 </body>
 </html>

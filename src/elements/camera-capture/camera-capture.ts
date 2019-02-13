@@ -78,11 +78,13 @@ export class CameraCapture extends HTMLElement {
       // commence without the video dimensions being populated in Chrome. As
       // such we attempt to wait some frames first.
       let frameCount = 5;
-      do {
+      let redoCheck = true;
+      while(redoCheck) {
         frameCount--;
         await new Promise((resolve) => requestAnimationFrame(resolve));
-      } while (frameCount > 0 &&
-        (this.video.videoWidth === 0 || this.video.videoHeight === 0));
+        redoCheck = frameCount > 0 &&
+            (this.video.videoWidth === 0 || this.video.videoHeight === 0);
+      }
 
       // Should we arrive here without video dimensions we throw.
       /* istanbul ignore if */

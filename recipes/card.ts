@@ -8,13 +8,11 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-const { assert } = chai;
+import { Card } from '../src/elements/card/card.js';
+customElements.define(Card.defaultTagName, Card);
 
-import { supported } from './intersection-observer.js';
+const card = new Card();
+card.src = 'Card Message';
 
-describe('IntersectionObserverSupport', () => {
-  it('returns a boolean', async () => {
-    const value = await supported();
-    assert.isBoolean(value);
-  });
-});
+const container = document.querySelector('#container')!;
+container.appendChild(card);

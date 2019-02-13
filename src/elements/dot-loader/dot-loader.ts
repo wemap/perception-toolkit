@@ -8,11 +8,18 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { Card } from '../elements/card/card.js';
-customElements.define(Card.defaultTagName, Card);
+import { html, styles } from './dot-loader.template.js';
 
-const card = new Card();
-card.src = 'Card Message';
+export class DotLoader extends HTMLElement {
+  static defaultTagName = 'dot-loader';
+  private root = this.attachShadow({ mode: 'open' });
 
-const container = document.querySelector('#container')!;
-container.appendChild(card);
+  /* istanbul ignore next */
+  constructor() {
+    super();
+  }
+
+  connectedCallback() {
+    this.root.innerHTML = `<style>${styles}</style> ${html}`;
+  }
+}

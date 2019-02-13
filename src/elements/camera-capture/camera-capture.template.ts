@@ -17,12 +17,13 @@ export const styles = `
 canvas {
   width: 100%;
   max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
   left: 0;
 }
 
 #container {
   width: 100%;
-  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
