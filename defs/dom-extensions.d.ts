@@ -8,9 +8,20 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export const name = 'IntersectionObserver';
-
-export async function supported() {
-  return 'IntersectionObserver' in self &&
-      'IntersectionObserverEntry' in self;
+interface Document {
+  fullscreenElement: HTMLElement | null;
 }
+
+interface HTMLCanvasElement {
+  captureStream(frameRate?: number): MediaStream;
+}
+
+interface Window {
+  BarcodeDetector: typeof BarcodeDetector;
+}
+
+interface Event {
+  path: Element[];
+}
+
+declare function importScripts(...urls: string[]): void;

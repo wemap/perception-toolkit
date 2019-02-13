@@ -10,6 +10,7 @@
 
 const { assert } = chai;
 
+import { Support } from '../../defs/lib.js';
 import { DeviceSupport } from './device-support.js';
 
 describe('DeviceSupport', () => {

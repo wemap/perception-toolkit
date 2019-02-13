@@ -8,20 +8,17 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-interface Document {
-  fullscreenElement: null | HTMLElement;
-}
+export interface WasmModule {
+  HEAPU8: Uint8Array;
+  HEAPF32: Float32Array;
+  HEAPU32: Uint32Array;
+  HEAPF64: Float64Array;
 
-interface HTMLCanvasElement {
-  captureStream(frameRate?: number): MediaStream;
-}
+  _malloc(s: number): number;
+  _free(s: number): void;
+  _process(s: number): number;
 
-interface Window {
-  BarcodeDetector: typeof BarcodeDetector
+  preRun(): void;
+  onRuntimeInitialized(): void;
+  locateFile(url: string): string;
 }
-
-interface Event {
-  path: Element[];
-}
-
-declare function importScripts(...urls: string[]): void;

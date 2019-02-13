@@ -8,6 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { Support } from '../defs/lib.js';
 import { Card } from '../src/elements/card/card.js';
 import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
 import { DeviceSupport } from '../src/support/device-support.js';

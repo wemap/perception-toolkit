@@ -79,7 +79,7 @@ export class CameraCapture extends HTMLElement {
       // such we attempt to wait some frames first.
       let frameCount = 5;
       let redoCheck = true;
-      while(redoCheck) {
+      while (redoCheck) {
         frameCount--;
         await new Promise((resolve) => requestAnimationFrame(resolve));
         redoCheck = frameCount > 0 &&

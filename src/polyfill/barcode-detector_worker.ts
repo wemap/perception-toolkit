@@ -8,6 +8,8 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { BarcodeWasmModule } from '../../defs/barcode.js';
+
 (self as any).Module = {
   locateFile(url: string) {
     if (url.endsWith('.wasm')) {

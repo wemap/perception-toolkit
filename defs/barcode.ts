@@ -8,33 +8,32 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-type Supported = () => Promise<boolean>;
-interface Support {
-  [key: string]: boolean;
-}
+import { WasmModule } from './wasm-module.js';
 
-interface Barcode {
+export interface Barcode {
   rawValue: string;
 }
 
-interface BarcodeDetector {
+export interface BarcodeDetector {
   isReady?: Promise<void>;
   detect(data: ImageData | ImageBitmap | HTMLCanvasElement): Promise<Barcode[]>;
 }
 
-declare const BarcodeDetector: {
-  prototype: BarcodeDetector;
-  isReady?: Promise<void>;
-  new(): BarcodeDetector;
-};
+declare global {
+  const BarcodeDetector: {
+    prototype: BarcodeDetector;
+    isReady?: Promise<void>;
+    new(): BarcodeDetector;
+  };
+}
 
-interface BarcodeDectionResult {
+export interface BarcodeDectionResult {
   format: string;
   text: string;
   error: string;
 }
 
-type BarcodeWasmModule = WasmModule & {
+export type BarcodeWasmModule = WasmModule & {
   readBarcodeFromPng(buffer: number,
                      length: number,
                      tryHarder: boolean,

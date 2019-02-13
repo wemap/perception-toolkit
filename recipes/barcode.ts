@@ -8,6 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { Support } from '../defs/lib.js';
 import { detect as BarcodeDetect } from '../src/detectors/barcode.js';
 import { CameraCapture } from '../src/elements/camera-capture/camera-capture.js';
 import { Card } from '../src/elements/card/card.js';

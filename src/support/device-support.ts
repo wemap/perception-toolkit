@@ -8,6 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { Support, Supported } from '../../defs/lib.js';
 import { fire } from '../utils/fire.js';
 
 export class DeviceSupport {

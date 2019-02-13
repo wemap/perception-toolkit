@@ -8,17 +8,15 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-interface WasmModule {
-  _malloc(s: number): number;
-  _free(s: number): void;
-  _process(s: number): number;
+import { DEBUG_LEVEL } from '../src/utils/logger.js';
 
-  preRun(): void;
-  onRuntimeInitialized(): void;
-  locateFile(url: string): string;
+export type Supported = () => Promise<boolean>;
+export interface Support {
+  [key: string]: boolean;
+}
 
-  HEAPU8: Uint8Array;
-  HEAPF32: Float32Array;
-  HEAPU32: Uint32Array;
-  HEAPF64: Float64Array;
+declare global {
+  interface Window {
+    DEBUG: DEBUG_LEVEL.NONE;
+  }
 }
