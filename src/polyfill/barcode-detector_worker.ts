@@ -14,25 +14,6 @@ declare global {
 
 import { BarcodeWasmModule } from '../../defs/barcode.js';
 
-(self as any).Module = {
-  locateFile(url: string) {
-    if (url.endsWith('.wasm')) {
-      return `/third_party/zxing/${url}`;
-    }
-
-    return url;
-  },
-
-  onRuntimeInitialized() {
-    (self as any).postMessage('ready');
-  }
-} as BarcodeWasmModule;  // Cast as WasmModule because the import will augment.
-
-if ('importScripts' in self) {
-  // Import the emscripten'd file that loads the wasm.
-  importScripts('/third_party/zxing/zxing.js');
-}
-
 function getDetectorModule() {
   return (self as any).Module as BarcodeWasmModule;
 }
@@ -58,6 +39,30 @@ class WasmBarcodeDetector {
 
 const detector = new WasmBarcodeDetector();
 self.onmessage = (e: MessageEvent) => {
+  // Initializing.
+  if (typeof e.data === 'string') {
+    const pathPrefix = e.data;
+    (self as any).Module = {
+      locateFile(url: string) {
+        if (url.endsWith('.wasm')) {
+          return `${pathPrefix}third_party/zxing/${url}`;
+        }
+
+        return url;
+      },
+
+      onRuntimeInitialized() {
+        (self as any).postMessage('ready');
+      }
+    } as BarcodeWasmModule;  // Cast as WasmModule because the import will augment.
+
+    if ('importScripts' in self) {
+      // Import the emscripten'd file that loads the wasm.
+      importScripts(`${pathPrefix}third_party/zxing/zxing.js`);
+    }
+    return;
+  }
+
   const data = detector.process(e.data);
   (self as any).postMessage(data);
 };

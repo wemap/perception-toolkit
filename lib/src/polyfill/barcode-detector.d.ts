@@ -9,6 +9,7 @@
  */
 import { Barcode } from '../../defs/barcode.js';
 export declare class BarcodeDetectorPolyfill {
+    static loadedFrom: URL;
     private readonly canvas;
     private readonly ctx;
     private hasLoaded;

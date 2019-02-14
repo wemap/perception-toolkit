@@ -42,7 +42,9 @@ describe('BarcodeDetector', () => {
   it('should detect', async () => {
     const barcodeSpy = createSpy();
     const canvas = document.createElement('canvas');
-    const barcodes = await detect(canvas, barcodeSpy as any, true);
+    const barcodes = await detect(canvas, {
+        context: barcodeSpy as any, forceNewDetector: true
+    });
 
     assert.deepEqual(barcodes, [{rawValue: 'foo'}]);
     assert(barcodeSpy.BarcodeDetector.called);
@@ -51,7 +53,9 @@ describe('BarcodeDetector', () => {
   it('recovers from failed detection', async () => {
     const barcodeSpy = createSpy({throws: true});
     const canvas = document.createElement('canvas');
-    const barcodes = await detect(canvas, barcodeSpy as any, true);
+    const barcodes = await detect(canvas, {
+      context: barcodeSpy as any, forceNewDetector: true
+    });
 
     assert.deepEqual(barcodes, []);
     assert(barcodeSpy.BarcodeDetector.called);
@@ -73,7 +77,7 @@ describe('BarcodeDetector', () => {
     }
 
     const canvas = document.createElement('canvas');
-    const barcodes = await detect(canvas, window as any, true);
+    const barcodes = await detect(canvas, { forceNewDetector: true });
 
     assert.deepEqual(barcodes, []);
   });

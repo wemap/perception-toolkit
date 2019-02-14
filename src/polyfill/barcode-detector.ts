@@ -12,6 +12,8 @@ import { Barcode } from '../../defs/barcode.js';
 import { isImageData } from '../utils/is-image-data.js';
 
 export class BarcodeDetectorPolyfill {
+  static loadedFrom: URL;
+
   private readonly canvas = document.createElement('canvas');
   private readonly ctx = this.canvas.getContext('2d')!;
 
@@ -23,9 +25,18 @@ export class BarcodeDetectorPolyfill {
     return this.isReadyInternal;
   }
 
-  constructor(path = '/lib/polyfills/barcode-detector_worker.js') {
+  constructor(path = 'barcode-detector_worker.js') {
     this.hasLoaded = false;
+
+    let prefix = '/';
+    if (typeof BarcodeDetectorPolyfill.loadedFrom !== 'undefined') {
+      const prefixUrl = new URL(path, BarcodeDetectorPolyfill.loadedFrom);
+      path = prefixUrl.href;
+      prefix = prefixUrl.href.replace(/lib.*/, '');
+    }
+
     this.worker = new Worker(path);
+    this.worker.postMessage(prefix);
 
     this.isReadyInternal = new Promise((resolve, reject) => {
       this.worker.onmessage = (e: MessageEvent) => {
@@ -79,5 +90,9 @@ export class BarcodeDetectorPolyfill {
 // Prevent overwriting the built-in.
 /* istanbul ignore next */
 if (!('BarcodeDetector' in self)) {
+  const script = document.currentScript as HTMLScriptElement;
+
   (window as any).BarcodeDetector = BarcodeDetectorPolyfill;
+  BarcodeDetectorPolyfill.loadedFrom = new URL(script.src,
+      window.location.toString());
 }

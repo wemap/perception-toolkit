@@ -24,13 +24,16 @@ let detector: BarcodeDetector;
  * Detects barcodes from image sources.
  */
 export async function detect(data: ImageData | ImageBitmap | HTMLCanvasElement,
-                             context: {BarcodeDetector: typeof BarcodeDetector} = window,
-                             forceNewDetector = false) {
+                             {
+                               context = window,
+                               forceNewDetector = false,
+                               polyfillPrefix = ''
+                             } = {}) {
 
   if (context === window && !('BarcodeDetector' in context)) {
     log('Native barcode detector unavailable', DEBUG_LEVEL.WARNING,
         'BarcodeDetector');
-    await injectScript('/lib/polyfills/barcode-detector.js');
+    await injectScript(`${polyfillPrefix}/lib/polyfills/barcode-detector.js`);
   }
 
   /* istanbul ignore else */

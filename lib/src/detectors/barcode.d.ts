@@ -15,6 +15,8 @@ declare global {
 /**
  * Detects barcodes from image sources.
  */
-export declare function detect(data: ImageData | ImageBitmap | HTMLCanvasElement, context?: {
-    BarcodeDetector: typeof BarcodeDetector;
-}, forceNewDetector?: boolean): Promise<import("../../defs/barcode.js").Barcode[]>;
+export declare function detect(data: ImageData | ImageBitmap | HTMLCanvasElement, { context, forceNewDetector, polyfillPrefix }?: {
+    context?: Window | undefined;
+    forceNewDetector?: boolean | undefined;
+    polyfillPrefix?: string | undefined;
+}): Promise<import("../../defs/barcode.js").Barcode[]>;
