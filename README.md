@@ -43,3 +43,10 @@ and should enable Experimental Web Platform features.
 
 _Note:_ coverage data can be found in the generated `coverage` folder located in
 the project root.
+
+## API Docs
+
+`npm run docs`
+
+_Note:_ docs can be found in the generated `docs` folder located in
+the project root.
