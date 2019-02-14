@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "module": "lib/index.js",
+  "jsnext:main": "lib/index.js",
   "scripts": {
     "docs": "typedoc --tsconfig ./tsconfig.docs.json",
     "watch": "tsc --watch",
