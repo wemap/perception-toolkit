@@ -13,10 +13,45 @@ import { fade } from '../../utils/fade.js';
 import { fire } from '../../utils/fire.js';
 import { html, styles } from './onboarding-card.template.js';
 
+/**
+ * Provides a mechanism for onboarding users to your experience. Each child node
+ * of the element is assumed to be a discrete step in the process.
+ *
+ * ```html
+ * <onboarding-card width="327" height="376" mode="scroll">
+ *   <img src="images/step1.png" width="327" height="376">
+ *   <img src="images/step2.png" width="327" height="376">
+ *   <img src="images/step3.png" width="327" height="376">
+ * </onboarding-card>
+ * ```
+ *
+ */
 export class OnboardingCard extends HTMLElement {
+  /**
+   * The name of the event fired when the final item has been reached.
+   */
   static onboardingFinishedEvent = 'onboardingfinished';
+
+  /**
+   * The name of the event fired when the item changes.
+   */
   static itemChangedEvent = 'itemchanged';
+
+  /**
+   * The default tag name provided to `customElement.define`.
+   */
   static defaultTagName = 'onboarding-card';
+
+  /**
+   * @ignore
+   *
+   * The attributes supported by the card:
+   * <ul>
+   *  <li>`width`: The width of the card.</li>
+   *  <li>`height`: The height of the card.</li>
+   *  <li>`mode`: The mode of the card, `scroll` or `fade`.</li>
+   * </ul>
+   */
   static get observedAttributes() {
     return ['width', 'height', 'mode'];
   }
@@ -39,6 +74,9 @@ export class OnboardingCard extends HTMLElement {
     super();
   }
 
+  /**
+   * Gets & sets the width of the card.
+   */
   get width() {
     return this.widthInternal;
   }
@@ -50,6 +88,9 @@ export class OnboardingCard extends HTMLElement {
     this.setAttribute('width', width.toString());
   }
 
+  /**
+   * Gets & sets the height of the card.
+   */
   get height() {
     return this.heightInternal;
   }
@@ -61,18 +102,28 @@ export class OnboardingCard extends HTMLElement {
     this.setAttribute('height', height.toString());
   }
 
+  /**
+   * Gets the current item's index.
+   */
   get item() {
     return this.itemInternal;
+  }
+
+  /**
+   * Gets & sets the mode of the card. `scroll` autoscrolls between steps,
+   * `fade` fades between steps.
+   */
+  get mode() {
+    return this.modeInternal;
   }
 
   set mode(mode: 'scroll' | 'fade') {
     this.setAttribute('mode', mode);
   }
 
-  get mode() {
-    return this.modeInternal;
-  }
-
+  /**
+   * @ignore Only public because it's a Custom Element.
+   */
   connectedCallback() {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
     const slot = this.root.querySelector('slot')!;
@@ -96,6 +147,9 @@ export class OnboardingCard extends HTMLElement {
     this.onSlotChange();
   }
 
+  /**
+   * @ignore Only public because it's a Custom Element.
+   */
   disconnectedCallback() {
     const slot = this.root.querySelector('slot')!;
     const container = this.root.querySelector('#container')!;
@@ -108,6 +162,9 @@ export class OnboardingCard extends HTMLElement {
     this.root.innerHTML = ``;
   }
 
+  /**
+   * @ignore Only public because it's a Custom Element.
+   */
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     switch (name) {
       case 'width': {
@@ -130,6 +187,9 @@ export class OnboardingCard extends HTMLElement {
     this.updateCardDimensions();
   }
 
+  /**
+   * Moves to the next step.
+   */
   async next() {
     const from = this.itemInternal;
     this.itemInternal = clamp(this.itemInternal + 1, 0, this.itemMax - 1);
@@ -141,6 +201,12 @@ export class OnboardingCard extends HTMLElement {
     }
   }
 
+  /**
+   * Jumps to a given item. Accepts an optional object with `from` and `to`
+   * numbers indicating the indexes of the item to move from and to,
+   * respectively. If not provided, `gotoItem` assumes that there is no `from`
+   * and that it ought to go to the current item.
+   */
   async gotoItem({to = this.itemInternal, from = -1} = {}) {
     const elements = this.getSlotElements();
     if (!elements[to] || (from !== -1 && !elements[from]) || from === to) {

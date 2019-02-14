@@ -8,6 +8,10 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+/**
+ * Convenience function used internally for detecting `ImageData` vs
+ * `HTMLImageElement`.
+ */
 export function isImageData(imgData: ImageData | HTMLImageElement): imgData is ImageData {
   return typeof (imgData as ImageData).data !== 'undefined';
 }

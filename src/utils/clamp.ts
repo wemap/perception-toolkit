@@ -8,6 +8,14 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+/**
+ * Clamps a number between `min` and `max` values. Both `min` and `max` are
+ * optional.
+ *
+ * ```javascript
+ * clamp(100, 0, 40);  // 40.
+ * ```
+ */
 export function clamp(value: number,
                       min = Number.NEGATIVE_INFINITY,
                       max = Number.POSITIVE_INFINITY) {

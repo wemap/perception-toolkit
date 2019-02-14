@@ -38,10 +38,12 @@ describe('log', () => {
   });
 
   it('observes the correct logging level', async () => {
-    enableLogLevel(DEBUG_LEVEL.ERROR);
+    enableLogLevel(DEBUG_LEVEL.WARNING);
     log('foo', DEBUG_LEVEL.ERROR);
+    log('foo', DEBUG_LEVEL.WARNING);
+    log('foo', DEBUG_LEVEL.INFO);
     assert.isFalse(consoleLogSpy.called);
-    assert.isFalse(consoleWarnSpy.called);
+    assert.isTrue(consoleWarnSpy.called);
     assert.isTrue(consoleErrorSpy.called);
   });
 

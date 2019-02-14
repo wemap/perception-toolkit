@@ -10,10 +10,10 @@
 
 import { Support } from '../defs/lib.js';
 import { detect as BarcodeDetect } from '../src/detectors/barcode.js';
-import { CameraCapture } from '../src/elements/camera-capture/camera-capture.js';
 import { Card } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
+import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import * as GetUserMediaSupport from '../src/support/get-user-media.js';
 import * as EnvironmentCamera from '../src/utils/environment-camera.js';
@@ -41,17 +41,14 @@ async function onSupports(evt: Event) {
   loader.style.setProperty('--color', '#FFF');
   document.body.appendChild(loader);
 
-  createCameraCapture();
+  createStreamCapture();
 }
 
-/**
- * Creates a getUserMedia-based camera capture.
- */
-async function createCameraCapture() {
+async function createStreamCapture() {
   const devices = await navigator.mediaDevices.enumerateDevices();
   const supportsEnvironmentCamera =
       await EnvironmentCamera.supportsEnvironmentCamera(devices);
-  const capture = new CameraCapture();
+  const capture = new StreamCapture();
   capture.captureRate = 600;
   capture.style.width = '100%';
   capture.captureScale = 0.6;
@@ -70,7 +67,7 @@ async function createCameraCapture() {
     }
   };
 
-  // Attempt to get the camera.
+  // Attempt to get access to the user's camera.
   const stream = await navigator.mediaDevices.getUserMedia(streamOpts);
   capture.flipped = !supportsEnvironmentCamera;
   capture.start(stream);
@@ -79,8 +76,8 @@ async function createCameraCapture() {
 }
 
 /**
- * Processes the image data captured by the Camera Capture class. Hands off the
- * image data to the barcode detector for processing.
+ * Processes the image data captured by the StreamCapture class, and hands off
+ * the image data to the barcode detector for processing.
  *
  * @param evt The Custom Event containing the captured frame data.
  */
@@ -124,14 +121,14 @@ function createContainerIfRequired() {
 }
 
 // Register custom elements.
-customElements.define(CameraCapture.defaultTagName, CameraCapture);
+customElements.define(StreamCapture.defaultTagName, StreamCapture);
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 customElements.define(Card.defaultTagName, Card);
 customElements.define(DotLoader.defaultTagName, DotLoader);
 
 // Register events.
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);
-window.addEventListener(CameraCapture.frameEvent, onCaptureFrame);
+window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
 
 // Start the detection process.
 const deviceSupport = new DeviceSupport();

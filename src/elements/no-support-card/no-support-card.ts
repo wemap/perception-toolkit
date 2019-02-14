@@ -10,11 +10,32 @@
 
 import { html, styles } from './no-support-card.template.js';
 
+/**
+ * A card to use when the browser does not support the various APIs your
+ * experience requires.
+ *
+ * ```javascript
+ * const noSupport = new NoSupportCard();
+ * document.body.appendChild(noSupport);
+ * ```
+ */
 export class NoSupportCard extends HTMLElement {
+  /**
+   * The Card's default tag name for registering with `customElements.define`.
+   */
   static defaultTagName = 'no-support-card';
+
+  /**
+   * @ignore Only exposed for testing.
+   */
   static readonly DEFAULT_MESSAGE =
       'Sorry, this browser does not support the required features';
+
+  /**
+   * The message to share with users.
+   */
   message = NoSupportCard.DEFAULT_MESSAGE;
+
   private root = this.attachShadow({ mode: 'open' });
 
   /* istanbul ignore next */
@@ -22,6 +43,9 @@ export class NoSupportCard extends HTMLElement {
     super();
   }
 
+  /**
+   * @ignore Only public because it's a Custom Element.
+   */
   connectedCallback() {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
 

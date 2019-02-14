@@ -8,18 +8,82 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { clamp } from '../../utils/clamp.js';
 import { fire } from '../../utils/fire.js';
-import { html, styles } from './camera-capture.template.js';
+import { html, styles } from './stream-capture.template.js';
 
-export class CameraCapture extends HTMLElement {
-  static defaultTagName = 'camera-capture';
+/**
+ * Provides an element that abstracts the capture of stream frames. For example,
+ * given a `getUserMedia` video stream, this will -- if desired -- capture an
+ * image from the stream, downsample it, and emit an event with the pixel data.
+ *
+ * **Note that, due to the internal reliance on `requestAnimationFrame`, the
+ * capture element must be attached to the DOM, and the tab visible.**
+ *
+ * ```javascript
+ * const capture = new StreamCapture();
+ *
+ * // Capture every 600ms at 50% scale.
+ * capture.captureRate = 600;
+ * capture.captureScale = 0.5;
+ *
+ * // Attempt to get the camera's stream and start monitoring.
+ * const stream = await navigator.mediaDevices.getUserMedia({ video: true});
+ * capture.start(stream);
+ *
+ * // Append and listen to captures.
+ * document.body.appendChild(capture);
+ * capture.addEventListener(StreamCapture.frameEvent, (e) => {
+ *   const { imgData } = e.detail;
+ *
+ *   // Process the ImageData.
+ * });
+ * ```
+ */
+export class StreamCapture extends HTMLElement {
+  /**
+   * The StreamCapture's default tag name for registering with
+   * `customElements.define`.
+   */
+  static defaultTagName = 'stream-capture';
+
+  /**
+   * The name for captured frame events.
+   */
   static frameEvent = 'captureframe';
+
+  /**
+   * The name for start capture events.
+   */
   static startEvent = 'capturestarted';
+
+  /**
+   * The name for stop capture events.
+   */
   static stopEvent = 'capturestopped';
 
+  /**
+   * The sample scale, intended to go between `0` and `1` (though clamped only
+   * to `0` in case you wish to sample at a larger scale).
+   */
   captureScale = 0.5;
+
+  /**
+   * How often to capture the stream in ms, where `0` represents never.
+   * Note that you can cause performance issues if `captureRate` is higher than
+   * the speed at which the captured pixels can be processed.
+   */
   captureRate = 0;
+
+  /**
+   * Whether to capture a PNG `HTMLImageElement` instead of `ImageData`
+   * (the default).
+   */
   capturePng = false;
+
+  /**
+   * Whether to flip the stream's image.
+   */
   flipped = false;
 
   private video: HTMLVideoElement | undefined;
@@ -36,10 +100,16 @@ export class CameraCapture extends HTMLElement {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
   }
 
+  /**
+   * @ignore Only public because it's a Custom Element.
+   */
   disconnectedCallback() {
     this.stop();
   }
 
+  /**
+   * Starts the capture of the stream.
+   */
   start(stream: MediaStream) {
     if (this.stream) {
       throw new Error('Stream already provided. Stop the capture first.');
@@ -48,6 +118,7 @@ export class CameraCapture extends HTMLElement {
     this.stream = stream;
     this.initElementsIfNecessary();
 
+    const scale = clamp(this.captureScale, 0);
     const video = this.video!;
     const update = (now: number) => {
       if (!this.video || !this.ctx) {
@@ -55,8 +126,8 @@ export class CameraCapture extends HTMLElement {
       }
 
       this.ctx.drawImage(this.video, 0, 0,
-          this.video.videoWidth * this.captureScale,
-          this.video.videoHeight * this.captureScale);
+          this.video.videoWidth * scale,
+          this.video.videoHeight * scale);
 
       if (this.captureRate !== 0 && now - this.lastCapture > this.captureRate) {
         this.lastCapture = now;
@@ -95,8 +166,7 @@ export class CameraCapture extends HTMLElement {
       this.canvas.width = this.video.videoWidth * this.captureScale;
       this.canvas.height = this.video.videoHeight * this.captureScale;
 
-      // If the camera does not support the environment camera it will need to
-      // be flipped to look correct.
+      // Flip the canvas if -- say -- the camera is pointing at the user.
       if (this.flipped) {
         this.ctx.translate(this.canvas.width * 0.5, 0);
         this.ctx.scale(-1, 1);
@@ -105,11 +175,14 @@ export class CameraCapture extends HTMLElement {
 
       requestAnimationFrame((now) => {
         update(now);
-        fire(CameraCapture.startEvent, this);
+        fire(StreamCapture.startEvent, this);
       });
     }, { once: true });
   }
 
+  /**
+   * Manually captures a frame. Intended to be used when `captureRate` is `0`.
+   */
   async captureFrame(): Promise<ImageData | HTMLImageElement> {
     /* istanbul ignore if */
     if (!this.ctx || !this.canvas) {
@@ -125,7 +198,7 @@ export class CameraCapture extends HTMLElement {
         imgData.src = canvas.toDataURL('image/png');
         imgData.onload = () => {
           if (this.captureRate !== 0) {
-            fire(CameraCapture.frameEvent, this, {imgData});
+            fire(StreamCapture.frameEvent, this, {imgData});
           }
 
           resolve(imgData);
@@ -133,7 +206,7 @@ export class CameraCapture extends HTMLElement {
       } else {
         imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         if (this.captureRate !== 0) {
-          fire(CameraCapture.frameEvent, this, {imgData});
+          fire(StreamCapture.frameEvent, this, {imgData});
         }
 
         resolve(imgData);
@@ -141,6 +214,9 @@ export class CameraCapture extends HTMLElement {
     });
   }
 
+  /**
+   * Stops the stream.
+   */
   stop() {
     if (!this.stream || !this.ctx || !this.canvas) {
       return;
@@ -159,7 +235,7 @@ export class CameraCapture extends HTMLElement {
     this.canvas = undefined;
     this.ctx = undefined;
 
-    fire(CameraCapture.stopEvent, this);
+    fire(StreamCapture.stopEvent, this);
   }
 
   private initElementsIfNecessary() {

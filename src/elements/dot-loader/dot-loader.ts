@@ -10,8 +10,35 @@
 
 import { html, styles } from './dot-loader.template.js';
 
+/**
+ * A loader that uses animating dots.
+ *
+ * ```javascript
+ * const loader = new DotLoader();
+ * loader.style.setProperty('--color', '#FFF');
+ *
+ * // Vertical animation.
+ * loader.setAttribute('vertical', 'vertical');
+ * document.body.appendChild(loader);
+ *
+ * ```
+ *
+ * ## Configurable properties.
+ *
+ * ```css
+ * dot-loader {
+ *   --color: '#<CSS color>';
+ *   --dotSize: '<CSS size>px';
+ *   --dotMargin: '<CSS size>px';
+ * }
+ * ```
+ */
 export class DotLoader extends HTMLElement {
+  /**
+   * The Loader's default tag name for registering with `customElements.define`.
+   */
   static defaultTagName = 'dot-loader';
+
   private root = this.attachShadow({ mode: 'open' });
 
   /* istanbul ignore next */
@@ -19,6 +46,9 @@ export class DotLoader extends HTMLElement {
     super();
   }
 
+  /**
+   * @ignore Only public because it's a Custom Element.
+   */
   connectedCallback() {
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
   }

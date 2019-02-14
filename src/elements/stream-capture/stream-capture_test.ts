@@ -8,13 +8,19 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+declare global {
+  interface HTMLCanvasElement {
+    captureStream(frameRate?: number): MediaStream;
+  }
+}
+
 const { assert } = chai;
 
 import { isImageData } from '../../utils/is-image-data.js';
-import { CameraCapture } from './camera-capture.js';
-customElements.define(CameraCapture.defaultTagName, CameraCapture);
+import { StreamCapture } from './stream-capture.js';
+customElements.define(StreamCapture.defaultTagName, StreamCapture);
 
-function mockCameraStream() {
+function mockInputStream() {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   canvas.width = 400;
@@ -34,8 +40,8 @@ function mockCameraStream() {
   };
 }
 
-describe('CaptureCamera', function() {
-  let capture: CameraCapture;
+describe('StreamCapture', function() {
+  let capture: StreamCapture;
   let stream: MediaStream;
   let streamRequiresUpdate = false;
   let render: () => void;
@@ -52,8 +58,8 @@ describe('CaptureCamera', function() {
   };
 
   beforeEach(() => {
-    capture = new CameraCapture();
-    const mock = mockCameraStream();
+    capture = new StreamCapture();
+    const mock = mockInputStream();
     stream = mock.stream;
     render = mock.render;
     streamRequiresUpdate = true;
@@ -69,7 +75,7 @@ describe('CaptureCamera', function() {
   it('captures images', (done) => {
     capture.start(stream);
 
-    capture.addEventListener(CameraCapture.startEvent, async () => {
+    capture.addEventListener(StreamCapture.startEvent, async () => {
       const imgData = await capture.captureFrame();
       assert.equal(imgData.width, 400 * capture.captureScale);
       assert.equal(imgData.height, 400 * capture.captureScale);
@@ -88,7 +94,7 @@ describe('CaptureCamera', function() {
     capture.start(stream);
     capture.capturePng = true;
 
-    capture.addEventListener(CameraCapture.startEvent, async () => {
+    capture.addEventListener(StreamCapture.startEvent, async () => {
       const imgData = await capture.captureFrame();
       assert.equal(imgData.width, 400 * capture.captureScale);
       assert.equal(imgData.height, 400 * capture.captureScale);
@@ -106,7 +112,7 @@ describe('CaptureCamera', function() {
     capture.start(stream);
     capture.captureRate = 100;
 
-    capture.addEventListener(CameraCapture.frameEvent, (evt) => {
+    capture.addEventListener(StreamCapture.frameEvent, (evt) => {
       const { detail } = evt as CustomEvent<{imgData: ImageData}>;
       const { imgData } = detail;
 
@@ -123,7 +129,7 @@ describe('CaptureCamera', function() {
     capture.capturePng = true;
     capture.captureRate = 100;
 
-    capture.addEventListener(CameraCapture.frameEvent, (evt) => {
+    capture.addEventListener(StreamCapture.frameEvent, (evt) => {
       const { detail } = evt as CustomEvent<{imgData: HTMLImageElement}>;
       const { imgData } = detail;
 
@@ -138,7 +144,7 @@ describe('CaptureCamera', function() {
     capture.flipped = true;
     capture.start(stream);
 
-    capture.addEventListener(CameraCapture.startEvent, async () => {
+    capture.addEventListener(StreamCapture.startEvent, async () => {
       const imgData = await capture.captureFrame();
       assert.equal(imgData.width, 400 * capture.captureScale);
       assert.equal(imgData.height, 400 * capture.captureScale);
@@ -167,7 +173,7 @@ describe('CaptureCamera', function() {
     document.body.appendChild(capture);
 
     setTimeout(() => {
-      capture.addEventListener(CameraCapture.stopEvent, () => {
+      capture.addEventListener(StreamCapture.stopEvent, () => {
         done();
       });
       capture.remove();

@@ -5,3 +5,4 @@ lib
 src/*.js
 *.gz
 .vscode
+docs

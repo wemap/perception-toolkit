@@ -8,6 +8,10 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+declare global {
+  function importScripts(...urls: string[]): void;
+}
+
 import { BarcodeWasmModule } from '../../defs/barcode.js';
 
 (self as any).Module = {

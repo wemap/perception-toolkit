@@ -8,11 +8,22 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+declare global {
+
+  interface Window {
+    BarcodeDetector: typeof BarcodeDetector;
+  }
+}
+
 import { BarcodeDetector } from '../../defs/barcode.js';
 import { injectScript } from '../utils/inject-script.js';
 import { DEBUG_LEVEL, log } from '../utils/logger.js';
 
 let detector: BarcodeDetector;
+
+/**
+ * Detects barcodes from image sources.
+ */
 export async function detect(data: ImageData | ImageBitmap | HTMLCanvasElement,
                              context: {BarcodeDetector: typeof BarcodeDetector} = window,
                              forceNewDetector = false) {

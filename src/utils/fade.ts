@@ -15,11 +15,28 @@ function easeOut(value: number) {
   return 1 - Math.pow(1 - value, 3);
 }
 
-type Resolver = (value?: {} | PromiseLike<{}>) => void;
+type Resolver = (value?: void | PromiseLike<void>) => void;
 
 const animations = new WeakMap<HTMLElement, {id: number, resolve: Resolver}>();
+
+/**
+ * Fades an element using `requestAnimationFrame`. Takes a parameter detailing
+ * the animation, which is an object containing `to` (`0 <= to <= 1`), `from`
+ * (`0 <= to <= 1`), duration (milliseconds), and `ease` (a function that takes
+ * a value between `0` and `1` and returns a new value, also between `0` and
+ * `1`) properties.
+ *
+ * ```javascript
+ * fade(someElement, { from: 1, to: 1, duration: 200, ease: (v) => v })
+ * ```
+ *
+ * @param target The element to fade.
+ */
 export function fade(target: HTMLElement,
-                     {from = 1, to = 0, duration = 250, ease = easeOut} = {}) {
+                     {from = 1,
+                      to = 0,
+                      duration = 250,
+                      ease = easeOut} = {}): Promise<void> {
   return new Promise((resolve) => {
     const existingAnimation = animations.get(target);
     if (existingAnimation) {

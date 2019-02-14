@@ -11,18 +11,39 @@
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d')!;
 
+/**
+ * The supported formats for [[resize]].
+ */
 export enum ResizeFormat {
-  PNG = 'png',
+  PNG = 'image/png',
   IMAGE_DATA = 'imageData'
 }
 
+/** @ignore */
 export const DEFAULT_WIDTH = 100;
+
+/** @ignore */
 export const DEFAULT_HEIGHT = 100;
 
+/**
+ * Resizes an image element.
+ *
+ * The second parameter is an object detailing the resize:
+ *
+ * ```javascript
+ * const resizedImg = await resize(img, {
+ *   width: 300,
+ *   height: 300,
+ *   format: ResizeFormat.PNG
+ * })
+ * ```
+ *
+ * All properties of the object are optional.
+ */
 export async function resize(img: HTMLImageElement, {
     width = DEFAULT_WIDTH,
     height = DEFAULT_HEIGHT,
-    format = 'png' as ResizeFormat
+    format = ResizeFormat.PNG
   } = {}): Promise<HTMLImageElement | ImageData> {
   canvas.width = width;
   canvas.height = height;
@@ -38,7 +59,7 @@ export async function resize(img: HTMLImageElement, {
   switch (format) {
     case ResizeFormat.PNG: {
       const resizedImage = new Image();
-      resizedImage.src = canvas.toDataURL('image/png');
+      resizedImage.src = canvas.toDataURL(ResizeFormat.PNG);
       return new Promise((resolve) => {
         resizedImage.onload = () => resolve(resizedImage);
       });

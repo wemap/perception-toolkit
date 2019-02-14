@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "outDir": "./lib",
+    "rootDir": "./",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true
+  },
+
+  "exclude": [
+    "node_modules",
+    "**/*_test.ts"
+  ],
+
+  "typedocOptions": {
+    "out": "docs",
+    "src": "**/*.d.ts",
+    "exclude": [
+      "**/*_test.ts",
+      "**/*_worker.ts",
+      "**/*.template.ts",
+      "defs/**/*.ts",
+      "**/polyfill/*.ts",
+      "recipes/**/*.ts",
+      "**/support/**/*.ts",
+      "node_modules/**/*.*"
+    ],
+    "mode": "file",
+    "includeDeclarations": true,
+    "excludeExternals": true,
+    "excludeNotExported": true,
+    "excludePrivate": true,
+  }
+}

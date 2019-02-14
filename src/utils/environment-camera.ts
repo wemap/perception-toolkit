@@ -8,6 +8,20 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+/**
+ * Detects whether the user's device supports an environment-facing camera.
+ *
+ * **Note: calling this function will provide the user with a camera access
+ * permission prompt, assuming one has not already been issued (such as for
+ * `getUserMedia`). As such this API is best deferred until camera access has
+ * been granted by the user.**
+ *
+ * ```javascript
+ * const devices = await navigator.mediaDevices.enumerateDevices();
+ * const supportsEnvironmentCamera =
+ *    await EnvironmentCamera.supportsEnvironmentCamera(devices);
+ * ```
+ */
 export async function supportsEnvironmentCamera(devices: MediaDeviceInfo[]) {
   const cameras = devices.filter(t => t.kind === 'videoinput');
   return cameras.some((camera) => {

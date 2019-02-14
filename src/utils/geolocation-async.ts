@@ -8,6 +8,15 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+/**
+ * A convenience function that remaps the Geolocation API to a Promise.
+ *
+ * ```javascript
+ * const location = await geolocation();
+ * ```
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+ */
 export async function geolocation(): Promise<Coordinates> {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition((e) => resolve(e.coords), reject);

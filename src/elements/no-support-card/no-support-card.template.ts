@@ -10,18 +10,22 @@
 
 export const styles = `
 :host {
+  --baseline: 8px;
+  --background: #FFF;
+  --borderRadius: 4px;
+  --color: #333;
+  --fontFamily: 'Arial', 'Helvetica', sans-serif;
+  --padding: calc(var(--baseline) * 4)
+      calc(var(--baseline) * 4)
+      calc(var(--baseline) * 2)
+      calc(var(--baseline) * 3);
+
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   max-width: 80vw;
   text-align: center;
-
-  --background: #FFF;
-  --borderRadius: 4px;
-  --color: #333;
-  --fontFamily: 'Arial', 'Helvetica', sans-serif;
-  --padding: 16px 20px;
 }
 
 #container {
