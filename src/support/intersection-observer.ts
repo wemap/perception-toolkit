@@ -8,9 +8,10 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export const name = 'IntersectionObserver';
-
-export async function supported() {
-  return 'IntersectionObserver' in self &&
-      'IntersectionObserverEntry' in self;
-}
+export default {
+  name: 'IntersectionObserver',
+  supported: async () => {
+    return 'IntersectionObserver' in self &&
+        'IntersectionObserverEntry' in self;
+  }
+};

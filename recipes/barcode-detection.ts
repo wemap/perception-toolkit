@@ -15,7 +15,7 @@ import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { DeviceSupport } from '../src/support/device-support.js';
-import * as GetUserMediaSupport from '../src/support/get-user-media.js';
+import { default as GetUserMediaSupport } from '../src/support/get-user-media.js';
 import * as EnvironmentCamera from '../src/utils/environment-camera.js';
 import { DEBUG_LEVEL, enableLogLevel } from '../src/utils/logger.js';
 

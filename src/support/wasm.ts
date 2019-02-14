@@ -8,8 +8,9 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export const name = 'wasm';
-
-export async function supported() {
-  return 'WebAssembly' in self;
-}
+export default {
+  name: 'wasm',
+  supported: async() => {
+    return 'WebAssembly' in self;
+  }
+};

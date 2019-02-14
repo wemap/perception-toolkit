@@ -8,8 +8,9 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export const name = 'geolocation';
-
-export async function supported() {
-  return 'geolocation' in self.navigator;
-}
+export default {
+  name: 'geolocation',
+  supported: async () => {
+    return 'geolocation' in self.navigator;
+  }
+};

@@ -1,0 +1,1 @@
+{"version":3,"file":"geolocation.js","sourceRoot":"/","sources":["src/support/geolocation.ts"],"names":[],"mappings":"AAAA;;;;;;;;GAQG;AAEH,eAAe;IACb,IAAI,EAAE,aAAa;IACnB,SAAS,EAAE,KAAK,IAAI,EAAE;QACpB,OAAO,aAAa,IAAI,IAAI,CAAC,SAAS,CAAC;IACzC,CAAC;CACF,CAAC"}

@@ -12,7 +12,7 @@ import { Support } from '../defs/lib.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { DeviceSupport } from '../src/support/device-support.js';
-import * as IntersectionObserverSupport from '../src/support/intersection-observer.js';
+import { default as IntersectionObserverSupport } from '../src/support/intersection-observer.js';
 import { injectScript } from '../src/utils/inject-script.js';
 
 let loader: DotLoader | null;

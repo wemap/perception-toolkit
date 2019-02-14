@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "target": "esnext",
     "module": "esnext",
     "sourceMap": true,
@@ -12,7 +13,9 @@
   },
 
   "exclude": [
+    "lib",
     "node_modules",
-    "**/*_test.ts"
+    "**/*_test.ts",
+    "defs/*.ts"
   ]
 }

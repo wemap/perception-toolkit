@@ -88,20 +88,9 @@ async function minifyRecipes() {
   });
 }
 
-async function gzipAll() {
-  const files = await promGlob('lib/**/*.js');
-  const filesContents = await Promise.all(files.map(file => promFsRead(file)));
-  await filesContents.map(async (fileContents, idx) => {
-    const newFileName = files[idx].replace(/js$/, 'js.gz');
-    const newFileContents = await gzip(fileContents);
-    return promFsWrite(newFileName, newFileContents);
-  });
-}
-
 async function build() {
   await buildRecipes();
   await minifyRecipes();
-  await gzipAll();
 }
 
 build();

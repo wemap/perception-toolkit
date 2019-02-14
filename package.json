@@ -2,13 +2,13 @@
   "name": "ambient-ar",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "module": "lib/index.js",
   "scripts": {
     "docs": "typedoc --tsconfig ./tsconfig.docs.json",
     "watch": "tsc --watch",
     "build": "npm run compile && npm run bundle && npm run polyfill",
     "bundle": "node build/bundle.js",
-    "compile": "rimraf ./lib && tsc && mkdir ./lib/import && mv lib/src lib/import && mv lib/recipes lib/import",
+    "compile": "rimraf ./lib && tsc",
     "polyfill": "node build/polyfills.js",
     "serve": "npx http-server -g",
     "test": "karma start"
