@@ -9,7 +9,6 @@
  */
 
 declare global {
-
   interface Window {
     BarcodeDetector: typeof BarcodeDetector;
   }
