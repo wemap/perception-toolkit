@@ -10,7 +10,7 @@
 
 export default {
   name: 'barcode',
-  supported: async() => {
+  supported: async () => {
     return 'BarcodeDetector' in self;
   }
 };

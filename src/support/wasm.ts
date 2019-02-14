@@ -10,7 +10,7 @@
 
 export default {
   name: 'wasm',
-  supported: async() => {
+  supported: async () => {
     return 'WebAssembly' in self;
   }
 };
