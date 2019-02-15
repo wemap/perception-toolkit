@@ -77,7 +77,6 @@ window.addEventListener(OnboardingCard.onboardingFinishedEvent, (e) => {
   const target = e.target as OnboardingCard;
   const tagName = OnboardingCard.defaultTagName.toUpperCase();
   if (!target || target.tagName !== tagName) {
-    console.log(target, target.tagName, tagName);
     return;
   }
 
