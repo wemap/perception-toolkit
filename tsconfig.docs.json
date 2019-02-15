@@ -11,24 +11,25 @@
 
   "exclude": [
     "node_modules",
-    "**/*_test.ts"
+    "**/*_test.ts",
+    "lib",
   ],
 
   "typedocOptions": {
     "out": "docs",
-    "src": "**/*.d.ts",
     "exclude": [
       "**/*_test.ts",
       "**/*_worker.ts",
       "**/*.template.ts",
       "defs/**/*.ts",
       "**/polyfill/*.ts",
+      "lib/**/*.*",
       "recipes/**/*.ts",
       "**/support/**/*.ts",
       "node_modules/**/*.*"
     ],
     "mode": "file",
-    "includeDeclarations": true,
+    "includeDeclarations": false,
     "excludeExternals": true,
     "excludeNotExported": true,
     "excludePrivate": true,
