@@ -2,9 +2,8 @@
 
 This toolkit provides a set of components and utilities for developers to add an
 ambient AR experience to their website. For example, a primary use-case supported
-is the ability to detect barcodes (in -- say -- a store) with the user's device
-camera, and to show them extended information on the product, and allow them to
-add to their cart.
+is the ability to detect barcodes (in -- say -- a real-world store) with the
+user's device camera, and to show them extended information on a given product.
 
 Included in this toolkit is:
 
@@ -17,7 +16,14 @@ Included in this toolkit is:
   * QR Codes
   * Geolocation
   * (TODO) Planar Image / ML Image Classification
-* Card UI
+* UI
+  * Loader
+  * Card
+  * User onboarding
+* Utilities
+  * Stream capture (i.e. `getUserMedia` to image conversion)
+  * Logging
+  * Image resizing
 
 ## Getting started
 
