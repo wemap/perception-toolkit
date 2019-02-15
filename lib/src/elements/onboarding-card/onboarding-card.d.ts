@@ -19,6 +19,23 @@
  * </onboarding-card>
  * ```
  *
+ * The element can be further customized via CSS properties:
+ *
+ * ```css
+ * onboarding-card {
+ *   --background: #FFF;
+ *   --borderRadius: 4px;
+ *   --color: #333;
+ *   --fontFamily: 'Arial', 'Helvetica', sans-serif;
+ *   --padding: 8px 8px 36px 8px;
+ *   --buttonBottomMargin: 8px;
+ *   --buttonSideMargin: 4px;
+ *   --buttonActiveColor: #444;
+ *   --buttonHoverColor: #666;
+ *   --buttonInactiveColor: #AAA;
+ *   --contentBorderRadius: 0px;
+ * }
+ * ```
  */
 export declare class OnboardingCard extends HTMLElement {
     /**
@@ -99,6 +116,7 @@ export declare class OnboardingCard extends HTMLElement {
         to?: number | undefined;
         from?: number | undefined;
     }): Promise<void>;
+    private setLabel;
     private onContainerClick;
     private onButtonClick;
     private onIntersection;

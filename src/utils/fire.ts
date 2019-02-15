@@ -15,7 +15,7 @@
  * fire('eventname', someElement, {foo: 'bar'});
  * ```
  */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
+export function fire(name: string, target: HTMLElement | Window = window, detail?: {}) {
   const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
   target.dispatchEvent(evt);
 }

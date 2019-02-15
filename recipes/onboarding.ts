@@ -13,6 +13,7 @@ import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import { default as IntersectionObserverSupport } from '../src/support/intersection-observer.js';
+import { fire } from '../src/utils/fire.js';
 import { injectScript } from '../src/utils/inject-script.js';
 
 let loader: DotLoader | null;
@@ -64,15 +65,24 @@ window.addEventListener('keyup', (e) => {
       break;
 
     case 'Escape':
-      card.remove();
+      fire(OnboardingCard.onboardingFinishedEvent, card);
       break;
 
     default: return;
   }
 });
+
 window.addEventListener(DeviceSupport.supportsEvent, onSupports);
 window.addEventListener(OnboardingCard.onboardingFinishedEvent, (e) => {
-  (e.target as OnboardingCard).remove();
+  const target = e.target as OnboardingCard;
+  const tagName = OnboardingCard.defaultTagName.toUpperCase();
+  if (!target || target.tagName !== tagName) {
+    console.log(target, target.tagName, tagName);
+    return;
+  }
+
+  target.remove();
+  document.body.focus();
 });
 
 // Register the dot loader.

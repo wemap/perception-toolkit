@@ -29,8 +29,15 @@
       }
 
       onboarding-card {
+        --background: #82C4CA;
+        --buttonActiveColor: #323662;
+        --buttonHoverColor: #323662c8;
+        --buttonInactiveColor: #32366294;
+        --buttonBottomMargin: 12px;
+        --padding: 0 0 36px 0;
+        --contentBorderRadius: 4px 4px 0 0;
         opacity: 0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
         animation: fadeIn 0.5s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
       }
 
@@ -60,10 +67,10 @@
   </head>
 <body>
   <div id="container">
-    <onboarding-card width="327" height="376" mode="scroll">
-      <img src="images/step1.png" width="327" height="376">
-      <img src="images/step2.png" width="327" height="376">
-      <img src="images/step3.png" width="327" height="376">
+    <onboarding-card width="300" height="400" mode="fade" aria-live="polite">
+      <img src="../images/step1.jpg" width="300" height="400" alt="We’ll need to access your device’s camera in order to start looking for barcodes">
+      <img src="../images/step2.jpg" width="300" height="400" alt="Make sure you’re in a well-lit space, and have a clear view of the barcode">
+      <img src="../images/step3.jpg" width="300" height="400" alt="Try and get the barcode inside the markers and as straight as possible">
     </onboarding-card>
   </div>
   <script type="module" src="/lib/recipes/onboarding.js"></script>

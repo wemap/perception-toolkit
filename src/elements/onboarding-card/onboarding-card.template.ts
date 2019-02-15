@@ -20,6 +20,7 @@ export const styles = `
   --buttonActiveColor: #444;
   --buttonHoverColor: #666;
   --buttonInactiveColor: #AAA;
+  --contentBorderRadius: 0px;
 
   position: relative;
   align-items: center;
@@ -37,6 +38,7 @@ export const styles = `
 #container {
   color: var(--color);
   overflow: hidden;
+  border-radius: var(--contentBorderRadius);
   display: block;
   cursor: pointer;
 }

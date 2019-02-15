@@ -25,6 +25,23 @@ import { html, styles } from './onboarding-card.template.js';
  * </onboarding-card>
  * ```
  *
+ * The element can be further customized via CSS properties:
+ *
+ * ```css
+ * onboarding-card {
+ *   --background: #FFF;
+ *   --borderRadius: 4px;
+ *   --color: #333;
+ *   --fontFamily: 'Arial', 'Helvetica', sans-serif;
+ *   --padding: 8px 8px 36px 8px;
+ *   --buttonBottomMargin: 8px;
+ *   --buttonSideMargin: 4px;
+ *   --buttonActiveColor: #444;
+ *   --buttonHoverColor: #666;
+ *   --buttonInactiveColor: #AAA;
+ *   --contentBorderRadius: 0px;
+ * }
+ * ```
  */
 export class OnboardingCard extends HTMLElement {
   /**
@@ -219,9 +236,16 @@ export class OnboardingCard extends HTMLElement {
       }
       elements[to].scrollIntoView();
       await fade(elements[to] as HTMLElement, { from: 0, to: 1 });
+      this.setLabel();
     } else {
       elements[to].scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  private setLabel() {
+    const elements = this.getSlotElements();
+    this.setAttribute('aria-label', elements[this.item].getAttribute('alt') ||
+        'No description provided');
   }
 
   private onContainerClick() {
@@ -306,6 +330,8 @@ export class OnboardingCard extends HTMLElement {
       button.textContent = `${i + 1}`;
       buttons.appendChild(button);
     }
+
+    this.setLabel();
   }
 
   private updateCardDimensions() {
