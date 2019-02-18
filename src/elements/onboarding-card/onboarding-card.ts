@@ -80,6 +80,7 @@ export class OnboardingCard extends HTMLElement {
   private heightInternal = 0;
   private root = this.attachShadow({ mode: 'open' });
   private observer!: IntersectionObserver;
+  private itemsInView = new Set<Element>();
 
   private onSlotChangeBound = this.onSlotChange.bind(this);
   private onContainerClickBound = this.onContainerClick.bind(this);
@@ -154,7 +155,8 @@ export class OnboardingCard extends HTMLElement {
 
     this.observer = new IntersectionObserver(this.onIntersectionBound, {
       root: container,
-      rootMargin: '-1px'
+      rootMargin: '-5px',
+      threshold: 0
     });
     this.updateCardDimensions();
     this.observeChildren();
@@ -214,7 +216,8 @@ export class OnboardingCard extends HTMLElement {
 
     // The user has hit the final item in the list.
     if (from === this.itemInternal) {
-      fire(OnboardingCard.onboardingFinishedEvent, this, {id: this.itemInternal});
+      fire(OnboardingCard.onboardingFinishedEvent, this,
+           { item: this.itemInternal });
     }
   }
 
@@ -233,17 +236,27 @@ export class OnboardingCard extends HTMLElement {
     if (this.mode === 'fade') {
       if (from !== -1) {
         await fade(elements[from] as HTMLElement, { from: 1, to: 0 });
+
+        // Bring the faded out element back up to 1 so that scrolling still
+        // works as intended.
+        (elements[from] as HTMLElement).style.opacity = '1';
       }
       elements[to].scrollIntoView();
+      this.itemsInView.add(elements[to]);
       await fade(elements[to] as HTMLElement, { from: 0, to: 1 });
-      this.setLabel();
     } else {
       elements[to].scrollIntoView({ behavior: 'smooth' });
     }
+
+    this.setLabel();
   }
 
   private setLabel() {
     const elements = this.getSlotElements();
+    if (!elements[this.item]) {
+      return;
+    }
+
     this.setAttribute('aria-label', elements[this.item].getAttribute('alt') ||
         'No description provided');
   }
@@ -267,12 +280,20 @@ export class OnboardingCard extends HTMLElement {
   private onIntersection(entries: IntersectionObserverEntry[]) {
     const elements = this.getSlotElements();
     for (const entry of entries) {
-      if (!entry.isIntersecting) {
-        continue;
+      if (entry.isIntersecting) {
+        this.itemsInView.add(entry.target);
+      } else {
+        this.itemsInView.delete(entry.target);
       }
 
-      this.itemInternal = elements.indexOf(entry.target);
-      fire(OnboardingCard.itemChangedEvent, this, {id: this.itemInternal});
+      // Whenever the set of visible elements dips to 1 find the element.
+      if (this.itemsInView.size !== 1) {
+        continue;
+      }
+      const items = Array.from(this.itemsInView);
+      this.itemInternal = elements.indexOf(items[0]);
+
+      fire(OnboardingCard.itemChangedEvent, this, { item: this.itemInternal });
     }
 
     const buttons = this.root.querySelectorAll('#buttons button');

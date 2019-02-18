@@ -10,11 +10,11 @@
 
 const { assert } = chai;
 
-import { supported } from './intersection-observer.js';
+import { IntersectionObserverSupport } from './intersection-observer.js';
 
 describe('IntersectionObserverSupport', () => {
   it('returns a boolean', async () => {
-    const value = await supported();
+    const value = await IntersectionObserverSupport.supported();
     assert.isBoolean(value);
   });
 });

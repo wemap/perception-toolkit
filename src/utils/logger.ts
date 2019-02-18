@@ -52,7 +52,7 @@ declare const DEBUG: DEBUG_LEVEL;
  *
  * ```javascript
  *
- * // Enable INFO and WARNING messages.
+ * // Enable ERROR and WARNING messages.
  * enableLogLevel(DEBUG_LEVEL.WARNING);
  *
  * // Ignored.

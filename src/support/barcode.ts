@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export default {
+export const BarcodeDetectorSupport = {
   name: 'barcode',
   supported: async () => {
     return 'BarcodeDetector' in self;

@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export default {
+export const GetUserMediaSupport = {
   name: 'getUserMedia',
   supported: async () => {
     return 'mediaDevices' in self.navigator &&

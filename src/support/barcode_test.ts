@@ -10,11 +10,11 @@
 
 const { assert } = chai;
 
-import { supported } from './barcode.js';
+import { BarcodeDetectorSupport } from './barcode.js';
 
 describe('BarcodeSupport', () => {
   it('returns a boolean', async () => {
-    const value = await supported();
+    const value = await BarcodeDetectorSupport.supported();
     assert.isBoolean(value);
   });
 });

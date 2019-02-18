@@ -41,7 +41,7 @@ export declare function enableLogLevel(level: DEBUG_LEVEL): void;
  *
  * ```javascript
  *
- * // Enable INFO and WARNING messages.
+ * // Enable ERROR and WARNING messages.
  * enableLogLevel(DEBUG_LEVEL.WARNING);
  *
  * // Ignored.

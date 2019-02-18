@@ -68,6 +68,7 @@ export declare class OnboardingCard extends HTMLElement {
     private heightInternal;
     private root;
     private observer;
+    private itemsInView;
     private onSlotChangeBound;
     private onContainerClickBound;
     private onButtonClickBound;

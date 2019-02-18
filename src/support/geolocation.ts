@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export default {
+export const GeolocationSupport = {
   name: 'geolocation',
   supported: async () => {
     return 'geolocation' in self.navigator;

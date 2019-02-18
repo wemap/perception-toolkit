@@ -11,7 +11,7 @@
 const { assert } = chai;
 import { createStubInstance, spy } from 'sinon';
 import { BarcodeDetectorPolyfill } from '../polyfill/barcode-detector.js';
-import { detect } from './barcode.js';
+import { detectBarcodes } from './barcode.js';
 
 describe('BarcodeDetector', () => {
 
@@ -26,7 +26,7 @@ describe('BarcodeDetector', () => {
       const instance = createStubInstance(BarcodeDetectorMock);
 
       if (throws) {
-        instance.detect.throws('Detection failed');
+        instance.detect.throws(new Error('Detection failed'));
       } else {
         instance.detect.returns(Promise.resolve([{rawValue: 'foo'}]));
       }
@@ -42,7 +42,7 @@ describe('BarcodeDetector', () => {
   it('should detect', async () => {
     const barcodeSpy = createSpy();
     const canvas = document.createElement('canvas');
-    const barcodes = await detect(canvas, {
+    const barcodes = await detectBarcodes(canvas, {
         context: barcodeSpy as any, forceNewDetector: true
     });
 
@@ -53,13 +53,13 @@ describe('BarcodeDetector', () => {
   it('recovers from failed detection', async () => {
     const barcodeSpy = createSpy({throws: true});
     const canvas = document.createElement('canvas');
-    const barcodes = await detect(canvas, {
+    const barcodes = await detectBarcodes(canvas, {
       context: barcodeSpy as any, forceNewDetector: true
     });
 
     assert.deepEqual(barcodes, []);
     assert(barcodeSpy.BarcodeDetector.called);
-  });
+  }).timeout(5000);
 
   it('recovers from secondary failed detection', async () => {
     // Try and remove the polyfill.
@@ -77,7 +77,7 @@ describe('BarcodeDetector', () => {
     }
 
     const canvas = document.createElement('canvas');
-    const barcodes = await detect(canvas, { forceNewDetector: true });
+    const barcodes = await detectBarcodes(canvas, { forceNewDetector: true });
 
     assert.deepEqual(barcodes, []);
   });

@@ -10,11 +10,11 @@
 
 const { assert } = chai;
 
-import { supported } from './get-user-media.js';
+import { GetUserMediaSupport } from './get-user-media.js';
 
 describe('GetUserMediaSupport', () => {
   it('returns a boolean', async () => {
-    const value = await supported();
+    const value = await GetUserMediaSupport.supported();
     assert.isBoolean(value);
   });
 });

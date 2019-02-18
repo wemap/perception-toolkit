@@ -12,9 +12,12 @@ import { Support } from '../defs/lib.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { DeviceSupport } from '../src/support/device-support.js';
-import { default as IntersectionObserverSupport } from '../src/support/intersection-observer.js';
+import { IntersectionObserverSupport } from '../src/support/intersection-observer.js';
 import { fire } from '../src/utils/fire.js';
 import { injectScript } from '../src/utils/inject-script.js';
+import { DEBUG_LEVEL, enableLogLevel, log } from '../src/utils/logger.js';
+
+enableLogLevel(DEBUG_LEVEL.WARNING);
 
 let loader: DotLoader | null;
 const IO_POLYFILL_PATH =
@@ -34,9 +37,10 @@ async function onSupports(evt: Event) {
   if (!(supportEvt.detail[IntersectionObserverSupport.name])) {
     await injectScript(IO_POLYFILL_PATH);
 
+    log('Loading IntersectionObserver polyfill');
+
     // Force the polyfill to check every 300ms.
     (IntersectionObserver as any).prototype.POLL_INTERVAL = 300;
-    console.log('Loaded polyfill: IntersectionObserver');
   }
 
   // Wait to confirm that IntersectionObservers are in place before registering

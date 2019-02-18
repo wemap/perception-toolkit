@@ -10,11 +10,11 @@
 
 const { assert } = chai;
 
-import { supported } from './wasm.js';
+import { WasmSupport } from './wasm.js';
 
 describe('WasmSupport', () => {
   it('returns a boolean', async () => {
-    const value = await supported();
+    const value = await WasmSupport.supported();
     assert.isBoolean(value);
   });
 });

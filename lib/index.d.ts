@@ -1,14 +1,19 @@
-import { detect as BarcodeDetect } from './src/detectors/barcode.js';
-import { default as GetUserMediaSupport } from './src/support/get-user-media.js';
-import { default as IntersectionObserverSupport } from './src/support/intersection-observer.js';
-import * as EnvironmentCamera from './src/utils/environment-camera.js';
-export { BarcodeDetect };
-export { GetUserMediaSupport };
-export { IntersectionObserverSupport };
-export { EnvironmentCamera };
+/**
+ * @license
+ * Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+ */
 export * from './defs/barcode.js';
 export * from './defs/lib.js';
 export * from './defs/wasm-module.js';
+export * from './src/detectors/barcode.js';
+export * from './src/support/get-user-media.js';
+export * from './src/support/intersection-observer.js';
+export * from './src/utils/environment-camera.js';
 export * from './src/elements/action-button/action-button.js';
 export * from './src/elements/card/card.js';
 export * from './src/elements/dot-loader/dot-loader.js';

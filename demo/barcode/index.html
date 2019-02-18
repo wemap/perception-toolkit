@@ -10,12 +10,13 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="theme-color" content="#1A3230">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Toolkit - Barcode Detection</title>
 
     <style>
       html, body {
-        background: #333;
+        background: rgb(40, 74, 72);
         width: 100%;
         min-height: 100%;
       }
@@ -39,6 +40,7 @@
         justify-content: flex-end;
         box-sizing: border-box;
         z-index: 1;
+        pointer-events: none;
       }
 
       dot-loader {
@@ -56,6 +58,20 @@
 
       data-card {
         margin-top: 16px;
+        pointer-events: auto;
+      }
+
+      onboarding-card {
+        --background: #82C4CA;
+        --buttonActiveColor: #323662;
+        --buttonHoverColor: #323662c8;
+        --buttonInactiveColor: #32366294;
+        --buttonBottomMargin: 12px;
+        --padding: 0 0 36px 0;
+        --contentBorderRadius: 4px 4px 0 0;
+        opacity: 0;
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.5s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
       }
 
       @keyframes fadeIn {

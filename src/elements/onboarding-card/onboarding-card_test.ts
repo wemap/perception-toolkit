@@ -10,7 +10,7 @@
 
 const { assert } = chai;
 
-import * as IntersectionObserverSupport from '../../support/intersection-observer.js';
+import { IntersectionObserverSupport } from '../../support/intersection-observer.js';
 import { doubleRaf } from '../../utils/double-raf.js';
 import { injectScript } from '../../utils/inject-script.js';
 import { OnboardingCard } from './onboarding-card.js';
@@ -25,8 +25,11 @@ function createCard({children = 0, width = 0, height = 0} = {}) {
 
   for (let i = 0; i < children; i++) {
     const step = document.createElement('div');
+    step.dataset.id = i.toString();
+    step.setAttribute('alt', 'Alt content test');
     step.style.width = `${width}px`;
     step.style.height = `${height}px`;
+    step.style.background = `hsl(${i * 50}, 50%, 50%)`;
 
     card.appendChild(step);
   }

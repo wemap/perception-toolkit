@@ -10,11 +10,11 @@
 
 const { assert } = chai;
 
-import { supported } from './geolocation.js';
+import { GeolocationSupport } from './geolocation.js';
 
 describe('GeolocationSupport', () => {
   it('returns a boolean', async () => {
-    const value = await supported();
+    const value = await GeolocationSupport.supported();
     assert.isBoolean(value);
   });
 });

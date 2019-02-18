@@ -15,8 +15,14 @@ import { BarcodeDetectorPolyfill } from './barcode-detector.js';
 const workerValidSrc = `
   self.postMessage('ready');
   self.onmessage = (e) => {
-    const value = [{rawValue: 'foo'}]
-    self.postMessage(value);
+    // Initialize.
+    self.postMessage('ready');
+
+    // Handle future messages.
+    self.onmessage = (e) => {
+      const value = [{rawValue: 'foo'}]
+      self.postMessage(value);
+    };
   }`;
 const workerValidUrl = URL.createObjectURL(new Blob([workerValidSrc]));
 
@@ -40,7 +46,7 @@ describe('BarcodeDetector', () => {
   });
 
   it('returns null if not ready', async () => {
-    const workerSrc = `setTimeout(() => self.postMessage('foo'), 500);`;
+    const workerSrc = `setTimeout(() => self.postMessage('ready'), 500);`;
     const workerUrl = URL.createObjectURL(new Blob([workerSrc]));
     const BarcodeDetector = new BarcodeDetectorPolyfill(workerUrl);
     const value = await BarcodeDetector.detect({} as HTMLImageElement);

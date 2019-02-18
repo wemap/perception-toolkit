@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-import { BarcodeDetector } from '../../defs/barcode.js';
+import { Barcode, BarcodeDetector } from '../../defs/barcode.js';
 import { injectScript } from '../utils/inject-script.js';
 import { DEBUG_LEVEL, log } from '../utils/logger.js';
 
@@ -23,15 +23,18 @@ let detector: BarcodeDetector;
 /**
  * Detects barcodes from image sources.
  */
-export async function detect(data: ImageData | ImageBitmap | HTMLCanvasElement,
-                             {
-                               context = window,
-                               forceNewDetector = false,
-                               polyfillPrefix = ''
-                             } = {}) {
+export async function detectBarcodes(data: ImageData | ImageBitmap | HTMLCanvasElement,
+                                     {
+                                       context = window,
+                                       forceNewDetector = false,
+                                       polyfillRequired = false,
+                                       polyfillPrefix = ''
+                                     } = {}): Promise<Barcode[]> {
 
-  if (context === window && !('BarcodeDetector' in context)) {
-    log('Native barcode detector unavailable', DEBUG_LEVEL.WARNING,
+  const loadPolyfill = polyfillRequired ||
+      (context === window && !('BarcodeDetector' in context));
+  if (loadPolyfill) {
+    log('Using barcode detection polyfill', DEBUG_LEVEL.INFO,
         'BarcodeDetector');
     await injectScript(`${polyfillPrefix}/lib/polyfills/barcode-detector.js`);
   }
@@ -41,6 +44,7 @@ export async function detect(data: ImageData | ImageBitmap | HTMLCanvasElement,
     detector = new context.BarcodeDetector();
   }
 
+  /* istanbul ignore else */
   if ('isReady' in detector) {
     await detector.isReady;
   }
@@ -48,7 +52,18 @@ export async function detect(data: ImageData | ImageBitmap | HTMLCanvasElement,
   try {
     return await detector.detect(data);
   } catch (e) {
+    // If the polyfill has loaded but there are still issues, exit.
+    if (polyfillRequired) {
+      return [];
+    }
+
     log(`Detection failed: ${e.message}`, DEBUG_LEVEL.WARNING);
-    return [];
+    return await detectBarcodes(data,
+        {
+          context,
+          forceNewDetector,
+          polyfillPrefix,
+          polyfillRequired: true
+        });
   }
 }

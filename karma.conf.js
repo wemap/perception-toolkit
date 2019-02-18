@@ -10,10 +10,10 @@
 
 module.exports = function(config) {
   const options = {
-    logLevel: config.LOG_ERROR,
-    client: {
-      captureConsole: false
-    },
+    // logLevel: config.LOG_ERROR,
+    // client: {
+    //   captureConsole: false
+    // },
 
     basePath: "",
 
@@ -58,8 +58,13 @@ module.exports = function(config) {
     karmaTypescriptConfig: {
       compilerOptions: {
         lib: ['dom', 'dom.iterable', 'es2015'],
-        downlevelIteration: true
+        downlevelIteration: true,
       },
+
+      exclude: [
+        "lib"
+      ],
+
       coverageOptions: {
         exclude: [/_test.tsx?$/, /worker.ts/]
       }
@@ -96,7 +101,7 @@ module.exports = function(config) {
       'application/wasm': ['wasm']
     },
 
-    singleRun: true,
+    singleRun: true
   };
 
   config.set(options);
