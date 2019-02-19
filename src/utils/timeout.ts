@@ -9,13 +9,16 @@
  */
 
 /**
- * A convenience function for firing custom events.
+ * Convert a timeout to a Promise.
  *
- * ```javascript
- * fire('eventname', someElement, {foo: 'bar'});
+ * ```
+ * await timeout(100);  // 100ms wait.
  * ```
  */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
-  const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
-  target.dispatchEvent(evt);
+export function timeout(time: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
 }

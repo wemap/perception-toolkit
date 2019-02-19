@@ -7,15 +7,11 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-
 /**
- * A convenience function for firing custom events.
+ * Convert a timeout to a Promise.
  *
- * ```javascript
- * fire('eventname', someElement, {foo: 'bar'});
+ * ```
+ * await timeout(100);  // 100ms wait.
  * ```
  */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
-  const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
-  target.dispatchEvent(evt);
-}
+export declare function timeout(time?: number): Promise<void>;

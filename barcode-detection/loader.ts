@@ -8,14 +8,19 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-/**
- * A convenience function for firing custom events.
- *
- * ```javascript
- * fire('eventname', someElement, {foo: 'bar'});
- * ```
- */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
-  const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
-  target.dispatchEvent(evt);
+import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
+
+customElements.define(DotLoader.defaultTagName, DotLoader);
+
+const loader = new DotLoader();
+loader.style.setProperty('--color', '#FFF');
+
+// Uncomment for vertical animation.
+// loader.setAttribute('vertical', 'vertical');
+export function showLoader() {
+  document.body.appendChild(loader);
+}
+
+export function hideLoader() {
+  loader.remove();
 }

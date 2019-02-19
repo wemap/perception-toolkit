@@ -8,14 +8,15 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-/**
- * A convenience function for firing custom events.
- *
- * ```javascript
- * fire('eventname', someElement, {foo: 'bar'});
- * ```
- */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
-  const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
-  target.dispatchEvent(evt);
+export async function loadImages(paths: string[]) {
+  const images = paths.map((path): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = path;
+      img.onerror = reject;
+      img.onload = () => resolve(img);
+    });
+  });
+
+  return await Promise.all(images);
 }

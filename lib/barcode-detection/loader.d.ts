@@ -7,15 +7,5 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-
-/**
- * A convenience function for firing custom events.
- *
- * ```javascript
- * fire('eventname', someElement, {foo: 'bar'});
- * ```
- */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
-  const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
-  target.dispatchEvent(evt);
-}
+export declare function showLoader(): void;
+export declare function hideLoader(): void;

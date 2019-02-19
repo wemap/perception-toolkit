@@ -8,14 +8,16 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-/**
- * A convenience function for firing custom events.
- *
- * ```javascript
- * fire('eventname', someElement, {foo: 'bar'});
- * ```
- */
-export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
-  const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
-  target.dispatchEvent(evt);
-}
+const { assert } = chai;
+
+import { timeout } from './timeout.js';
+
+describe('Timeout', () => {
+  it('times out', async () => {
+    const start = window.performance.now();
+    await timeout(100);
+    const delta = window.performance.now() - start;
+    assert.isAbove(delta, 95);
+    assert.isBelow(delta, 105);
+  });
+});

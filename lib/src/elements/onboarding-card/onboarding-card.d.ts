@@ -7,6 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
+export declare function loadIntersectionObserverPolyfillIfNeeded(force?: boolean): Promise<boolean>;
 /**
  * Provides a mechanism for onboarding users to your experience. Each child node
  * of the element is assumed to be a discrete step in the process.
@@ -61,14 +62,15 @@ export declare class OnboardingCard extends HTMLElement {
      * </ul>
      */
     static readonly observedAttributes: string[];
+    ready: Promise<boolean>;
+    private readonly root;
+    private readonly itemsInView;
     private modeInternal;
     private itemInternal;
     private itemMax;
     private widthInternal;
     private heightInternal;
-    private root;
     private observer;
-    private itemsInView;
     private onSlotChangeBound;
     private onContainerClickBound;
     private onButtonClickBound;

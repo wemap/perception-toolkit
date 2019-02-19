@@ -24,7 +24,8 @@
       "defs/**/*.ts",
       "**/polyfill/*.ts",
       "lib/**/*.*",
-      "recipes/**/*.ts",
+      "bundled/**/*.ts",
+      "barcode-detection/**/*.ts",
       "**/support/**/*.ts",
       "node_modules/**/*.*"
     ],

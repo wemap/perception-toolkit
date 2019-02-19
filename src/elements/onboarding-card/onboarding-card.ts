@@ -8,10 +8,40 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { IntersectionObserverSupport } from '../../support/intersection-observer.js';
 import { clamp } from '../../utils/clamp.js';
 import { fade } from '../../utils/fade.js';
 import { fire } from '../../utils/fire.js';
+import { injectScript } from '../../utils/inject-script.js';
+import { DEBUG_LEVEL, log } from '../../utils/logger.js';
 import { html, styles } from './onboarding-card.template.js';
+
+const IO_POLYFILL_PATH =
+  '/third_party/intersection-observer/intersection-observer-polyfill.js';
+
+/* istanbul ignore next: Not testing polyfill injection x-browser */
+/**
+ * @ignore
+ */
+export async function loadIntersectionObserverPolyfillIfNeeded(force = false) {
+  if (!force && await IntersectionObserverSupport.supported()) {
+    return true;
+  }
+
+  try {
+    await injectScript(IO_POLYFILL_PATH);
+
+    // Force the polyfill to check every 300ms.
+    (IntersectionObserver as any).prototype.POLL_INTERVAL = 300;
+    log('Loaded IntersectionObserver polyfill', DEBUG_LEVEL.INFO, 'Onboarding');
+
+    return true;
+  } catch (e) {
+    log('Intersection Observer polyfill load failed', DEBUG_LEVEL.ERROR,
+        'Onboarding');
+    return false;
+  }
+}
 
 /**
  * Provides a mechanism for onboarding users to your experience. Each child node
@@ -73,14 +103,16 @@ export class OnboardingCard extends HTMLElement {
     return ['width', 'height', 'mode'];
   }
 
+  ready = loadIntersectionObserverPolyfillIfNeeded();
+
+  private readonly root = this.attachShadow({ mode: 'open' });
+  private readonly itemsInView = new Set<Element>();
   private modeInternal: 'scroll' | 'fade' = 'scroll';
   private itemInternal = 0;
   private itemMax = 0;
   private widthInternal = 0;
   private heightInternal = 0;
-  private root = this.attachShadow({ mode: 'open' });
   private observer!: IntersectionObserver;
-  private itemsInView = new Set<Element>();
 
   private onSlotChangeBound = this.onSlotChange.bind(this);
   private onContainerClickBound = this.onContainerClick.bind(this);
@@ -143,27 +175,30 @@ export class OnboardingCard extends HTMLElement {
    * @ignore Only public because it's a Custom Element.
    */
   connectedCallback() {
-    this.root.innerHTML = `<style>${styles}</style> ${html}`;
-    const slot = this.root.querySelector('slot')!;
-    const container = this.root.querySelector('#container')!;
-    const buttons = this.root.querySelector('#buttons')!;
-    slot.addEventListener('slotchange', this.onSlotChangeBound);
-    container.addEventListener('click', this.onContainerClickBound);
-    buttons.addEventListener('click', this.onButtonClickBound);
+    // Await the polyfill then go ahead.
+    this.ready.then(() => {
+      this.root.innerHTML = `<style>${styles}</style> ${html}`;
+      const slot = this.root.querySelector('slot')!;
+      const container = this.root.querySelector('#container')!;
+      const buttons = this.root.querySelector('#buttons')!;
+      slot.addEventListener('slotchange', this.onSlotChangeBound);
+      container.addEventListener('click', this.onContainerClickBound);
+      buttons.addEventListener('click', this.onButtonClickBound);
 
-    this.setAttribute('tabindex', '0');
+      this.setAttribute('tabindex', '0');
 
-    this.observer = new IntersectionObserver(this.onIntersectionBound, {
-      root: container,
-      rootMargin: '-5px',
-      threshold: 0
+      this.observer = new IntersectionObserver(this.onIntersectionBound, {
+        root: container,
+        rootMargin: '-5px',
+        threshold: 0
+      });
+      this.updateCardDimensions();
+      this.observeChildren();
+
+      // Call the slot change callback manually for Safari 12; it doesn't do it
+      // automatically for the initial element connection.
+      this.onSlotChange();
     });
-    this.updateCardDimensions();
-    this.observeChildren();
-
-    // Call the slot change callback manually for Safari 12; it doesn't do it
-    // automatically for the initial element connection.
-    this.onSlotChange();
   }
 
   /**

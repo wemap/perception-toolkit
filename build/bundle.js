@@ -14,7 +14,6 @@ const { basename } = require('path');
 const rollup = require('rollup');
 const minify = require('minify');
 const fs = require('fs');
-const { gzip } = require('node-gzip');
 
 const promFsWrite = (file, data) => {
   return new Promise((resolve, reject) => {
@@ -55,7 +54,7 @@ const promGlob = (path, opts = {}) => {
   });
 }
 
-async function buildRecipes() {
+async function buildBarcodeDetection() {
   const options = {
     input: {
       plugins: [
@@ -70,17 +69,24 @@ async function buildRecipes() {
       format: 'iife'
     }
   }
-  const recipes = await promGlob('recipes/*.ts');
-  for (const recipe of recipes) {
-    const newFileName = basename(recipe).replace(/ts$/, 'js');
-    const file = `lib/bundles/recipes/${newFileName}`;
-    const bundle = await rollup.rollup({...options.input, input: recipe});
-    await bundle.write({...options.output, file});
+
+  // Barcode Detection.
+  const inputs = await promGlob('barcode-detection/*.ts');
+  for (const input of inputs) {
+    const newFileName = basename(input).replace(/ts$/, 'js');
+    const moduleName = newFileName.replace(/\.js$/, '')
+        .replace(/-(.)/, (v) => v.toUpperCase().substr(1));
+
+    // Rollup parts.
+    const name = `Toolkit.${moduleName}`;
+    const file = `lib/bundled/barcode-detection/${newFileName}`;
+    const bundle = await rollup.rollup({...options.input, input});
+    await bundle.write({...options.output, file, name});
   }
 }
 
-async function minifyRecipes() {
-  const files = await promGlob('lib/bundles/**/*.js', { ignore: '*.min.js' });
+async function minifyBarcodeDetection() {
+  const files = await promGlob('lib/bundled/**/*.js', { ignore: '*.min.js' });
   const minifiedFiles = await Promise.all(files.map(file => minify(file)));
   await minifiedFiles.map((fileContents, idx) => {
     const newFileName = files[idx].replace(/js$/, 'min.js');
@@ -89,8 +95,8 @@ async function minifyRecipes() {
 }
 
 async function build() {
-  await buildRecipes();
-  await minifyRecipes();
+  await buildBarcodeDetection();
+  await minifyBarcodeDetection();
 }
 
 build();

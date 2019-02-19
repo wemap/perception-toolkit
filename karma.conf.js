@@ -10,10 +10,10 @@
 
 module.exports = function(config) {
   const options = {
-    // logLevel: config.LOG_ERROR,
-    // client: {
-    //   captureConsole: false
-    // },
+    logLevel: config.LOG_ERROR,
+    client: {
+      captureConsole: false
+    },
 
     basePath: "",
 

@@ -1,0 +1,158 @@
+<!--
+  @license
+  Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
+  This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+  The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+  The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+  Code distributed by Google as part of the polymer project is also
+  subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="theme-color" content="#1A3230">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Toolkit - Barcode Detection</title>
+
+    <style>
+      html, body {
+        background: rgb(40, 74, 72);
+        width: 100%;
+        min-height: 100%;
+      }
+
+      body {
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #container {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        box-sizing: border-box;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      #get-started {
+        display: none;
+      }
+
+      #get-started.visible {
+        display: block;
+      }
+
+      dot-loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      no-support-card {
+        opacity: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
+      }
+
+      data-card {
+        margin-top: 16px;
+        pointer-events: auto;
+      }
+
+      onboarding-card {
+        --background: #82C4CA;
+        --buttonActiveColor: #323662;
+        --buttonHoverColor: #323662c8;
+        --buttonInactiveColor: #32366294;
+        --buttonBottomMargin: 12px;
+        --padding: 0 0 36px 0;
+        --contentBorderRadius: 4px 4px 0 0;
+        opacity: 0;
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+
+    <script>
+      window.WebComponents = window.WebComponents || {};
+      window.WebComponents.root = '/node_modules/@webcomponents/webcomponentsjs/';
+    </script>
+    <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  </head>
+<body>
+  <div id="container"></div>
+
+  <script src="/lib/bundled/barcode-detection/loader.min.js"></script>
+  <script type="module">
+    const { showLoader } = window.Toolkit.loader;
+    showLoader();
+  </script>
+
+  <script src="/lib/bundled/barcode-detection/device-support.min.js"></script>
+  <script src="/lib/bundled/barcode-detection/onboarding.min.js"></script>
+
+  <script type="module">
+    const { hideLoader, showLoader } = window.Toolkit.loader;
+    const { startOnboardingProcess } = window.Toolkit.onboarding;
+    const { detectSupport } = window.Toolkit.deviceSupport;
+
+    async function init() {
+      try {
+        await detectSupport();
+        await startOnboardingProcess([
+          '/demo/images/step1.jpg',
+          '/demo/images/step2.jpg',
+          '/demo/images/step3.jpg'
+        ]);
+
+        // Load the main experience, unbundled.
+        const mod = document.createElement('script');
+        mod.type = 'module';
+        mod.src = '/lib/barcode-detection/main.js';
+        document.head.appendChild(mod);
+
+        // And bundled.
+        const nonmod = document.createElement('script');
+        nonmod.setAttribute('nomodule', 'nomodule');
+        nonmod.src = '/lib/bundled/barcode-detection/main.js'
+        document.head.appendChild(nonmod);
+
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+
+    hideLoader();
+    const getStarted = document.body.querySelector('button#get-started');
+    getStarted.classList.add('visible');
+    getStarted.addEventListener('click', (e) => {
+      showLoader();
+      e.target.classList.remove('visible');
+      init();
+    });
+  </script>
+
+  <button id="get-started">Get started</button>
+</body>
+</html>
