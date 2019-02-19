@@ -34,8 +34,6 @@ const attemptDetection = detectBarcodes(new ImageData(1, 1));
 // Go!
 waitForOnboardingFinish();
 
-console.log('set the wait');
-
 /**
  * Starts the user onboarding.
  */
