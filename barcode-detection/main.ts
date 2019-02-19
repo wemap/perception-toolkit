@@ -17,6 +17,15 @@ import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js'
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
 
+import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
+import { ArtifactDealer } from '../src/artifacts/artifact-dealer.js';
+import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
+
+const artstore = new LocalArtifactStore;
+const artdealer = new ArtifactDealer;
+
+artdealer.addArtifactStore(artstore);
+
 const detectedBarcodes = new Set<string>();
 
 // Register custom elements.
@@ -59,12 +68,64 @@ async function initialize() {
     // Wait for the faked detection to resolve.
     await attemptDetection;
 
+    // Start loading some artifacts.
+    /* await */ loadArtifacts();
+
     // Create the stream.
     await createStreamCapture();
+
+    await setupContentDisplay();
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
     showNoSupportCard();
   }
+}
+
+/**
+ * Load artifact content.  Note: this can be done async without awaiting.
+ */
+async function loadArtifacts() {
+  const artloader = new ArtifactLoader;
+  artloader.addEventListener('artifact-found', (evt: Event) => {
+    const { detail } = evt as CustomEvent<any>;
+    let { root, datafeed, arartifact } = detail;
+
+    artstore.addArtifact(arartifact);
+  });
+
+  // Load artifacts defined on this page
+  await artloader.fromDocument(document, document.URL);
+  // Alternative:
+  // await artloader.fromHtmlUrl(new URL('./index.html', document.URL));
+
+  // Load artifacts from a jsonld "sitemap"
+  await artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL));
+}
+
+/**
+ * Whenever we find nearby content, show it
+ */
+async function setupContentDisplay() {
+  artdealer.addEventListener('nearby-content-found', (evt: Event) => {
+    const { detail } = evt as CustomEvent<any>;
+    let { target, content } = detail;
+
+    // TODO: Card should accept the whole content object and template itself,
+    // Or, card should have more properties than just src.
+
+    // Create a card for every found barcode.
+    const card = new Card();
+    card.src = content.name;
+
+    const container = createContainerIfRequired();
+    container.appendChild(card);
+  });
+
+  artdealer.addEventListener('nearby-content-lost', (evt: Event) => {
+    const { detail } = evt as CustomEvent<any>;
+    let { target, content } = detail;
+    // TODO: hide card after timeout?  Mark it as missing?
+  });
 }
 
 /**
@@ -118,12 +179,8 @@ async function onCaptureFrame(evt: Event) {
 
     vibrate();
 
-    // Create a card for every found barcode.
-    const card = new Card();
-    card.src = barcode.rawValue;
-
-    const container = createContainerIfRequired();
-    container.appendChild(card);
+    // TODO: Do we have access top barcode type? Or, maybe ignore types and merge by unique value only?
+    artdealer.markerFound(barcode.rawValue, 'qrcode');
   }
 
   // Hide the loader if there is one.

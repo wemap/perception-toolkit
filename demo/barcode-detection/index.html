@@ -102,6 +102,27 @@
       }
     </style>
 
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "ARArtifact",
+      "arTarget": {
+        "@type": "Barcode",
+        "text": "Inline Barcode"
+      },
+      "arContent": {
+        "@type": "WebPage",
+        "url": "...",
+        "name": "Title for Inline Barcode",
+        "description": "Description",
+        "image": "Favicon"
+      }
+    }
+
+    </script>
+
+    <script type="application/ld+json" src="barcode-listing-linked.jsonld"></script>
+
     <script>
       window.WebComponents = window.WebComponents || {};
       window.WebComponents.root = '/node_modules/@webcomponents/webcomponentsjs/';
