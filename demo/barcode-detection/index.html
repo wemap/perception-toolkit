@@ -45,6 +45,15 @@
 
       #get-started {
         display: none;
+        padding: 8px 12px;
+        background: #FFF;
+        border: none;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.4);
+        border-radius: 3px;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        cursor: pointer;
       }
 
       #get-started.visible {
@@ -102,14 +111,14 @@
 <body>
   <div id="container"></div>
 
-  <script src="/lib/bundled/barcode-detection/loader.min.js"></script>
+  <script src="/lib/bundled/barcode-detection/loader.min.js" defer></script>
   <script type="module">
     const { showLoader } = window.Toolkit.loader;
     showLoader();
   </script>
 
-  <script src="/lib/bundled/barcode-detection/device-support.min.js"></script>
-  <script src="/lib/bundled/barcode-detection/onboarding.min.js"></script>
+  <script src="/lib/bundled/barcode-detection/device-support.min.js" defer></script>
+  <script src="/lib/bundled/barcode-detection/onboarding.min.js" defer></script>
 
   <script type="module">
     const { hideLoader, showLoader } = window.Toolkit.loader;
