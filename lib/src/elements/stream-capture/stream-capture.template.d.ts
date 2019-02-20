@@ -7,5 +7,5 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-export declare const styles = "\n:host {\n  position: relative;\n  display: flex;\n}\n\ncanvas {\n  width: 100%;\n  max-width: 100%;\n  max-height: 100%;\n  object-fit: contain;\n  left: 0;\n}\n\n#container {\n  width: 100%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n}\n";
-export declare const html = "<div id=\"container\"></div>";
+export declare const styles = "\n:host {\n  position: relative;\n  display: flex;\n  width: 100%;\n  height: 100%;\n}\n\ncanvas {\n  width: 100%;\n  max-width: 100%;\n  max-height: 100%;\n  object-fit: contain;\n  left: 0;\n}\n";
+export declare const html = "";

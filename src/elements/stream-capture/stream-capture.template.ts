@@ -12,6 +12,8 @@ export const styles = `
 :host {
   position: relative;
   display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 canvas {
@@ -21,14 +23,6 @@ canvas {
   object-fit: contain;
   left: 0;
 }
-
-#container {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
 `;
 
-export const html = `<div id="container"></div>`;
+export const html = '';

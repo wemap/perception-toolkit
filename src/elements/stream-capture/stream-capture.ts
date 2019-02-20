@@ -249,14 +249,7 @@ export class StreamCapture extends HTMLElement {
         throw new Error('Unable to create canvas context');
       }
 
-      const container = this.root.querySelector('#container');
-
-      /* istanbul ignore if */
-      if (!container) {
-        throw new Error('Template error: unable to find container');
-      }
-
-      container.appendChild(this.canvas);
+      this.root.appendChild(this.canvas);
     }
 
     /* istanbul ignore else */

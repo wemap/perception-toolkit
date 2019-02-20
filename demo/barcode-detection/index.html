@@ -18,7 +18,7 @@
       html, body {
         background: rgb(40, 74, 72);
         width: 100%;
-        min-height: 100%;
+        height: 100%;
       }
 
       body {
@@ -128,11 +128,11 @@
     async function init() {
       try {
         await detectSupport();
-        await startOnboardingProcess([
-          '/demo/images/step1.jpg',
-          '/demo/images/step2.jpg',
-          '/demo/images/step3.jpg'
-        ]);
+        // await startOnboardingProcess([
+        //   '/demo/images/step1.jpg',
+        //   '/demo/images/step2.jpg',
+        //   '/demo/images/step3.jpg'
+        // ]);
 
         // Load the main experience, unbundled.
         const mod = document.createElement('script');

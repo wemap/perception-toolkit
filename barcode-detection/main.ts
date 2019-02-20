@@ -73,7 +73,6 @@ async function initialize() {
 async function createStreamCapture() {
   const capture = new StreamCapture();
   capture.captureRate = 600;
-  capture.style.width = '100%';
   capture.captureScale = 0.8;
 
   const streamOpts = {
