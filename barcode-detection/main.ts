@@ -117,6 +117,8 @@ async function onCaptureFrame(evt: Event) {
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
 
+    vibrate();
+
     // Create a card for every found barcode.
     const card = new Card();
     card.src = barcode.rawValue;
@@ -132,6 +134,14 @@ async function onCaptureFrame(evt: Event) {
   }
 
   loader.remove();
+}
+
+function vibrate() {
+  if (!('vibrate' in navigator)) {
+    return;
+  }
+
+  navigator.vibrate(200);
 }
 
 function showNoSupportCard() {
