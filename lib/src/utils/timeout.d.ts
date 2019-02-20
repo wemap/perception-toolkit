@@ -14,4 +14,4 @@
  * await timeout(100);  // 100ms wait.
  * ```
  */
-export declare function timeout(time?: number): Promise<void>;
+export declare function timeout(time: number): Promise<void>;
