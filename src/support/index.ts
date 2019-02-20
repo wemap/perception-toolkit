@@ -8,14 +8,9 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import * as Detectors from './src/detectors/index.js';
-import * as Elements from './src/elements/index.js';
-import * as Support from './src/support/index.js';
-import * as Utils from './src/utils/index.js';
-
-export {
-  Detectors,
-  Elements,
-  Support,
-  Utils
-};
+export * from './barcode.js';
+export * from './device-support.js';
+export * from './geolocation.js';
+export * from './get-user-media.js';
+export * from './intersection-observer.js';
+export * from './wasm.js';
