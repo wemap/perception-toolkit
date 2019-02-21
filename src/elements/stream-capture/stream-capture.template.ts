@@ -14,6 +14,9 @@ export const styles = `
   display: flex;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background: #333;
+  animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards;
 }
 
 canvas {
@@ -21,8 +24,27 @@ canvas {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+#reticle {
+  width: 100%;
+  height: 100%;
+  top: 0;
   left: 0;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0, 0, 0.3, 1);
 }
 `;
 
-export const html = '';
+export const html = `<svg id="reticle" viewBox="0 0 133 100"
+    xmlns="http://www.w3.org/2000/svg">
+  <mask id="reticle-cut-out">
+    <rect id="reticle-cut-out-outer" width="133" height="100" x="0" y="0"
+        fill="#FFF" />
+    <rect id="reticle-cut-out-inner" x="29" y="13" width="75" height="75" rx="2"
+        ry="2" fill="#000" />
+  </mask>
+  <rect id="reticle-box" width="133" height="100" x="0" y="0"
+      fill="rgba(0,0,0,0.4)" mask="url(#reticle-cut-out)" />
+</svg>`;

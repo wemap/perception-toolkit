@@ -10,6 +10,7 @@
 
 import { clamp } from '../../utils/clamp.js';
 import { fire } from '../../utils/fire.js';
+import { DEBUG_LEVEL, log } from '../../utils/index.js';
 import { html, styles } from './stream-capture.template.js';
 
 /**
@@ -166,6 +167,8 @@ export class StreamCapture extends HTMLElement {
       this.canvas.width = this.video.videoWidth * this.captureScale;
       this.canvas.height = this.video.videoHeight * this.captureScale;
 
+      this.setReticleOrientation(this.canvas.height > this.canvas.width);
+
       // Flip the canvas if -- say -- the camera is pointing at the user.
       if (this.flipped) {
         this.ctx.translate(this.canvas.width * 0.5, 0);
@@ -178,6 +181,33 @@ export class StreamCapture extends HTMLElement {
         fire(StreamCapture.startEvent, this);
       });
     }, { once: true });
+  }
+
+  setReticleOrientation(vertical: boolean) {
+    const reticle = this.root.querySelector('#reticle') as HTMLElement;
+    if (!reticle) {
+      return;
+    }
+
+    if (vertical) {
+      reticle.setAttribute('viewBox', '0 0 100 133');
+      const maskOuter = reticle.querySelector('#reticle-cut-out-outer');
+      const maskInner = reticle.querySelector('#reticle-cut-out-inner');
+      const reticleBox = reticle.querySelector('#reticle-box');
+
+      if (!maskOuter || !maskInner || !reticleBox) {
+        return;
+      }
+
+      maskOuter.setAttribute('width', '100');
+      maskOuter.setAttribute('height', '133');
+      maskInner.setAttribute('x', '13');
+      maskInner.setAttribute('y', '29');
+      reticleBox.setAttribute('width', '100');
+      reticleBox.setAttribute('height', '133');
+    }
+
+    reticle.style.opacity = '1';
   }
 
   /**

@@ -88,6 +88,7 @@ export declare class StreamCapture extends HTMLElement {
      * Starts the capture of the stream.
      */
     start(stream: MediaStream): void;
+    setReticleOrientation(vertical: boolean): void;
     /**
      * Manually captures a frame. Intended to be used when `captureRate` is `0`.
      */

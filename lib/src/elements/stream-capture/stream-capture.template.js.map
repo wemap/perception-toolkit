@@ -1,1 +1,1 @@
-{"version":3,"file":"stream-capture.template.js","sourceRoot":"/","sources":["src/elements/stream-capture/stream-capture.template.ts"],"names":[],"mappings":"AAAA;;;;;;;;GAQG;AAEH,MAAM,CAAC,MAAM,MAAM,GAAG;;;;;;;;;;;;;;;CAerB,CAAC;AAEF,MAAM,CAAC,MAAM,IAAI,GAAG,EAAE,CAAC"}
+{"version":3,"file":"stream-capture.template.js","sourceRoot":"/","sources":["src/elements/stream-capture/stream-capture.template.ts"],"names":[],"mappings":"AAAA;;;;;;;;GAQG;AAEH,MAAM,CAAC,MAAM,MAAM,GAAG;;;;;;;;;;;;;;;;;;;;;;;;;;;CA2BrB,CAAC;AAEF,MAAM,CAAC,MAAM,IAAI,GAAG;;;;;;;;;;OAUb,CAAC"}
