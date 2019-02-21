@@ -119,6 +119,7 @@
 
   <script src="/lib/bundled/barcode-detection/device-support.min.js" defer></script>
   <script src="/lib/bundled/barcode-detection/onboarding.min.js" defer></script>
+  <script src="/third_party/idb-keyval/idb-keyval-iife.min.js" defer></script>
 
   <script type="module">
     const { hideLoader, showLoader } = window.Toolkit.loader;
@@ -128,11 +129,19 @@
     async function init() {
       try {
         await detectSupport();
-        // await startOnboardingProcess([
-        //   '/demo/images/step1.jpg',
-        //   '/demo/images/step2.jpg',
-        //   '/demo/images/step3.jpg'
-        // ]);
+
+        // Recall whether the user has done onboarding before.
+        const onboarded = await idbKeyval.get('onboarded');
+        if (!onboarded) {
+          await startOnboardingProcess([
+            '/demo/images/step1.jpg',
+            '/demo/images/step2.jpg',
+            '/demo/images/step3.jpg'
+          ]);
+
+          // Store for next time.
+          await idbKeyval.set('onboarded', true);
+        }
 
         // Load the main experience, unbundled.
         const mod = document.createElement('script');
