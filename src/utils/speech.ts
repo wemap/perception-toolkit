@@ -10,6 +10,7 @@
 
 import { clamp } from './clamp.js';
 
+/* istanbul ignore next */
 export class Speech {
   message: string = '';
   autoplay = false;
