@@ -128,47 +128,54 @@
 
     async function init() {
       try {
-        await detectSupport();
-
-        // Recall whether the user has done onboarding before.
-        const onboarded = await idbKeyval.get('onboarded');
-        if (!onboarded) {
-          await startOnboardingProcess([
-            '/demo/images/step1.jpg',
-            '/demo/images/step2.jpg',
-            '/demo/images/step3.jpg'
-          ]);
-
-          // Store for next time.
-          await idbKeyval.set('onboarded', true);
+        const supported = await detectSupport();
+        if (!supported) {
+          return;
         }
 
-        // Load the main experience, unbundled.
-        const mod = document.createElement('script');
-        mod.type = 'module';
-        mod.src = '/lib/barcode-detection/main.js';
-        document.head.appendChild(mod);
-
-        // And bundled.
-        const nonmod = document.createElement('script');
-        nonmod.setAttribute('nomodule', 'nomodule');
-        nonmod.src = '/lib/bundled/barcode-detection/main.js'
-        document.head.appendChild(nonmod);
-
+        hideLoader();
+        const getStarted = document.body.querySelector('button#get-started');
+        getStarted.classList.add('visible');
+        getStarted.addEventListener('click', (e) => {
+          showLoader();
+          e.target.classList.remove('visible');
+          loadExperience();
+        });
       } catch (e) {
         console.error(e);
       }
     }
 
+    async function loadExperience() {
+      hideLoader();
 
-    hideLoader();
-    const getStarted = document.body.querySelector('button#get-started');
-    getStarted.classList.add('visible');
-    getStarted.addEventListener('click', (e) => {
-      showLoader();
-      e.target.classList.remove('visible');
-      init();
-    });
+      // Recall whether the user has done onboarding before.
+      const onboarded = await idbKeyval.get('onboarded');
+      if (!onboarded) {
+        await startOnboardingProcess([
+          '/demo/images/step1.jpg',
+          '/demo/images/step2.jpg',
+          '/demo/images/step3.jpg'
+        ]);
+
+        // Store for next time.
+        await idbKeyval.set('onboarded', true);
+      }
+
+      // Load the main experience, unbundled.
+      const mod = document.createElement('script');
+      mod.type = 'module';
+      mod.src = '/lib/barcode-detection/main.js';
+      document.head.appendChild(mod);
+
+      // And bundled.
+      const nonmod = document.createElement('script');
+      nonmod.setAttribute('nomodule', 'nomodule');
+      nonmod.src = '/lib/bundled/barcode-detection/main.js'
+      document.head.appendChild(nonmod);
+    }
+
+    init();
   </script>
 
   <button id="get-started">Get started</button>
