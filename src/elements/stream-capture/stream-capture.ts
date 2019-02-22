@@ -203,8 +203,8 @@ export class StreamCapture extends HTMLElement {
 
       maskOuter.setAttribute('width', '100');
       maskOuter.setAttribute('height', '133');
-      maskInner.setAttribute('x', '13');
-      maskInner.setAttribute('y', '29');
+      maskInner.setAttribute('x', '8');
+      maskInner.setAttribute('y', '24');
       reticleBox.setAttribute('width', '100');
       reticleBox.setAttribute('height', '133');
     }
