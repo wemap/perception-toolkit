@@ -23,5 +23,8 @@ export async function detectSupport() {
 
     const noSupport = new NoSupportCard();
     document.body.appendChild(noSupport);
+    return false;
   }
+
+  return true;
 }
