@@ -185,6 +185,7 @@ export class StreamCapture extends HTMLElement {
 
   setReticleOrientation(vertical: boolean) {
     const reticle = this.root.querySelector('#reticle') as HTMLElement;
+    /* istanbul ignore if */
     if (!reticle) {
       return;
     }
@@ -195,6 +196,7 @@ export class StreamCapture extends HTMLElement {
       const maskInner = reticle.querySelector('#reticle-cut-out-inner');
       const reticleBox = reticle.querySelector('#reticle-box');
 
+      /* istanbul ignore if */
       if (!maskOuter || !maskInner || !reticleBox) {
         return;
       }

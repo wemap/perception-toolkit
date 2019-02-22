@@ -20,18 +20,20 @@ import { isImageData } from '../../utils/is-image-data.js';
 import { StreamCapture } from './stream-capture.js';
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
 
+const width = 400;
+const height = 402;
 function mockInputStream() {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
-  canvas.width = 400;
-  canvas.height = 400;
+  canvas.width = width;
+  canvas.height = height;
 
   // Draw a pink left half, and a green right half.
   const render = () => {
     ctx.fillStyle = `#F0F`;
-    ctx.fillRect(0, 0, 200, 200);
+    ctx.fillRect(0, 0, width * 0.5, height);
     ctx.fillStyle = `#0F0`;
-    ctx.fillRect(200, 0, 200, 200);
+    ctx.fillRect(width * 0.5, 0, width * 0.5, height);
   };
 
   return {
@@ -77,8 +79,8 @@ describe('StreamCapture', function() {
 
     capture.addEventListener(StreamCapture.startEvent, async () => {
       const imgData = await capture.captureFrame();
-      assert.equal(imgData.width, 400 * capture.captureScale);
-      assert.equal(imgData.height, 400 * capture.captureScale);
+      assert.equal(imgData.width, width * capture.captureScale);
+      assert.equal(imgData.height, height * capture.captureScale);
 
       if (isImageData(imgData)) {
         assert.isAbove(imgData.data[0], 250);
@@ -96,8 +98,8 @@ describe('StreamCapture', function() {
 
     capture.addEventListener(StreamCapture.startEvent, async () => {
       const imgData = await capture.captureFrame();
-      assert.equal(imgData.width, 400 * capture.captureScale);
-      assert.equal(imgData.height, 400 * capture.captureScale);
+      assert.equal(imgData.width, width * capture.captureScale);
+      assert.equal(imgData.height, height * capture.captureScale);
 
       if (isImageData(imgData)) {
         assert.fail('Expected PNG data');
@@ -116,8 +118,8 @@ describe('StreamCapture', function() {
       const { detail } = evt as CustomEvent<{imgData: ImageData}>;
       const { imgData } = detail;
 
-      assert.equal(imgData.width, 400 * capture.captureScale);
-      assert.equal(imgData.height, 400 * capture.captureScale);
+      assert.equal(imgData.width, width * capture.captureScale);
+      assert.equal(imgData.height, height * capture.captureScale);
       assert.isAbove(imgData.data[0], 250);
 
       done();
@@ -133,8 +135,8 @@ describe('StreamCapture', function() {
       const { detail } = evt as CustomEvent<{imgData: HTMLImageElement}>;
       const { imgData } = detail;
 
-      assert.equal(imgData.naturalWidth, 400 * capture.captureScale);
-      assert.equal(imgData.naturalHeight, 400 * capture.captureScale);
+      assert.equal(imgData.naturalWidth, width * capture.captureScale);
+      assert.equal(imgData.naturalHeight, height * capture.captureScale);
 
       done();
     });
@@ -146,8 +148,8 @@ describe('StreamCapture', function() {
 
     capture.addEventListener(StreamCapture.startEvent, async () => {
       const imgData = await capture.captureFrame();
-      assert.equal(imgData.width, 400 * capture.captureScale);
-      assert.equal(imgData.height, 400 * capture.captureScale);
+      assert.equal(imgData.width, width * capture.captureScale);
+      assert.equal(imgData.height, height * capture.captureScale);
 
       if (isImageData(imgData)) {
         // Right hand side is green, so confirm the G and R components.
