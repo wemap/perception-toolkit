@@ -16,6 +16,7 @@ import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
+import { vibrate } from '../src/utils/vibrate.js';
 
 const detectedBarcodes = new Set<string>();
 
@@ -116,7 +117,7 @@ async function onCaptureFrame(evt: Event) {
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
 
-    vibrate();
+    vibrate(200);
 
     // Create a card for every found barcode.
     const card = new Card();
@@ -133,14 +134,6 @@ async function onCaptureFrame(evt: Event) {
   }
 
   loader.remove();
-}
-
-function vibrate() {
-  if (!('vibrate' in navigator)) {
-    return;
-  }
-
-  navigator.vibrate(200);
 }
 
 function showNoSupportCard() {
