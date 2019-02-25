@@ -183,35 +183,6 @@ export class StreamCapture extends HTMLElement {
     }, { once: true });
   }
 
-  setReticleOrientation(vertical: boolean) {
-    const reticle = this.root.querySelector('#reticle') as HTMLElement;
-    /* istanbul ignore if */
-    if (!reticle) {
-      return;
-    }
-
-    if (vertical) {
-      reticle.setAttribute('viewBox', '0 0 100 133');
-      const maskOuter = reticle.querySelector('#reticle-cut-out-outer');
-      const maskInner = reticle.querySelector('#reticle-cut-out-inner');
-      const reticleBox = reticle.querySelector('#reticle-box');
-
-      /* istanbul ignore if */
-      if (!maskOuter || !maskInner || !reticleBox) {
-        return;
-      }
-
-      maskOuter.setAttribute('width', '100');
-      maskOuter.setAttribute('height', '133');
-      maskInner.setAttribute('x', '8');
-      maskInner.setAttribute('y', '24');
-      reticleBox.setAttribute('width', '100');
-      reticleBox.setAttribute('height', '133');
-    }
-
-    reticle.style.opacity = '1';
-  }
-
   /**
    * Manually captures a frame. Intended to be used when `captureRate` is `0`.
    */
@@ -268,6 +239,35 @@ export class StreamCapture extends HTMLElement {
     this.ctx = undefined;
 
     fire(StreamCapture.stopEvent, this);
+  }
+
+  private setReticleOrientation(vertical: boolean) {
+    const reticle = this.root.querySelector('#reticle') as HTMLElement;
+    /* istanbul ignore if */
+    if (!reticle) {
+      return;
+    }
+
+    if (vertical) {
+      reticle.setAttribute('viewBox', '0 0 100 133');
+      const maskOuter = reticle.querySelector('#reticle-cut-out-outer');
+      const maskInner = reticle.querySelector('#reticle-cut-out-inner');
+      const reticleBox = reticle.querySelector('#reticle-box');
+
+      /* istanbul ignore if */
+      if (!maskOuter || !maskInner || !reticleBox) {
+        return;
+      }
+
+      maskOuter.setAttribute('width', '100');
+      maskOuter.setAttribute('height', '133');
+      maskInner.setAttribute('x', '8');
+      maskInner.setAttribute('y', '24');
+      reticleBox.setAttribute('width', '100');
+      reticleBox.setAttribute('height', '133');
+    }
+
+    reticle.style.opacity = '1';
   }
 
   private initElementsIfNecessary() {
