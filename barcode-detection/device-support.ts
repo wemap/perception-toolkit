@@ -16,6 +16,7 @@ import { WasmSupport } from '../src/support/wasm.js';
 export async function detectSupport() {
   const deviceSupport = new DeviceSupport();
   deviceSupport.addDetector(GetUserMediaSupport);
+  deviceSupport.addDetector(WasmSupport);
   const support = await deviceSupport.detect();
 
   if (!(support[GetUserMediaSupport.name] && support[WasmSupport.name])) {
