@@ -48,6 +48,10 @@ export class BarcodeDetectorPolyfill {
         }
       };
     });
+
+    window.addEventListener('unload', () => {
+      this.worker.terminate();
+    });
   }
 
   async detect(pixels: ImageData | HTMLImageElement): Promise<Barcode[] | null> {
