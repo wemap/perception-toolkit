@@ -11,13 +11,14 @@
 import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
+import { WasmSupport } from '../src/support/wasm.js';
 
 export async function detectSupport() {
   const deviceSupport = new DeviceSupport();
   deviceSupport.addDetector(GetUserMediaSupport);
   const support = await deviceSupport.detect();
 
-  if (!support[GetUserMediaSupport.name]) {
+  if (!(support[GetUserMediaSupport.name] && support[WasmSupport.name])) {
     // Register custom elements.
     customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 

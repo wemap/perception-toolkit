@@ -64,6 +64,11 @@ export class StreamCapture extends HTMLElement {
   static stopEvent = 'capturestopped';
 
   /**
+   * The name for stop capture events.
+   */
+  static closeEvent = 'captureclose';
+
+  /**
    * The sample scale, intended to go between `0` and `1` (though clamped only
    * to `0` in case you wish to sample at a larger scale).
    */
@@ -99,6 +104,15 @@ export class StreamCapture extends HTMLElement {
     super();
 
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
+    this.root.addEventListener('click', (evt) => {
+      const clicked =
+        evt.path ? evt.path[0] : evt.composedPath()[0] as HTMLElement;
+      if (clicked.id !== 'close') {
+        return;
+      }
+
+      fire(StreamCapture.closeEvent, this);
+    });
   }
 
   /**

@@ -17,6 +17,7 @@ export const styles = `
   overflow: hidden;
   background: #333;
   animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards;
+  --baseline: 12px;
 }
 
 canvas {
@@ -35,6 +36,26 @@ canvas {
   opacity: 0;
   transition: opacity 0.3s cubic-bezier(0, 0, 0.3, 1);
 }
+
+#close {
+  width: calc(var(--baseline) * 3);
+  height: calc(var(--baseline) * 3);
+  background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53M` +
+  `y5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI` +
+  `0Ij48cGF0aCBkPSJNMTkgNi40MUwxNy41OSA1IDEyIDEwLjU5IDYuNDEgNSA1IDYuNDEgMTAuN` +
+  `TkgMTIgNSAxNy41OSA2LjQxIDE5IDEyIDEzLjQxIDE3LjU5IDE5IDE5IDE3LjU5IDEzLjQxIDE` +
+  `yeiIvPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=);
+  background-color: #FFF;
+  background-position: center center;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
 `;
 
 export const html = `<svg id="reticle" viewBox="0 0 133 100"
@@ -47,4 +68,6 @@ export const html = `<svg id="reticle" viewBox="0 0 133 100"
   </mask>
   <rect id="reticle-box" width="133" height="100" x="0" y="0"
       fill="rgba(0,0,0,0.4)" mask="url(#reticle-cut-out)" />
-</svg>`;
+</svg>
+<button id="close">Close</button>
+`;

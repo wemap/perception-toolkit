@@ -54,6 +54,10 @@ export declare class StreamCapture extends HTMLElement {
      */
     static stopEvent: string;
     /**
+     * The name for stop capture events.
+     */
+    static closeEvent: string;
+    /**
      * The sample scale, intended to go between `0` and `1` (though clamped only
      * to `0` in case you wish to sample at a larger scale).
      */
