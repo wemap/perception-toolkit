@@ -110,6 +110,7 @@
   </head>
 <body>
   <div id="container"></div>
+  <button id="get-started">Get started</button>
 
   <!-- Step 1: Get the loader-->
   <script src="/lib/bundled/barcode-detection/loader.min.js"></script>
@@ -134,6 +135,8 @@
       const { detectSupport } = window.Toolkit.deviceSupport;
 
       const getStarted = document.body.querySelector('button#get-started');
+
+      console.log(getStarted);
 
       let loadMain;
       /**
@@ -190,7 +193,5 @@
       }
     })();
   </script>
-
-  <button id="get-started">Get started</button>
 </body>
 </html>
