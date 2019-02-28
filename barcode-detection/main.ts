@@ -65,6 +65,7 @@ async function beginDetection() {
   }
 }
 
+let hintTimeout: number;
 /**
  * Creates the stream an initializes capture.
  */
@@ -92,6 +93,10 @@ async function createStreamCapture() {
     capture.start(stream);
 
     document.body.appendChild(capture);
+
+    hintTimeout = setTimeout(() => {
+      capture.showOverlay('Make sure the barcode is inside the box.');
+    }, window.PerceptionToolkit.config.hintTimeout || 5000) as unknown as number;
   } catch (e) {
     // User has denied or there are no cameras.
     console.log(e);
@@ -118,6 +123,10 @@ async function onCaptureFrame(evt: Event) {
     detectedBarcodes.add(barcode.rawValue);
 
     vibrate(200);
+
+    // Hide the hint if it's shown. Cancel it if it's pending.
+    clearTimeout(hintTimeout);
+    (evt.target as StreamCapture).hideOverlay();
 
     // Create a card for every found barcode.
     const card = new Card();

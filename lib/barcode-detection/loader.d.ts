@@ -7,6 +7,5 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-export { injectScript } from '../src/utils/inject-script.js';
 export declare function showLoader(): void;
 export declare function hideLoader(): void;

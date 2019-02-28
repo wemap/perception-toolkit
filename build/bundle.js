@@ -78,7 +78,7 @@ async function buildBarcodeDetection() {
         .replace(/-(.)/, (v) => v.toUpperCase().substr(1));
 
     // Rollup parts.
-    const name = `Toolkit.${moduleName}`;
+    const name = `PerceptionToolkit.${moduleName}`;
     const file = `lib/bundled/barcode-detection/${newFileName}`;
     const bundle = await rollup.rollup({...options.input, input});
     await bundle.write({...options.output, file, name});

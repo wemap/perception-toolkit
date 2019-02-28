@@ -10,8 +10,6 @@
 
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 
-export { injectScript } from '../src/utils/inject-script.js';
-
 customElements.define(DotLoader.defaultTagName, DotLoader);
 
 const loader = new DotLoader();

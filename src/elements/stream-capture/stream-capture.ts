@@ -92,6 +92,7 @@ export class StreamCapture extends HTMLElement {
    */
   flipped = false;
 
+  private overlay: HTMLDivElement | undefined;
   private video: HTMLVideoElement | undefined;
   private stream: MediaStream | undefined;
   private canvas: HTMLCanvasElement | undefined;
@@ -195,6 +196,31 @@ export class StreamCapture extends HTMLElement {
         fire(StreamCapture.startEvent, this);
       });
     }, { once: true });
+  }
+
+  /**
+   * Shows an overlay message. If there is already an overlay message a second
+   * call will update the message rather than create a new overlay.
+   */
+  showOverlay(message: string) {
+    if (!this.overlay) {
+      this.overlay = document.createElement('div');
+      this.overlay.classList.add('overlay');
+    }
+
+    this.overlay.textContent = message;
+    this.root.appendChild(this.overlay);
+  }
+
+  /**
+   * Hides the overlay if there is one.
+   */
+  hideOverlay() {
+    if (!this.overlay) {
+      return;
+    }
+
+    this.overlay.remove();
   }
 
   /**

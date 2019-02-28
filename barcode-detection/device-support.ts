@@ -20,7 +20,6 @@ export async function detectSupport() {
   const support = await deviceSupport.detect();
 
   if (!(support[GetUserMediaSupport.name] && support[WasmSupport.name])) {
-    // Register custom elements.
     customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 
     const noSupport = new NoSupportCard();
