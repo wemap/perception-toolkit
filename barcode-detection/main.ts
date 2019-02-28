@@ -21,8 +21,8 @@ import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
 import { ArtifactDealer } from '../src/artifacts/artifact-dealer.js';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
 
-const artstore = new LocalArtifactStore;
-const artdealer = new ArtifactDealer;
+const artstore = new LocalArtifactStore();
+const artdealer = new ArtifactDealer();
 
 artdealer.addArtifactStore(artstore);
 
@@ -69,7 +69,7 @@ async function initialize() {
     await attemptDetection;
 
     // Start loading some artifacts.
-    /* await */ loadArtifacts();
+    await loadArtifacts();
 
     // Create the stream.
     await createStreamCapture();
@@ -86,29 +86,30 @@ async function initialize() {
  */
 async function loadArtifacts() {
   const artloader = new ArtifactLoader;
-  artloader.addEventListener('artifact-found', (evt: Event) => {
-    const { detail } = evt as CustomEvent<any>;
-    let { root, datafeed, arartifact } = detail;
-
-    artstore.addArtifact(arartifact);
-  });
 
   // Load artifacts defined on this page
-  await artloader.fromDocument(document, document.URL);
-  // Alternative:
-  // await artloader.fromHtmlUrl(new URL('./index.html', document.URL));
+  const artifactGroups = await Promise.all([
+    artloader.fromDocument(document, document.URL),
+    // artloader.fromHtmlUrl(new URL('./index.html', document.URL)),
+    artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
+  ]);
 
-  // Load artifacts from a jsonld "sitemap"
-  await artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL));
+  for (let artifacts of artifactGroups) {
+    for (let artifact of artifacts) {
+      const { root, datafeed, arartifact } = artifact;
+
+      artstore.addArtifact(arartifact);
+    }
+  };
 }
 
 /**
  * Whenever we find nearby content, show it
  */
 async function setupContentDisplay() {
-  artdealer.addEventListener('nearby-content-found', (evt: Event) => {
+  artdealer.addEventListener(ArtifactDealer.nearbyContentFoundEvent, (evt: Event) => {
     const { detail } = evt as CustomEvent<any>;
-    let { target, content } = detail;
+    const { target, content } = detail;
 
     // TODO: Card should accept the whole content object and template itself,
     // Or, card should have more properties than just src.
@@ -121,9 +122,9 @@ async function setupContentDisplay() {
     container.appendChild(card);
   });
 
-  artdealer.addEventListener('nearby-content-lost', (evt: Event) => {
+  artdealer.addEventListener(ArtifactDealer.nearbyContentLostEvent, (evt: Event) => {
     const { detail } = evt as CustomEvent<any>;
-    let { target, content } = detail;
+    const { target, content } = detail;
     // TODO: hide card after timeout?  Mark it as missing?
   });
 }

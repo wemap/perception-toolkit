@@ -1,13 +1,11 @@
 import { LocalMarkerStore } from './local-marker-store.js';
-import { LocalGeoStore } from './local-geo-store.js';
 
 /******************************************************************************/
 
 // TODO: extend EventTarget and fire events whenever store changes
 export class LocalArtifactStore {
   constructor() {
-    this._marker_store = new LocalMarkerStore;
-    this._geo_store = new LocalGeoStore;
+    this._markerStore = new LocalMarkerStore;
   }
 
   addArtifact(artifact) {
@@ -22,7 +20,7 @@ export class LocalArtifactStore {
 
     switch (target_type) {
       case "barcode":
-        this._marker_store.addArtifact(artifact, target);
+        this._markerStore.addArtifact(artifact, target);
         break;
 
       // TODO: Support other target types
@@ -33,7 +31,7 @@ export class LocalArtifactStore {
   }
 
   findRelevantArtifacts(nearbyMarkers, geo) {
-    return this._marker_store.findRelevantArtifacts(nearbyMarkers);
+    return this._markerStore.findRelevantArtifacts(nearbyMarkers);
   }
 };
 

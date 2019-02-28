@@ -60,7 +60,7 @@ export class ArtifactDealer extends EventTarget {
       let content = artifact['arcontent'] || artifact['arContent'];
 
       this.dispatchEvent(
-        new CustomEvent('nearby-content-found', { detail: { target, content }, bubbles: false })
+        new CustomEvent(ArtifactDealer.nearbyContentFoundEvent, { detail: { target, content }, bubbles: false })
       );
     }
 
@@ -69,7 +69,7 @@ export class ArtifactDealer extends EventTarget {
       let content = artifact['arcontent'] || artifact['arContent'];
 
       this.dispatchEvent(
-        new CustomEvent('nearby-content-lost', { detail: { target, content }, bubbles: false })
+        new CustomEvent(ArtifactDealer.nearbyContentLostEvent, { detail: { target, content }, bubbles: false })
       );
     }
 
@@ -80,3 +80,6 @@ export class ArtifactDealer extends EventTarget {
 }
 
 /******************************************************************************/
+
+ArtifactDealer.nearbyContentFoundEvent = 'nearby-content-found';
+ArtifactDealer.nearbyContentLostEvent = 'nearby-content-lost';
