@@ -7,4 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-export declare function detectSupport(): Promise<boolean>;
+/**
+ * Vibrates the user's device if supported.
+ */
+export declare function vibrate(pattern?: number | number[]): void;

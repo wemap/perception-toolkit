@@ -16,6 +16,7 @@ import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
+import { vibrate } from '../src/utils/vibrate.js';
 
 import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
 import { ArtifactDealer } from '../src/artifacts/artifact-dealer.js';
@@ -40,30 +41,27 @@ window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
 // necessary, or the detection fails, we should find out.
 const attemptDetection = detectBarcodes(new ImageData(1, 1));
 
-// Go!
-waitForOnboardingFinish();
-
 /**
  * Starts the user onboarding.
  */
-async function waitForOnboardingFinish() {
+export async function initialize() {
   const onboarding = document.querySelector(OnboardingCard.defaultTagName);
   if (!onboarding) {
-    initialize();
+    beginDetection();
     return;
   }
 
   // When onboarding is finished, start the stream and remove the loader.
   onboarding.addEventListener(OnboardingCard.onboardingFinishedEvent, () => {
     onboarding.remove();
-    initialize();
+    beginDetection();
   });
 }
 
 /**
  * Initializes the main behavior.
  */
-async function initialize() {
+async function beginDetection() {
   try {
     // Wait for the faked detection to resolve.
     await attemptDetection;
@@ -81,6 +79,7 @@ async function initialize() {
   }
 }
 
+let hintTimeout: number;
 /**
  * Load artifact content.  Note: this can be done async without awaiting.
  */
@@ -136,6 +135,9 @@ async function createStreamCapture() {
   const capture = new StreamCapture();
   capture.captureRate = 600;
   capture.captureScale = 0.8;
+  capture.addEventListener(StreamCapture.closeEvent, () => {
+    capture.remove();
+  });
 
   const streamOpts = {
     video: {
@@ -153,6 +155,10 @@ async function createStreamCapture() {
     capture.start(stream);
 
     document.body.appendChild(capture);
+
+    hintTimeout = setTimeout(() => {
+      capture.showOverlay('Make sure the barcode is inside the box.');
+    }, window.PerceptionToolkit.config.hintTimeout || 5000) as unknown as number;
   } catch (e) {
     // User has denied or there are no cameras.
     console.log(e);
@@ -178,7 +184,11 @@ async function onCaptureFrame(evt: Event) {
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
 
-    vibrate();
+    vibrate(200);
+
+    // Hide the hint if it's shown. Cancel it if it's pending.
+    clearTimeout(hintTimeout);
+    (evt.target as StreamCapture).hideOverlay();
 
     // TODO: Do we have access top barcode type? Or, maybe ignore types and merge by unique value only?
     artdealer.markerFound(barcode.rawValue, 'qrcode');
@@ -191,14 +201,6 @@ async function onCaptureFrame(evt: Event) {
   }
 
   loader.remove();
-}
-
-function vibrate() {
-  if (!('vibrate' in navigator)) {
-    return;
-  }
-
-  navigator.vibrate(200);
 }
 
 function showNoSupportCard() {

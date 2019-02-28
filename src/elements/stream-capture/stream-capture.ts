@@ -64,6 +64,11 @@ export class StreamCapture extends HTMLElement {
   static stopEvent = 'capturestopped';
 
   /**
+   * The name for stop capture events.
+   */
+  static closeEvent = 'captureclose';
+
+  /**
    * The sample scale, intended to go between `0` and `1` (though clamped only
    * to `0` in case you wish to sample at a larger scale).
    */
@@ -87,6 +92,7 @@ export class StreamCapture extends HTMLElement {
    */
   flipped = false;
 
+  private overlay: HTMLDivElement | undefined;
   private video: HTMLVideoElement | undefined;
   private stream: MediaStream | undefined;
   private canvas: HTMLCanvasElement | undefined;
@@ -99,6 +105,15 @@ export class StreamCapture extends HTMLElement {
     super();
 
     this.root.innerHTML = `<style>${styles}</style> ${html}`;
+    this.root.addEventListener('click', (evt) => {
+      const clicked =
+        evt.path ? evt.path[0] : evt.composedPath()[0] as HTMLElement;
+      if (clicked.id !== 'close') {
+        return;
+      }
+
+      fire(StreamCapture.closeEvent, this);
+    });
   }
 
   /**
@@ -183,31 +198,29 @@ export class StreamCapture extends HTMLElement {
     }, { once: true });
   }
 
-  setReticleOrientation(vertical: boolean) {
-    const reticle = this.root.querySelector('#reticle') as HTMLElement;
-    if (!reticle) {
+  /**
+   * Shows an overlay message. If there is already an overlay message a second
+   * call will update the message rather than create a new overlay.
+   */
+  showOverlay(message: string) {
+    if (!this.overlay) {
+      this.overlay = document.createElement('div');
+      this.overlay.classList.add('overlay');
+    }
+
+    this.overlay.textContent = message;
+    this.root.appendChild(this.overlay);
+  }
+
+  /**
+   * Hides the overlay if there is one.
+   */
+  hideOverlay() {
+    if (!this.overlay) {
       return;
     }
 
-    if (vertical) {
-      reticle.setAttribute('viewBox', '0 0 100 133');
-      const maskOuter = reticle.querySelector('#reticle-cut-out-outer');
-      const maskInner = reticle.querySelector('#reticle-cut-out-inner');
-      const reticleBox = reticle.querySelector('#reticle-box');
-
-      if (!maskOuter || !maskInner || !reticleBox) {
-        return;
-      }
-
-      maskOuter.setAttribute('width', '100');
-      maskOuter.setAttribute('height', '133');
-      maskInner.setAttribute('x', '13');
-      maskInner.setAttribute('y', '29');
-      reticleBox.setAttribute('width', '100');
-      reticleBox.setAttribute('height', '133');
-    }
-
-    reticle.style.opacity = '1';
+    this.overlay.remove();
   }
 
   /**
@@ -266,6 +279,35 @@ export class StreamCapture extends HTMLElement {
     this.ctx = undefined;
 
     fire(StreamCapture.stopEvent, this);
+  }
+
+  private setReticleOrientation(vertical: boolean) {
+    const reticle = this.root.querySelector('#reticle') as HTMLElement;
+    /* istanbul ignore if */
+    if (!reticle) {
+      return;
+    }
+
+    if (vertical) {
+      reticle.setAttribute('viewBox', '0 0 100 133');
+      const maskOuter = reticle.querySelector('#reticle-cut-out-outer');
+      const maskInner = reticle.querySelector('#reticle-cut-out-inner');
+      const reticleBox = reticle.querySelector('#reticle-box');
+
+      /* istanbul ignore if */
+      if (!maskOuter || !maskInner || !reticleBox) {
+        return;
+      }
+
+      maskOuter.setAttribute('width', '100');
+      maskOuter.setAttribute('height', '133');
+      maskInner.setAttribute('x', '8');
+      maskInner.setAttribute('y', '24');
+      reticleBox.setAttribute('width', '100');
+      reticleBox.setAttribute('height', '133');
+    }
+
+    reticle.style.opacity = '1';
   }
 
   private initElementsIfNecessary() {

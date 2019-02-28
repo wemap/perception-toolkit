@@ -131,58 +131,22 @@
   </head>
 <body>
   <div id="container"></div>
-
-  <script src="/lib/bundled/barcode-detection/loader.min.js" defer></script>
-  <script type="module">
-    const { showLoader } = window.Toolkit.loader;
-    showLoader();
-  </script>
-
-  <script src="/lib/bundled/barcode-detection/device-support.min.js" defer></script>
-  <script src="/lib/bundled/barcode-detection/onboarding.min.js" defer></script>
-
-  <script type="module">
-    const { hideLoader, showLoader } = window.Toolkit.loader;
-    const { startOnboardingProcess } = window.Toolkit.onboarding;
-    const { detectSupport } = window.Toolkit.deviceSupport;
-
-    async function init() {
-      try {
-        await detectSupport();
-        // await startOnboardingProcess([
-        //   '/demo/images/step1.jpg',
-        //   '/demo/images/step2.jpg',
-        //   '/demo/images/step3.jpg'
-        // ]);
-
-        // Load the main experience, unbundled.
-        const mod = document.createElement('script');
-        mod.type = 'module';
-        mod.src = '/lib/barcode-detection/main.js';
-        document.head.appendChild(mod);
-
-        // And bundled.
-        const nonmod = document.createElement('script');
-        nonmod.setAttribute('nomodule', 'nomodule');
-        nonmod.src = '/lib/bundled/barcode-detection/main.js'
-        document.head.appendChild(nonmod);
-
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-
-    hideLoader();
-    const getStarted = document.body.querySelector('button#get-started');
-    getStarted.classList.add('visible');
-    getStarted.addEventListener('click', (e) => {
-      showLoader();
-      e.target.classList.remove('visible');
-      init();
-    });
-  </script>
-
   <button id="get-started">Get started</button>
+
+  <script>
+    window.PerceptionToolkit = window.PerceptionToolkit || {};
+    window.PerceptionToolkit.config = {
+      button: document.getElementById('get-started'),
+      onboarding: true,
+      onboardingImages: [
+        '/demo/images/step1.jpg',
+        '/demo/images/step2.jpg',
+        '/demo/images/step3.jpg'
+      ],
+      hintTimeout: 7000
+    };
+  </script>
+
+  <script src="/lib/bundled/barcode-detection/barcode-detection.min.js"></script>
 </body>
 </html>

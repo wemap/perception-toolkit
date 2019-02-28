@@ -7,4 +7,17 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-export declare function detectSupport(): Promise<boolean>;
+export declare class Speech {
+    message: string;
+    autoplay: boolean;
+    private utterance;
+    readonly voices: SpeechSynthesisVoice[];
+    configure({ voiceIndex, volume, rate, pitch, lang }?: {
+        voiceIndex?: number | undefined;
+        volume?: number | undefined;
+        rate?: number | undefined;
+        pitch?: number | undefined;
+        lang?: string | undefined;
+    }): void;
+    say(message?: string): void;
+}
