@@ -1,7 +1,7 @@
-# Ambient AR Toolkit
+# Perception Toolkit
 
 This toolkit provides a set of components and utilities for developers to add an
-ambient AR experience to their website. For example, a primary use-case supported
+augmented experience to their website. For example, a primary use-case supported
 is the ability to detect barcodes (in -- say -- a real-world store) with the
 user's device camera, and to show them extended information on a given product.
 
@@ -27,7 +27,7 @@ Included in this toolkit is:
 
 ## Getting started
 
-1. `git clone https://github.com/PolymerLabs/ambient-ar`
+1. `git clone https://github.com/PolymerLabs/perception-toolkit`
 1. `npm i`
 1. `npm run build`
 1. `npm run serve`
