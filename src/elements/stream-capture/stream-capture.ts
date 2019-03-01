@@ -10,7 +10,6 @@
 
 import { clamp } from '../../utils/clamp.js';
 import { fire } from '../../utils/fire.js';
-import { DEBUG_LEVEL, log } from '../../utils/index.js';
 import { html, styles } from './stream-capture.template.js';
 
 /**
