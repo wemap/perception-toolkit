@@ -66,7 +66,7 @@ module.exports = function(config) {
       ],
 
       coverageOptions: {
-        exclude: [/_test.tsx?$/, /worker.ts/]
+        exclude: [/_test.tsx?$/, /worker.ts/, /vibrate.ts/, /speech.ts/]
       }
     },
 
@@ -82,7 +82,7 @@ module.exports = function(config) {
           browsers.push("Firefox");
         }
 
-        return browsers;
+        return ['ChromeHeadless'];
       }
     },
 

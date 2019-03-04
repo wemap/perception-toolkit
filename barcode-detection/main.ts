@@ -36,6 +36,8 @@ customElements.define(Card.defaultTagName, Card);
 
 // Register events.
 window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
+window.addEventListener('offline', onConnectivityChanged);
+window.addEventListener('online', onConnectivityChanged);
 
 // While the onboarding begins, attempt a fake detection. If the polyfill is
 // necessary, or the detection fails, we should find out.
@@ -201,6 +203,22 @@ async function onCaptureFrame(evt: Event) {
   }
 
   loader.remove();
+}
+
+function onConnectivityChanged() {
+  const connected = navigator.onLine;
+  const capture =
+      document.body.querySelector(StreamCapture.defaultTagName) as StreamCapture;
+
+  if (!capture) {
+    return;
+  }
+
+  if (!connected) {
+    capture.showOverlay('Currently offline. Please reconnect to the network.');
+  } else {
+    capture.hideOverlay();
+  }
 }
 
 function showNoSupportCard() {

@@ -181,4 +181,23 @@ describe('StreamCapture', function() {
       capture.remove();
     }, 100);
   });
+
+  it('shows and hides overlays', () => {
+    const message = 'Hello, World';
+    capture.start(stream);
+    document.body.appendChild(capture);
+
+    capture.showOverlay(message);
+
+    assert.exists(capture.shadowRoot!.querySelector('.overlay'));
+    assert.equal(capture.shadowRoot!.querySelector('.overlay').textContent,
+        message);
+
+    capture.hideOverlay();
+    assert.notExists(capture.shadowRoot!.querySelector('.overlay'));
+  });
+
+  it('handles hiding non-existent overlays', () => {
+    assert.doesNotThrow(() => capture.hideOverlay());
+  });
 });
