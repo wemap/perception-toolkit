@@ -97,7 +97,6 @@ async function loadArtifacts() {
     for (let artifact of artifacts) {
       const { root, datafeed, arartifact } = artifact;
 
-      console.log(arartifact);
       artstore.addArtifact(arartifact);
     }
   };

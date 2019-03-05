@@ -70,6 +70,6 @@ export class ArtifactDecoder {
   }
 
   _decodeArArtifact(params) {
-    return [Object.assign(params)];
+    return [{ ...params }];
   }
 }
