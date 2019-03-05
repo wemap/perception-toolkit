@@ -33,6 +33,7 @@ export class ArtifactDealer {
 
   async markerFound(value, type) {
     this._nearbyMarkers.set(generateMarkerId(type, value), { value, type });
+
     return this._generateDiffs();
   }
 

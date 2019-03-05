@@ -22,6 +22,7 @@ import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
 import { ArtifactDealer } from '../src/artifacts/artifact-dealer.js';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
 
+const artloader = new ArtifactLoader();
 const artstore = new LocalArtifactStore();
 const artdealer = new ArtifactDealer();
 
@@ -84,8 +85,6 @@ let hintTimeout: number;
  * Load artifact content.  Note: this can be done async without awaiting.
  */
 async function loadArtifacts() {
-  const artloader = new ArtifactLoader();
-
   // Load artifacts defined on this page
   const artifactGroups = await Promise.all([
     artloader.fromDocument(document, document.URL),
@@ -131,6 +130,24 @@ async function updateContentDisplay(contentDiff: ArtDealerContentDiff) {
     const container = createContainerIfRequired();
     container.appendChild(card);
   }
+}
+
+async function onMarkerFound(markerValue: string) {
+  // If this marker is a URL, try loading artifacts from that URL
+  try {
+    const url = new URL(markerValue, document.URL);
+    const artifacts = await artloader.fromHtmlUrl(url);
+
+    for (let artifact of artifacts) {
+      const { root, datafeed, arartifact } = artifact;
+
+      artstore.addArtifact(arartifact);
+    }
+  } catch (_) {
+  }
+
+  const contentDiffs: ArtDealerContentDiff = await artdealer.markerFound(markerValue, 'qrcode');
+  updateContentDisplay(contentDiffs);
 }
 
 /**
@@ -195,8 +212,7 @@ async function onCaptureFrame(evt: Event) {
     clearTimeout(hintTimeout);
     (evt.target as StreamCapture).hideOverlay();
 
-    const contentDiffs: ArtDealerContentDiff = await artdealer.markerFound(barcode.rawValue, 'qrcode');
-    updateContentDisplay(contentDiffs);
+    await onMarkerFound(barcode.rawValue);
   }
 
   // Hide the loader if there is one.
