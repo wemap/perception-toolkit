@@ -73,8 +73,6 @@ async function beginDetection() {
 
     // Create the stream.
     await createStreamCapture();
-
-    await setupContentDisplay();
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
     showNoSupportCard();
@@ -86,7 +84,7 @@ let hintTimeout: number;
  * Load artifact content.  Note: this can be done async without awaiting.
  */
 async function loadArtifacts() {
-  const artloader = new ArtifactLoader;
+  const artloader = new ArtifactLoader();
 
   // Load artifacts defined on this page
   const artifactGroups = await Promise.all([
@@ -99,19 +97,31 @@ async function loadArtifacts() {
     for (let artifact of artifacts) {
       const { root, datafeed, arartifact } = artifact;
 
+      console.log(arartifact);
       artstore.addArtifact(arartifact);
     }
   };
 }
 
+// TODO: this is temporary fix, will remove when JS code migrates to TS
+interface ArtDealerResult {
+  target: object;
+  content: {
+    name: string
+  };
+  artifact: object;
+};
+
+interface ArtDealerContentDiff {
+  found: Array<ArtDealerResult>;
+  lost: Array<ArtDealerResult>;
+};
+
 /**
  * Whenever we find nearby content, show it
  */
-async function setupContentDisplay() {
-  artdealer.addEventListener(ArtifactDealer.nearbyContentFoundEvent, (evt: Event) => {
-    const { detail } = evt as CustomEvent<any>;
-    const { target, content } = detail;
-
+async function updateContentDisplay(contentDiff: ArtDealerContentDiff) {
+  for (let { target, content, artifact } of contentDiff.found) {
     // TODO: Card should accept the whole content object and template itself,
     // Or, card should have more properties than just src.
 
@@ -121,13 +131,7 @@ async function setupContentDisplay() {
 
     const container = createContainerIfRequired();
     container.appendChild(card);
-  });
-
-  artdealer.addEventListener(ArtifactDealer.nearbyContentLostEvent, (evt: Event) => {
-    const { detail } = evt as CustomEvent<any>;
-    const { target, content } = detail;
-    // TODO: hide card after timeout?  Mark it as missing?
-  });
+  }
 }
 
 /**
@@ -192,8 +196,8 @@ async function onCaptureFrame(evt: Event) {
     clearTimeout(hintTimeout);
     (evt.target as StreamCapture).hideOverlay();
 
-    // TODO: Do we have access top barcode type? Or, maybe ignore types and merge by unique value only?
-    artdealer.markerFound(barcode.rawValue, 'qrcode');
+    const contentDiffs: ArtDealerContentDiff = await artdealer.markerFound(barcode.rawValue, 'qrcode');
+    updateContentDisplay(contentDiffs);
   }
 
   // Hide the loader if there is one.

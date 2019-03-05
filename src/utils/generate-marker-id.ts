@@ -8,24 +8,10 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-
-export class LocalMarkerStore {
-  constructor() {
-    this._markers = new Map;
-  }
-
-  addArtifact(artifact, marker) {
-    let marker_value = marker.text;
-
-    this._markers.set(marker_value, { target: marker, artifact });
-  }
-
-  findRelevantArtifacts(nearbyMarkers) {
-    let ret = [];
-    for (let nearbyMarker of nearbyMarkers) {
-      let targetAndArtifact = this._markers.get(nearbyMarker.value);
-      if (targetAndArtifact) ret.push(targetAndArtifact);
-    }
-    return ret;
-  }
+/**
+ * Convert a marker type (barcode, qrcode, etc) and its value into a unique id
+ *
+ */
+export function generateMarkerId(type: string, value: string): string {
+  return type + '__' + value;
 }

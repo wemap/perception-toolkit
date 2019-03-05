@@ -1,32 +1,35 @@
+/**
+ * @license
+ * Copyright (c) 2019 The Polymer Project Authors. All rights reserved.
+ * This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+ * The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+ * The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+ * Code distributed by Google as part of the polymer project is also
+ * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+ */
+
 import { LocalMarkerStore } from './local-marker-store.js';
 
-/******************************************************************************/
-
-// TODO: extend EventTarget and fire events whenever store changes
 export class LocalArtifactStore {
   constructor() {
     this._markerStore = new LocalMarkerStore;
   }
 
   addArtifact(artifact) {
-    let target = artifact['arTarget'] || artifact['artarget'];
-
+    const target = artifact['arTarget'];
     if (!target) {
       return;
     }
 
-    let target_type = target['@type'] || '';
-    target_type = target_type.toLowerCase().trim();
+    const target_type = target['@type'] || '';
 
     switch (target_type) {
-      case "barcode":
+      case "Barcode":
         this._markerStore.addArtifact(artifact, target);
         break;
 
-      // TODO: Support other target types
-
       default:
-        break; // We ignore syntax we don't understand, and move on
+        break; // We ignore types we don't support, and move on
     }
   }
 
@@ -34,5 +37,3 @@ export class LocalArtifactStore {
     return this._markerStore.findRelevantArtifacts(nearbyMarkers);
   }
 };
-
-/******************************************************************************/
