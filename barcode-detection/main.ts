@@ -15,6 +15,7 @@ import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.j
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
+import { fire } from '../src/utils/fire.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
 import { vibrate } from '../src/utils/vibrate.js';
 
@@ -37,30 +38,30 @@ const attemptDetection = detectBarcodes(new ImageData(1, 1));
 /**
  * Starts the user onboarding.
  */
-export async function initialize() {
+export async function initialize(detectionMode: 'active' | 'passive' = 'passive') {
   const onboarding = document.querySelector(OnboardingCard.defaultTagName);
   if (!onboarding) {
-    beginDetection();
+    beginDetection(detectionMode);
     return;
   }
 
   // When onboarding is finished, start the stream and remove the loader.
   onboarding.addEventListener(OnboardingCard.onboardingFinishedEvent, () => {
     onboarding.remove();
-    beginDetection();
+    beginDetection(detectionMode);
   });
 }
 
 /**
  * Initializes the main behavior.
  */
-async function beginDetection() {
+async function beginDetection(detectionMode: 'active' | 'passive') {
   try {
     // Wait for the faked detection to resolve.
     await attemptDetection;
 
     // Create the stream.
-    await createStreamCapture();
+    await createStreamCapture(detectionMode);
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
     showNoSupportCard();
@@ -71,9 +72,19 @@ let hintTimeout: number;
 /**
  * Creates the stream an initializes capture.
  */
-async function createStreamCapture() {
+async function createStreamCapture(detectionMode: 'active' | 'passive') {
   const capture = new StreamCapture();
-  capture.captureRate = 600;
+  if (detectionMode === 'passive') {
+    capture.captureRate = 600;
+  } else {
+    capture.showOverlay('Tap to capture');
+    capture.addEventListener('click', async () => {
+      capture.paused = true;
+      capture.showOverlay('Processing...');
+      const imgData = await capture.captureFrame();
+      fire(StreamCapture.frameEvent, capture, {imgData, detectionMode});
+    });
+  }
   capture.captureScale = 0.8;
   capture.addEventListener(StreamCapture.closeEvent, () => {
     capture.remove();
@@ -105,6 +116,7 @@ async function createStreamCapture() {
   }
 }
 
+let isProcessingCapture = false;
 /**
  * Processes the image data captured by the StreamCapture class, and hands off
  * the image data to the barcode detector for processing.
@@ -112,8 +124,15 @@ async function createStreamCapture() {
  * @param evt The Custom Event containing the captured frame data.
  */
 async function onCaptureFrame(evt: Event) {
-  const { detail } = evt as CustomEvent<{imgData: ImageData}>;
-  const { imgData } = detail;
+  // Prevent overloading the capture process.
+  if (isProcessingCapture) {
+    return;
+  }
+  isProcessingCapture = true;
+
+  const capture = evt.target as StreamCapture;
+  const { detail } = evt as CustomEvent<{imgData: ImageData, detectionMode?: string}>;
+  const { detectionMode, imgData } = detail;
   const barcodes = await detectBarcodes(imgData);
 
   for (const barcode of barcodes) {
@@ -126,10 +145,6 @@ async function onCaptureFrame(evt: Event) {
 
     vibrate(200);
 
-    // Hide the hint if it's shown. Cancel it if it's pending.
-    clearTimeout(hintTimeout);
-    (evt.target as StreamCapture).hideOverlay();
-
     // Create a card for every found barcode.
     const card = new Card();
     card.src = barcode.rawValue;
@@ -137,6 +152,17 @@ async function onCaptureFrame(evt: Event) {
     const container = createContainerIfRequired();
     container.appendChild(card);
   }
+
+  if (barcodes.length > 0) {
+    // Hide the hint if it's shown. Cancel it if it's pending.
+    clearTimeout(hintTimeout);
+    capture.hideOverlay();
+  } else if (detectionMode && detectionMode === 'active') {
+    capture.showOverlay('No barcodes found');
+  }
+
+  capture.paused = false;
+  isProcessingCapture = false;
 
   // Hide the loader if there is one.
   const loader = document.querySelector(DotLoader.defaultTagName);

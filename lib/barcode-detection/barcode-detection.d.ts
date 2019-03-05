@@ -21,6 +21,7 @@ declare global {
                 button?: HTMLElement;
                 buttonSelector?: string;
                 hintTimeout?: number;
+                detectionMode?: 'active' | 'passive';
             };
             deviceSupport: {
                 detectSupport(): Promise<boolean>;
@@ -30,7 +31,7 @@ declare global {
                 showLoader(): void;
             };
             main: {
-                initialize(): void;
+                initialize(detectionMode?: 'active' | 'passive'): void;
             };
             onboarding: {
                 startOnboardingProcess(images: string[]): Promise<void>;

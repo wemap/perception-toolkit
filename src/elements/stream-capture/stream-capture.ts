@@ -91,6 +91,11 @@ export class StreamCapture extends HTMLElement {
    */
   flipped = false;
 
+  /**
+   * Whether to pause the frame.
+   */
+  paused = false;
+
   private overlay: HTMLDivElement | undefined;
   private video: HTMLVideoElement | undefined;
   private stream: MediaStream | undefined;
@@ -140,9 +145,11 @@ export class StreamCapture extends HTMLElement {
         return;
       }
 
-      this.ctx.drawImage(this.video, 0, 0,
-          this.video.videoWidth * scale,
-          this.video.videoHeight * scale);
+      if (!this.paused) {
+        this.ctx.drawImage(this.video, 0, 0,
+            this.video.videoWidth * scale,
+            this.video.videoHeight * scale);
+      }
 
       if (this.captureRate !== 0 && now - this.lastCapture > this.captureRate) {
         this.lastCapture = now;

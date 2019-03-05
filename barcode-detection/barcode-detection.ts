@@ -24,7 +24,8 @@ declare global {
         onboardingImages?: string[],
         button?: HTMLElement,
         buttonSelector?: string,
-        hintTimeout?: number
+        hintTimeout?: number,
+        detectionMode?: 'active' | 'passive'
       },
 
       deviceSupport: {
@@ -37,7 +38,7 @@ declare global {
       },
 
       main: {
-        initialize(): void;
+        initialize(detectionMode?: 'active' | 'passive'): void;
       }
 
       onboarding: {
@@ -132,5 +133,5 @@ export async function initializeExperience() {
   }
 
   const { initialize } = window.PerceptionToolkit.main;
-  initialize();
+  initialize(config.detectionMode);
 }

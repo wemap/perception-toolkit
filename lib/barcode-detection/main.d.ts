@@ -10,4 +10,4 @@
 /**
  * Starts the user onboarding.
  */
-export declare function initialize(): Promise<void>;
+export declare function initialize(detectionMode?: 'active' | 'passive'): Promise<void>;

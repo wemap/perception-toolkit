@@ -77,6 +77,10 @@ export declare class StreamCapture extends HTMLElement {
      * Whether to flip the stream's image.
      */
     flipped: boolean;
+    /**
+     * Whether to pause the frame.
+     */
+    paused: boolean;
     private overlay;
     private video;
     private stream;
