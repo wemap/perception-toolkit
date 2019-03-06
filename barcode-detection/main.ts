@@ -98,13 +98,36 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
 
   // Attempt to get access to the user's camera.
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(streamOpts);
+    let stream = await navigator.mediaDevices.getUserMedia(streamOpts);
     const devices = await navigator.mediaDevices.enumerateDevices();
 
     const hasEnvCamera = await supportsEnvironmentCamera(devices);
     capture.flipped = !hasEnvCamera;
-    capture.start(stream);
 
+    // Ensure the stream is stopped and started when the user changes tabs.
+    let isRequestingNewStream = false;
+    window.addEventListener('visibilitychange', async () => {
+      if (isRequestingNewStream) {
+        return;
+      }
+
+      if (document.hidden) {
+        capture.stop();
+      } else {
+        // Block multiple requests for a new stream.
+        isRequestingNewStream = true;
+        stream = await navigator.mediaDevices.getUserMedia(streamOpts);
+        isRequestingNewStream = false;
+
+        // Bail if the document is hidden again.
+        if (document.hidden) {
+          return;
+        }
+        capture.start(stream);
+      }
+    });
+
+    capture.start(stream);
     document.body.appendChild(capture);
 
     hintTimeout = setTimeout(() => {

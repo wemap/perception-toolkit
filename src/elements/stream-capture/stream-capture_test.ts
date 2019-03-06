@@ -200,4 +200,13 @@ describe('StreamCapture', function() {
   it('handles hiding non-existent overlays', () => {
     assert.doesNotThrow(() => capture.hideOverlay());
   });
+
+  it('handles stop calls when already stopped', (done) => {
+    capture.start(stream);
+    capture.addEventListener(StreamCapture.startEvent, () => {
+      capture.stop();
+      assert.doesNotThrow(() => capture.stop());
+      done();
+    });
+  });
 });
