@@ -143,7 +143,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   }
 }
 
-export function close(evt: Event) {
+export function close() {
   capture.stop();
   capture.remove();
 }
