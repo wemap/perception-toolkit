@@ -124,6 +124,16 @@
       ],
       hintTimeout: 7000
     };
+
+    window.addEventListener('barcodedetect', (evt) => {
+      const { vibrate, ActionButton, Card } = window.PerceptionToolkit.main;
+      vibrate(200);
+
+      const card = new Card();
+      card.src = evt.detail.value;
+      document.body.querySelector('#container').appendChild(card);
+    });
+
   </script>
 
   <script src="/lib/bundled/barcode-detection/barcode-detection.min.js"></script>

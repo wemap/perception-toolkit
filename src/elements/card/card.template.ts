@@ -16,10 +16,10 @@ export const styles = `
   --borderRadius: 5px;
   --color: #333;
   --fontFamily: 'Arial', 'Helvetica', sans-serif;
-  --padding: calc(var(--baseline) * 4)
-      calc(var(--baseline) * 4)
+  --padding: calc(var(--baseline) * 2)
       calc(var(--baseline) * 2)
-      calc(var(--baseline) * 3);
+      calc(var(--baseline) * 1)
+      calc(var(--baseline) * 2);
 
   position: relative;
   display: inline-block;
