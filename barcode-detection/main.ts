@@ -74,18 +74,12 @@ async function beginDetection(detectionMode: 'active' | 'passive') {
   }
 }
 
-export function close(evt: Event) {
-  const capture = evt.target as StreamCapture;
-  capture.stop();
-  capture.remove();
-}
-
 let hintTimeout: number;
+const capture = new StreamCapture();
 /**
  * Creates the stream an initializes capture.
  */
 async function createStreamCapture(detectionMode: 'active' | 'passive') {
-  const capture = new StreamCapture();
   if (detectionMode === 'passive') {
     capture.captureRate = 600;
   } else {
@@ -147,6 +141,11 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
     // User has denied or there are no cameras.
     console.log(e);
   }
+}
+
+export function close(evt: Event) {
+  capture.stop();
+  capture.remove();
 }
 
 let isProcessingCapture = false;
