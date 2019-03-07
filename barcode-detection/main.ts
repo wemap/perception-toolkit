@@ -12,7 +12,6 @@ import { detectBarcodes } from '../src/detectors/barcode.js';
 import { ActionButton } from '../src/elements/action-button/action-button.js';
 import { Card } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
-import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
@@ -29,7 +28,6 @@ const cameraAccessDenied = 'cameraaccessdenied';
 
 // Register custom elements.
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
-customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 customElements.define(Card.defaultTagName, Card);
 customElements.define(ActionButton.defaultTagName, ActionButton);
 
@@ -71,7 +69,6 @@ async function beginDetection(detectionMode: 'active' | 'passive') {
     await createStreamCapture(detectionMode);
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
-    showNoSupportCard();
   }
 }
 
@@ -166,7 +163,10 @@ async function onCaptureFrame(evt: Event) {
   const capture = evt.target as StreamCapture;
   const { detail } = evt as CustomEvent<{imgData: ImageData, detectionMode?: string}>;
   const { detectionMode, imgData } = detail;
-  const barcodes = await detectBarcodes(imgData);
+  const { root = '' } = window.PerceptionToolkit.config;
+  const barcodes = await detectBarcodes(imgData, {
+    polyfillPrefix: root
+  });
 
   for (const barcode of barcodes) {
     if (detectedBarcodes.has(barcode.rawValue)) {
@@ -217,9 +217,4 @@ function onConnectivityChanged() {
   } else {
     capture.hideOverlay();
   }
-}
-
-function showNoSupportCard() {
-  const noSupport = new NoSupportCard();
-  document.body.appendChild(noSupport);
 }
