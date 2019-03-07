@@ -14,3 +14,4 @@ export { ActionButton } from '../src/elements/action-button/action-button.js';
  * Starts the user onboarding.
  */
 export declare function initialize(detectionMode?: 'active' | 'passive'): Promise<void>;
+export declare function close(evt: Event): void;
