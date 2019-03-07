@@ -74,6 +74,12 @@ async function beginDetection(detectionMode: 'active' | 'passive') {
   }
 }
 
+export function close(evt: Event) {
+  const capture = evt.target as StreamCapture;
+  capture.stop();
+  capture.remove();
+}
+
 let hintTimeout: number;
 /**
  * Creates the stream an initializes capture.
@@ -92,10 +98,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
     });
   }
   capture.captureScale = 0.8;
-  capture.addEventListener(StreamCapture.closeEvent, () => {
-    capture.stop();
-    capture.remove();
-  });
+  capture.addEventListener(StreamCapture.closeEvent, close);
 
   const streamOpts = {
     video: {
