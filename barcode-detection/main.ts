@@ -25,6 +25,7 @@ export { ActionButton } from '../src/elements/action-button/action-button.js';
 
 const detectedBarcodes = new Set<string>();
 const barcodeDetect = 'barcodedetect';
+const cameraAccessDenied = 'cameraaccessdenied';
 
 // Register custom elements.
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
@@ -139,7 +140,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
     }, window.PerceptionToolkit.config.hintTimeout || 5000) as unknown as number;
   } catch (e) {
     // User has denied or there are no cameras.
-    console.log(e);
+    fire(cameraAccessDenied, window);
   }
 }
 
@@ -221,16 +222,4 @@ function onConnectivityChanged() {
 function showNoSupportCard() {
   const noSupport = new NoSupportCard();
   document.body.appendChild(noSupport);
-}
-
-function createContainerIfRequired() {
-  let detectedBarcodesContainer = document.querySelector('#container');
-
-  if (!detectedBarcodesContainer) {
-    detectedBarcodesContainer = document.createElement('div');
-    detectedBarcodesContainer.id = 'container';
-    document.body.appendChild(detectedBarcodesContainer);
-  }
-
-  return detectedBarcodesContainer;
 }

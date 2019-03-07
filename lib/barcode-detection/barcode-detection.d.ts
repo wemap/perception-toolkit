@@ -20,11 +20,10 @@ declare global {
                 onboardingImages?: string[];
                 button?: HTMLElement;
                 buttonSelector?: string;
+                buttonVisibilityClass?: string;
                 hintTimeout?: number;
                 detectionMode?: 'active' | 'passive';
-            };
-            deviceSupport: {
-                detectSupport(): Promise<boolean>;
+                showLoaderDuringBoot?: boolean;
             };
             loader: {
                 hideLoader(): void;
