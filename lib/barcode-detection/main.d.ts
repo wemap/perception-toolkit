@@ -7,6 +7,9 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
+export { vibrate } from '../src/utils/vibrate.js';
+export { Card } from '../src/elements/card/card.js';
+export { ActionButton } from '../src/elements/action-button/action-button.js';
 /**
  * Starts the user onboarding.
  */

@@ -9,6 +9,7 @@
  */
 
 import { detectBarcodes } from '../src/detectors/barcode.js';
+import { ActionButton } from '../src/elements/action-button/action-button.js';
 import { Card } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
@@ -17,14 +18,19 @@ import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js'
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { fire } from '../src/utils/fire.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
-import { vibrate } from '../src/utils/vibrate.js';
+
+export { vibrate } from '../src/utils/vibrate.js';
+export { Card } from '../src/elements/card/card.js';
+export { ActionButton } from '../src/elements/action-button/action-button.js';
 
 const detectedBarcodes = new Set<string>();
+const barcodeDetect = 'barcodedetect';
 
 // Register custom elements.
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
 customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 customElements.define(Card.defaultTagName, Card);
+customElements.define(ActionButton.defaultTagName, ActionButton);
 
 // Register events.
 window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
@@ -165,15 +171,7 @@ async function onCaptureFrame(evt: Event) {
 
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
-
-    vibrate(200);
-
-    // Create a card for every found barcode.
-    const card = new Card();
-    card.src = barcode.rawValue;
-
-    const container = createContainerIfRequired();
-    container.appendChild(card);
+    fire(barcodeDetect, capture, { value: barcode.rawValue });
   }
 
   if (barcodes.length > 0) {
@@ -185,7 +183,12 @@ async function onCaptureFrame(evt: Event) {
   }
 
   capture.paused = false;
-  isProcessingCapture = false;
+
+  // Provide a cool-off before allowing another detection. This aids the case
+  // where a recently-scanned barcode is mistakenly re-scanned, but with errors.
+  setTimeout(() => {
+    isProcessingCapture = false;
+  }, 1000);
 
   // Hide the loader if there is one.
   const loader = document.querySelector(DotLoader.defaultTagName);
