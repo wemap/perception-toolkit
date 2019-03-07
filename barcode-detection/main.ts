@@ -93,6 +93,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   }
   capture.captureScale = 0.8;
   capture.addEventListener(StreamCapture.closeEvent, () => {
+    capture.stop();
     capture.remove();
   });
 
