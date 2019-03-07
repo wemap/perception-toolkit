@@ -38,7 +38,8 @@ window.addEventListener('online', onConnectivityChanged);
 
 // While the onboarding begins, attempt a fake detection. If the polyfill is
 // necessary, or the detection fails, we should find out.
-const attemptDetection = detectBarcodes(new ImageData(1, 1));
+const polyfillPrefix = window.PerceptionToolkit.config.root || '';
+const attemptDetection = detectBarcodes(new ImageData(1, 1), { polyfillPrefix });
 
 /**
  * Starts the user onboarding.
@@ -163,10 +164,7 @@ async function onCaptureFrame(evt: Event) {
   const capture = evt.target as StreamCapture;
   const { detail } = evt as CustomEvent<{imgData: ImageData, detectionMode?: string}>;
   const { detectionMode, imgData } = detail;
-  const { root = '' } = window.PerceptionToolkit.config;
-  const barcodes = await detectBarcodes(imgData, {
-    polyfillPrefix: root
-  });
+  const barcodes = await detectBarcodes(imgData, { polyfillPrefix });
 
   for (const barcode of barcodes) {
     if (detectedBarcodes.has(barcode.rawValue)) {
