@@ -115,11 +115,12 @@ export async function initializeExperience() {
   const { idbKeyval } = window;
   const { hideLoader } = window.PerceptionToolkit.loader;
   const { config } = window.PerceptionToolkit;
+  const { root = '' } = config;
   hideLoader();
 
   // Recall whether the user has done onboarding before.
   const onboarded = await idbKeyval.get('onboarded');
-  if (!onboarded && config && config.onboardingImages) {
+  if (!onboarded && config && config.onboardingImages && config.onboarding) {
     await startOnboardingProcess(config.onboardingImages);
 
     // Store for next time.
@@ -129,7 +130,7 @@ export async function initializeExperience() {
   // Load the main experience if necessary.
   if (!loadMain) {
     loadMain =
-        await injectScript('/lib/bundled/barcode-detection/main.min.js');
+        await injectScript(`${root}/lib/bundled/barcode-detection/main.min.js`);
   }
 
   const { initialize } = window.PerceptionToolkit.main;
