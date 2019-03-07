@@ -214,11 +214,11 @@ export class Card extends HTMLElement {
   }
 
   private srcIsCardData(msg: string | URL | CardData): msg is CardData {
-    return typeof msg === 'object' && (msg as URL).href === 'undefined';
+    return typeof msg === 'object' && typeof (msg as URL).href === 'undefined';
   }
 
   private srcIsUrl(msg: string | URL | CardData): msg is URL {
-    return typeof msg === 'object' && (msg as URL).href !== 'undefined';
+    return typeof msg === 'object' && typeof (msg as URL).href !== 'undefined';
   }
 
   private setDimensions() {
