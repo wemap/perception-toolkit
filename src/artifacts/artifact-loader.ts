@@ -8,11 +8,11 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { ArtifactDecoder } from './artifact-decoder.js';
+import { ArtifactDecoder, JsonLd } from './artifact-decoder.js';
 
 // TODO: Consider merging from*Url functions and just branching on response content-type
 export class ArtifactLoader {
-  private _decoder = new ArtifactDecoder();
+  private decoder = new ArtifactDecoder();
 
   constructor() {
   }
@@ -64,7 +64,7 @@ export class ArtifactLoader {
     return (await Promise.all(ret)).flat(1);
   }
 
-  async fromJson(json: object) {
-    return this._decoder.decode(json);
+  async fromJson(json: JsonLd) {
+    return this.decoder.decode(json);
   }
 };
