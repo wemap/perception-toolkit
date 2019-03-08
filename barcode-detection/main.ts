@@ -189,6 +189,7 @@ async function onCaptureFrame(evt: Event) {
   // Provide a cool-off before allowing another detection. This aids the case
   // where a recently-scanned barcode is mistakenly re-scanned, but with errors.
   setTimeout(() => {
+    detectedBarcodes.clear();
     isProcessingCapture = false;
   }, 1000);
 

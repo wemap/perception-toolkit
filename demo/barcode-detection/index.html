@@ -130,20 +130,26 @@
       hintTimeout: 7000
     };
 
+    const container = document.body.querySelector('#container');
     window.addEventListener('barcodedetect', (evt) => {
+      // Prevent multiple cards from showing.
+      if (container.hasChildNodes()) {
+        return;
+      }
+
       const { vibrate, ActionButton, Card } = window.PerceptionToolkit.main;
       vibrate(200);
 
       const card = new Card();
       card.src = evt.detail.value;
-      document.body.querySelector('#container').appendChild(card);
+      container.appendChild(card);
     });
 
     window.addEventListener('cameraaccessdenied', () => {
       const { Card } = window.PerceptionToolkit.main;
       const card = new Card();
       card.src = 'Camera unavailable or access denied';
-      document.body.querySelector('#container').appendChild(card);
+      container.appendChild(card);
     });
 
   </script>
