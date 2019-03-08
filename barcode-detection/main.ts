@@ -201,6 +201,9 @@ async function onCaptureFrame(evt: Event) {
   loader.remove();
 }
 
+/**
+ * Handles connectivity change for the user.
+ */
 function onConnectivityChanged() {
   const connected = navigator.onLine;
   const capture =

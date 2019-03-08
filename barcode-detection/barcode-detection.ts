@@ -151,8 +151,8 @@ export async function initializeExperience() {
   const { config } = window.PerceptionToolkit;
   const { root = '' } = config;
 
-  // Recall whether the user has done onboarding before.
   if (config && config.onboardingImages && config.onboarding) {
+    // Recall whether the user has done onboarding before.
     const onboarded = await idbKeyval.get('onboarded');
     if (!onboarded) {
       hideLoader();
