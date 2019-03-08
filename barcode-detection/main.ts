@@ -13,6 +13,7 @@ import { ActionButton } from '../src/elements/action-button/action-button.js';
 import { Card } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
+import { hideOverlay, showOverlay } from '../src/elements/overlay/overlay.js';
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { fire } from '../src/utils/fire.js';
@@ -82,10 +83,10 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   if (detectionMode === 'passive') {
     capture.captureRate = 600;
   } else {
-    capture.showOverlay('Tap to capture');
+    showOverlay('Tap to capture');
     capture.addEventListener('click', async () => {
       capture.paused = true;
-      capture.showOverlay('Processing...');
+      showOverlay('Processing...');
       const imgData = await capture.captureFrame();
       fire(StreamCapture.frameEvent, capture, {imgData, detectionMode});
     });
@@ -134,7 +135,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
     document.body.appendChild(capture);
 
     hintTimeout = setTimeout(() => {
-      capture.showOverlay('Make sure the barcode is inside the box.');
+      showOverlay('Make sure the barcode is inside the box.');
     }, window.PerceptionToolkit.config.hintTimeout || 5000) as unknown as number;
   } catch (e) {
     // User has denied or there are no cameras.
@@ -145,6 +146,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
 export function close() {
   capture.stop();
   capture.remove();
+  hideOverlay();
 }
 
 let isProcessingCapture = false;
@@ -179,9 +181,9 @@ async function onCaptureFrame(evt: Event) {
   if (barcodes.length > 0) {
     // Hide the hint if it's shown. Cancel it if it's pending.
     clearTimeout(hintTimeout);
-    capture.hideOverlay();
+    hideOverlay();
   } else if (detectionMode && detectionMode === 'active') {
-    capture.showOverlay('No barcodes found');
+    showOverlay('No barcodes found');
   }
 
   capture.paused = false;
@@ -215,8 +217,8 @@ function onConnectivityChanged() {
   }
 
   if (!connected) {
-    capture.showOverlay('Currently offline. Please reconnect to the network.');
+    showOverlay('Currently offline. Please reconnect to the network.');
   } else {
-    capture.hideOverlay();
+    hideOverlay();
   }
 }
