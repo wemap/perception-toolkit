@@ -8,39 +8,24 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export interface ArtifactParams {
-  root? : object;
-  datafeed? : object;
-  arartifact? : object;
-};
-
-export interface JsonLd {
-  '@type' : string;
-  [propName: string]: any; // string | boolean | number | JsonLd | Array<JsonLd>
-};
+import { ARArtifact } from './schema/ARArtifact.js';
+import { JsonLd } from './schema/JsonLd.js';
 
 /*
  * ArtifactDecoder accepts a jsonld block and will extract and return valid ARArtifacts
- *
- * TODO: parsing is done manually and not using a JSON-LD library.
- * As such, parsing is not enforce correct formatting, does not do even do simple transformations, etc.
- * Only perfectly formed inputs work.
- *
- * TODO: Consider defining custom interface types for each supported JSON-LD @type.
- * Implement a FromJSON function for each, which handles variations.
  *
  * */
 export class ArtifactDecoder {
   constructor() {
   }
 
-  decode(jsonld: JsonLd): Array<ArtifactParams> {
-    return this.decodeUnknown(jsonld, { root: jsonld }).flat(Number.MAX_SAFE_INTEGER);
+  decode(jsonld: JsonLd): ARArtifact[] {
+    return this.decodeUnknown(jsonld).flat();
   }
 
-  private decodeUnknown(jsonld: JsonLd | Array<JsonLd>, params: ArtifactParams): Array<ArtifactParams> {
+  private decodeUnknown(jsonld: JsonLd | JsonLd[]): ARArtifact[] {
     if (Array.isArray(jsonld)) {
-      return this.decodeArray(jsonld, params);
+      return this.decodeArray(jsonld)
     }
 
     if (!('@type' in jsonld) || typeof jsonld['@type'] !== 'string') {
@@ -49,32 +34,29 @@ export class ArtifactDecoder {
 
     switch (jsonld['@type'] as string) {
       case "DataFeed":
-        return this.decodeDataFeed(jsonld, params);
+        return this.decodeDataFeed(jsonld);
 
       case "ARArtifact":
-        return this.decodeArArtifact(jsonld, params);
+        return this.decodeArArtifact(jsonld);
 
       default:
         return [];
     }
   }
 
-  private decodeArray(arr: Array<JsonLd>, params: ArtifactParams): Array<ArtifactParams> {
-    return arr.map(e => this.decodeUnknown(e, params)).flat();
+  private decodeArray(arr: JsonLd[]): ARArtifact[] {
+    return arr.map(e => this.decodeUnknown(e)).flat();
   }
 
-  private decodeDataFeed(jsonld: JsonLd, params: ArtifactParams): Array<ArtifactParams> {
-    params = Object.assign(params, { datafeed: jsonld });
-
+  private decodeDataFeed(jsonld: JsonLd): ARArtifact[] {
     const elements = jsonld.dataFeedElement;
     if (!elements) return [];
-    if (!Array.isArray(elements)) return this.decodeUnknown(elements, params);;
+    if (!Array.isArray(elements)) return this.decodeUnknown(elements);;
 
-    return this.decodeArray(elements, params);
+    return this.decodeArray(elements);
   }
 
-  private decodeArArtifact(jsonld: JsonLd, params: ArtifactParams): Array<ArtifactParams> {
-    params = Object.assign(params, { arartifact: jsonld });
-    return [params];
+  private decodeArArtifact(jsonld: JsonLd): ARArtifact[] {
+    return [jsonld as ARArtifact];
   }
 }

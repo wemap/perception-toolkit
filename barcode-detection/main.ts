@@ -19,7 +19,7 @@ import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
 import { vibrate } from '../src/utils/vibrate.js';
 
 import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
-import { ArtifactDealer } from '../src/artifacts/artifact-dealer.js';
+import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
 
 const artloader = new ArtifactLoader();
@@ -40,8 +40,6 @@ window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
 window.addEventListener('offline', onConnectivityChanged);
 window.addEventListener('online', onConnectivityChanged);
 
-// While the onboarding begins, attempt a fake detection. If the polyfill is
-// necessary, or the detection fails, we should find out.
 const attemptDetection = detectBarcodes(new ImageData(1, 1));
 
 /**
@@ -70,7 +68,7 @@ async function beginDetection() {
     await attemptDetection;
 
     // Start loading some artifacts.
-    await loadArtifacts();
+    await loadInitialArtifacts();
 
     // Create the stream.
     await createStreamCapture();
@@ -81,44 +79,32 @@ async function beginDetection() {
 }
 
 let hintTimeout: number;
+
+async function loadInitialArtifacts() {
+  const artifactGroups = await Promise.all([
+      artloader.fromDocument(document, document.URL),
+      artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
+    ])
+  for (let artifacts of artifactGroups) {
+    for (let artifact of artifacts) {
+      artstore.addArtifact(artifact);
+    }
+  }
+}
 /**
  * Load artifact content.  Note: this can be done async without awaiting.
  */
-async function loadArtifacts() {
-  // Load artifacts defined on this page
-  const artifactGroups = await Promise.all([
-    artloader.fromDocument(document, document.URL),
-    // artloader.fromHtmlUrl(new URL('./index.html', document.URL)),
-    artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
-  ]);
-
-  for (let artifacts of artifactGroups) {
-    for (let artifact of artifacts) {
-      const { root, datafeed, arartifact } = artifact;
-
-      artstore.addArtifact(arartifact);
-    }
-  };
+async function loadArtifactsFromUrl(url: URL) {
+  const artifacts = await artloader.fromHtmlUrl(url);
+  for (let artifact of artifacts) {
+    artstore.addArtifact(artifact);
+  }
 }
-
-// TODO: this is temporary fix, will remove when JS code migrates to TS
-interface ArtDealerResult {
-  target: object;
-  content: {
-    name: string
-  };
-  artifact: object;
-};
-
-interface ArtDealerContentDiff {
-  found: Array<ArtDealerResult>;
-  lost: Array<ArtDealerResult>;
-};
 
 /**
  * Whenever we find nearby content, show it
  */
-async function updateContentDisplay(contentDiff: ArtDealerContentDiff) {
+async function updateContentDisplay(contentDiff: NearbyResultDelta) {
   for (let { target, content, artifact } of contentDiff.found) {
     // TODO: Card should accept the whole content object and template itself,
     // Or, card should have more properties than just src.
@@ -135,20 +121,25 @@ async function updateContentDisplay(contentDiff: ArtDealerContentDiff) {
 async function onMarkerFound(markerValue: string) {
   // If this marker is a URL, try loading artifacts from that URL
   try {
-    const url = new URL(markerValue, document.URL);
-    const artifacts = await artloader.fromHtmlUrl(url);
+    // This will throw if markerValue isn't a valid URL
+    const url = new URL(markerValue);
 
-    for (let artifact of artifacts) {
-      const { root, datafeed, arartifact } = artifact;
+    // TODO: how can we limit the content-type?
+    // Test that this URL is not from another origin
+    if (url.hostname == window.location.hostname &&
+        url.port == window.location.port &&
+        url.protocol == window.location.protocol) {
 
-      artstore.addArtifact(arartifact);
+      // ...if it is, try to load any artifacts defined from the source
+      loadArtifactsFromUrl(url);
     }
   } catch (_) {
   }
 
-  const contentDiffs: ArtDealerContentDiff = await artdealer.markerFound(markerValue, 'qrcode');
+  const contentDiffs = await artdealer.markerFound({ type: 'qrcode', value: markerValue });
   updateContentDisplay(contentDiffs);
 }
+(window as any).onMarkerFound = onMarkerFound;
 
 /**
  * Creates the stream an initializes capture.

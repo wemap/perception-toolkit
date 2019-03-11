@@ -8,48 +8,67 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { ARArtifact } from './schema/ARArtifact.js';
+import { JsonLd } from './schema/JsonLd.js';
+import { Marker } from './schema/Marker.js';
+import { GeoCoordinates } from './schema/GeoCoordinates.js';
+import { ArtifactStore } from './stores/artifact_store.js';
 import { generateMarkerId } from '../utils/generate-marker-id.js';
 
+export interface NearbyResult {
+  target: JsonLd; // TODO: this comes from art-store
+  content: JsonLd;
+  artifact: ARArtifact;
+}
+
+export interface NearbyResultDelta {
+  found: NearbyResult[];
+  lost: NearbyResult[];
+}
+
 export class ArtifactDealer {
+  private artstores: ArtifactStore[] = [];
+  private currentGeolocation: GeoCoordinates = {};
+  private nearbyMarkers = new Map<string, Marker>();
+  private nearbyArtifacts = new Set<ARArtifact>();
+
   constructor() {
-    this._artstores = [];
-
-    this._currentGeolocation = null;
-    this._nearbyMarkers = new Map;
-    this._nearbyArtifacts = new Set;
   }
 
-  async addArtifactStore(artstore) {
-    this._artstores.push(artstore);
-    // TODO: Subscribe for artstore update events, call _generateEvents each update.
+  async addArtifactStore(artstore: ArtifactStore): Promise<NearbyResultDelta> {
+    this.artstores.push(artstore);
+    // TODO: Subscribe for artstore update events, call generateEvents each update.
 
-    return this._generateDiffs();
+    return this.generateDiffs();
   }
 
-  async updateGeolocation(coords) {
-    this._currentGeolocation = coords;
-    return this._generateDiffs();
+  async updateGeolocation(coords: GeoCoordinates): Promise<NearbyResultDelta> {
+    this.currentGeolocation = coords;
+    return this.generateDiffs();
   }
 
-  async markerFound(value, type) {
-    this._nearbyMarkers.set(generateMarkerId(type, value), { value, type });
-
-    return this._generateDiffs();
+  async markerFound(marker: Marker): Promise<NearbyResultDelta> {
+    if (marker.value) {
+      this.nearbyMarkers.set(generateMarkerId(marker.type || 'qrcode', marker.value), marker);
+    }
+    return this.generateDiffs();
   }
 
-  async markerLost(value, type) {
-    this._nearbyMarkers.delete(generateMarkerId(type, type));
-    return this._generateDiffs();
+  async markerLost(marker: Marker): Promise<NearbyResultDelta> {
+    if (marker.value) {
+      this.nearbyMarkers.delete(generateMarkerId(marker.type || 'qrcode', marker.value));
+    }
+    return this.generateDiffs();
   }
 
   // TODO: Future ArtStores may actually be async, and should convert this code to not rely
   // on sync implementation of findRelevantArtifacts()
-  async _generateDiffs() {
+  async generateDiffs(): Promise<NearbyResultDelta> {
     // 1. Using current context (geo, markers), ask artstores to compute relevant artifacts
-    const pendingNearbyArtifacts = new Set(this._artstores.flatMap((artstore) => {
+    const pendingNearbyArtifacts = new Set(this.artstores.flatMap((artstore) => {
       return artstore.findRelevantArtifacts(
-        Array.from(this._nearbyMarkers.values()),
-        this._currentGeolocation
+        Array.from(this.nearbyMarkers.values()),
+        this.currentGeolocation
       );
     }));
 
@@ -57,29 +76,27 @@ export class ArtifactDealer {
     //    New ones are those which haven't appeared before.
     //    Old ones are those which are no longer nearby.
     //    The remainder (intersection) are not reported.
-    const newNearbyArtifacts = [...pendingNearbyArtifacts].filter(a => !this._nearbyArtifacts.has(a));
-    const oldNearbyArtifacts = [...this._nearbyArtifacts].filter(a => !pendingNearbyArtifacts.has(a));
+    const newNearbyArtifacts = [...pendingNearbyArtifacts].filter(a => !this.nearbyArtifacts.has(a));
+    const oldNearbyArtifacts = [...this.nearbyArtifacts].filter(a => !pendingNearbyArtifacts.has(a));
 
-    const ret = {
+    const ret : NearbyResultDelta = {
       found: [],
       lost: []
     };
 
     // 3. Compute 
     for (let { target, artifact } of newNearbyArtifacts) {
-      const content = artifact['arContent'];
-
+      const content = artifact.arContent;
       ret.found.push({ target, content, artifact });
     }
 
     for (let { target, artifact } of oldNearbyArtifacts) {
-      const content = artifact['arContent'];
-
+      const content = artifact.arContent;
       ret.lost.push({ target, content, artifact });
     }
 
     // 4. Update current set of nearbyArtifacts.
-    this._nearbyArtifacts = pendingNearbyArtifacts;
+    this.nearbyArtifacts = pendingNearbyArtifacts;
 
     return ret;
   }

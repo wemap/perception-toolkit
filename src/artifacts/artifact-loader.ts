@@ -8,7 +8,8 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { ArtifactDecoder, JsonLd } from './artifact-decoder.js';
+import { ArtifactDecoder } from './artifact-decoder.js';
+import { JsonLd } from './schema/JsonLd.js';
 
 // TODO: Consider merging from*Url functions and just branching on response content-type
 export class ArtifactLoader {
