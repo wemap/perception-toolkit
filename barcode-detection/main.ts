@@ -80,6 +80,9 @@ async function beginDetection() {
 
 let hintTimeout: number;
 
+/**
+ * Load artifact content for initial set.
+ */
 async function loadInitialArtifacts() {
   const artifactGroups = await Promise.all([
       artloader.fromDocument(document, document.URL),
@@ -91,8 +94,9 @@ async function loadInitialArtifacts() {
     }
   }
 }
+
 /**
- * Load artifact content.  Note: this can be done async without awaiting.
+ * Load artifact content from url, usually discovered from environment.
  */
 async function loadArtifactsFromUrl(url: URL) {
   const artifacts = await artloader.fromHtmlUrl(url);
@@ -105,6 +109,7 @@ async function loadArtifactsFromUrl(url: URL) {
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
+  console.log(contentDiff);
   for (let { target, content, artifact } of contentDiff.found) {
     // TODO: Card should accept the whole content object and template itself,
     // Or, card should have more properties than just src.

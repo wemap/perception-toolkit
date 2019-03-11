@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "target": "esnext",
     "module": "esnext",
     "sourceMap": true,
@@ -8,8 +9,7 @@
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "sourceRoot": "/",
-    "allowJs": true
+    "sourceRoot": "/"
   },
 
   "exclude": [

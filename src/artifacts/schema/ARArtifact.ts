@@ -13,6 +13,6 @@ import { Marker } from './Marker.js';
 import { GeoCoordinates } from './GeoCoordinates.js';
 
 export interface ARArtifact extends JsonLd {
-  arTarget?: Marker | Marker[] | GeoCoordinates | GeoCoordinates[] | JsonLd | JsonLd[];
-  arContent?: JsonLd;
+  arTarget?: JsonLd | JsonLd[];
+  arContent?: JsonLd | JsonLd[];
 }
