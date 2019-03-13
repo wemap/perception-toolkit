@@ -9,29 +9,30 @@
  */
 
 import { Marker } from '../../../defs/marker.js';
+import { NearbyResult } from '../artifact-dealer.js';
 import { ARArtifact } from '../schema/ar-artifact.js';
 import { Barcode } from '../schema/barcode.js';
 import { JsonLd } from '../schema/json-ld.js';
 
 export class LocalMarkerStore {
-  private markers = new Map<string, Barcode>();
+  private markers = new Map<string, NearbyResult>();
 
-  addArtifact(artifact: ARArtifact, barcode: Barcode): void {
+  addMarker(artifact: ARArtifact, barcode: Barcode): void {
     if (!barcode.text) { return; }
     this.markers.set(barcode.text, { target: barcode, artifact });
   }
 
-  findRelevantArtifacts(markers: Marker[]) {
+  findRelevantArtifacts(markers: Marker[]): NearbyResult[] {
     const ret = [];
     for (const marker of markers) {
       if (!marker.value) {
         continue;
       }
 
-      const targetAndArtifact = this.markers.get(marker.value);
+      const nearbyResult = this.markers.get(marker.value);
 
-      if (targetAndArtifact) {
-        ret.push(targetAndArtifact);
+      if (nearbyResult) {
+        ret.push(nearbyResult);
       }
     }
     return ret;

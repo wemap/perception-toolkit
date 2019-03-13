@@ -9,10 +9,11 @@
  */
 
 import { Marker } from '../../../defs/marker.js';
+import { NearbyResult } from '../artifact-dealer.js';
 import { ARArtifact } from '../schema/ar-artifact.js';
 import { GeoCoordinates } from '../schema/geo-coordinates.js';
 
 export interface ArtifactStore {
   addArtifact(artifact: ARArtifact): void;
-  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): ARArtifact[];
+  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): NearbyResult[];
 }

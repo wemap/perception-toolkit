@@ -16,8 +16,8 @@ import { JsonLd } from './schema/json-ld.js';
 import { ArtifactStore } from './stores/artifact-store.js';
 
 export interface NearbyResult {
-  target: JsonLd; // TODO: this comes from art-store
-  content: JsonLd;
+  target?: JsonLd; // TODO: this comes from art-store
+  content?: JsonLd;
   artifact: ARArtifact;
 }
 
@@ -30,7 +30,7 @@ export class ArtifactDealer {
   private artstores: ArtifactStore[] = [];
   private currentGeolocation: GeoCoordinates = {};
   private nearbyMarkers = new Map<string, Marker>();
-  private nearbyArtifacts = new Set<ARArtifact>();
+  private nearbyResults = new Set<NearbyResult>();
 
   async addArtifactStore(artstore: ArtifactStore): Promise<NearbyResultDelta> {
     this.artstores.push(artstore);
@@ -58,7 +58,7 @@ export class ArtifactDealer {
   // on sync implementation of findRelevantArtifacts()
   async generateDiffs(): Promise<NearbyResultDelta> {
     // 1. Using current context (geo, markers), ask artstores to compute relevant artifacts
-    const pendingNearbyArtifacts = new Set(this.artstores.flatMap((artstore) => {
+    const pendingNearbyResults = new Set(this.artstores.flatMap((artstore) => {
       return artstore.findRelevantArtifacts(
         Array.from(this.nearbyMarkers.values()),
         this.currentGeolocation
@@ -69,8 +69,8 @@ export class ArtifactDealer {
     //    New ones are those which haven't appeared before.
     //    Old ones are those which are no longer nearby.
     //    The remainder (intersection) are not reported.
-    const newNearbyArtifacts = [...pendingNearbyArtifacts].filter(a => !this.nearbyArtifacts.has(a));
-    const oldNearbyArtifacts = [...this.nearbyArtifacts].filter(a => !pendingNearbyArtifacts.has(a));
+    const newNearbyResults = [...pendingNearbyResults].filter(a => !this.nearbyResults.has(a));
+    const oldNearbyresults = [...this.nearbyResults].filter(a => !pendingNearbyResults.has(a));
 
     const ret: NearbyResultDelta = {
       found: [],
@@ -78,18 +78,18 @@ export class ArtifactDealer {
     };
 
     // 3. Compute
-    for (const { target, artifact } of newNearbyArtifacts) {
+    for (const { target, artifact } of newNearbyResults) {
       const content = artifact.arContent;
       ret.found.push({ target, content, artifact });
     }
 
-    for (const { target, artifact } of oldNearbyArtifacts) {
+    for (const { target, artifact } of oldNearbyresults) {
       const content = artifact.arContent;
       ret.lost.push({ target, content, artifact });
     }
 
-    // 4. Update current set of nearbyArtifacts.
-    this.nearbyArtifacts = pendingNearbyArtifacts;
+    // 4. Update current set of nearbyResults.
+    this.nearbyResults = pendingNearbyResults;
 
     return ret;
   }

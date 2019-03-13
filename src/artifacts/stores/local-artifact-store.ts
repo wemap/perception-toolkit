@@ -9,12 +9,14 @@
  */
 
 import { Marker } from '../../../defs/marker.js';
+import { NearbyResult } from '../artifact-dealer.js';
 import { ARArtifact } from '../schema/ar-artifact.js';
 import { GeoCoordinates } from '../schema/geo-coordinates.js';
 import { JsonLd } from '../schema/json-ld.js';
+import { ArtifactStore } from './artifact-store.js';
 import { LocalMarkerStore } from './local-marker-store.js';
 
-export class LocalArtifactStore {
+export class LocalArtifactStore implements ArtifactStore {
   private markerStore = new LocalMarkerStore();
 
   addArtifact(artifact: ARArtifact): void {
@@ -34,7 +36,7 @@ export class LocalArtifactStore {
 
       switch (targetType) {
         case 'Barcode':
-          this.markerStore.addArtifact(artifact, target);
+          this.markerStore.addMarker(artifact, target);
           break;
 
         default:
@@ -43,7 +45,7 @@ export class LocalArtifactStore {
     }
   }
 
-  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates) {
+  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): NearbyResult[] {
     return this.markerStore.findRelevantArtifacts(nearbyMarkers);
   }
 }
