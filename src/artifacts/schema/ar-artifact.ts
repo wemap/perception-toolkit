@@ -8,9 +8,9 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { JsonLd } from './JsonLd.js';
+import { JsonLd } from './json-ld.js';
 
-export interface Marker extends JsonLd {
-  type?: string;
-  value?: string;
+export interface ARArtifact extends JsonLd {
+  arTarget?: JsonLd | JsonLd[];
+  arContent?: JsonLd | JsonLd[];
 }

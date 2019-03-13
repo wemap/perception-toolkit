@@ -8,12 +8,12 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { ARArtifact } from './schema/ARArtifact.js';
-import { JsonLd } from './schema/JsonLd.js';
-import { Marker } from './schema/Marker.js';
-import { GeoCoordinates } from './schema/GeoCoordinates.js';
-import { ArtifactStore } from './stores/artifact_store.js';
+import { Marker } from '../../defs/marker.js';
 import { generateMarkerId } from '../utils/generate-marker-id.js';
+import { ARArtifact } from './schema/ar-artifact.js';
+import { GeoCoordinates } from './schema/geo-coordinates.js';
+import { JsonLd } from './schema/json-ld.js';
+import { ArtifactStore } from './stores/artifact-store.js';
 
 export interface NearbyResult {
   target: JsonLd; // TODO: this comes from art-store
@@ -32,9 +32,6 @@ export class ArtifactDealer {
   private nearbyMarkers = new Map<string, Marker>();
   private nearbyArtifacts = new Set<ARArtifact>();
 
-  constructor() {
-  }
-
   async addArtifactStore(artstore: ArtifactStore): Promise<NearbyResultDelta> {
     this.artstores.push(artstore);
     // TODO: Subscribe for artstore update events, call generateEvents each update.
@@ -48,16 +45,12 @@ export class ArtifactDealer {
   }
 
   async markerFound(marker: Marker): Promise<NearbyResultDelta> {
-    if (marker.value) {
-      this.nearbyMarkers.set(generateMarkerId(marker.type || 'qrcode', marker.value), marker);
-    }
+    this.nearbyMarkers.set(generateMarkerId(marker.type, marker.value), marker);
     return this.generateDiffs();
   }
 
   async markerLost(marker: Marker): Promise<NearbyResultDelta> {
-    if (marker.value) {
-      this.nearbyMarkers.delete(generateMarkerId(marker.type || 'qrcode', marker.value));
-    }
+    this.nearbyMarkers.delete(generateMarkerId(marker.type, marker.value));
     return this.generateDiffs();
   }
 
@@ -79,18 +72,18 @@ export class ArtifactDealer {
     const newNearbyArtifacts = [...pendingNearbyArtifacts].filter(a => !this.nearbyArtifacts.has(a));
     const oldNearbyArtifacts = [...this.nearbyArtifacts].filter(a => !pendingNearbyArtifacts.has(a));
 
-    const ret : NearbyResultDelta = {
+    const ret: NearbyResultDelta = {
       found: [],
       lost: []
     };
 
-    // 3. Compute 
-    for (let { target, artifact } of newNearbyArtifacts) {
+    // 3. Compute
+    for (const { target, artifact } of newNearbyArtifacts) {
       const content = artifact.arContent;
       ret.found.push({ target, content, artifact });
     }
 
-    for (let { target, artifact } of oldNearbyArtifacts) {
+    for (const { target, artifact } of oldNearbyArtifacts) {
       const content = artifact.arContent;
       ret.lost.push({ target, content, artifact });
     }

@@ -8,28 +8,25 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { JsonLd } from '../schema/JsonLd.js';
-import { ARArtifact } from '../schema/ARArtifact.js';
-import { Barcode } from '../schema/Barcode.js';
-import { Marker } from '../schema/Marker.js';
+import { ARArtifact } from '../schema/ar-artifact.js';
+import { Barcode } from '../schema/barcode.js';
+import { JsonLd } from '../schema/json-ld.js';
+import { Marker } from '../../../defs/marker.js';
 
 export class LocalMarkerStore {
   private markers = new Map<string, Barcode>();
 
-  constructor() {
-  }
-
   addArtifact(artifact: ARArtifact, barcode: Barcode): void {
-    if (!barcode.text) return;
+    if (!barcode.text) { return; }
     this.markers.set(barcode.text, { target: barcode, artifact });
   }
 
   findRelevantArtifacts(markers: Marker[]) {
-    let ret = [];
-    for (let marker of markers) {
-      if (!marker.value) continue;
-      let targetAndArtifact = this.markers.get(marker.value);
-      if (targetAndArtifact) ret.push(targetAndArtifact);
+    const ret = [];
+    for (const marker of markers) {
+      if (!marker.value) { continue; }
+      const targetAndArtifact = this.markers.get(marker.value);
+      if (targetAndArtifact) { ret.push(targetAndArtifact); }
     }
     return ret;
   }

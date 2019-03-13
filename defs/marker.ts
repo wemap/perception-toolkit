@@ -8,8 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-export interface JsonLd {
-  '@type'?: string;
-  [propName: string]: any; // string | boolean | number | JsonLd | JsonLd[]
-};
-
+export interface Marker {
+  type: string;
+  value: string;
+}

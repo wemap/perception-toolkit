@@ -8,24 +8,21 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { ARArtifact } from './schema/ARArtifact.js';
-import { JsonLd } from './schema/JsonLd.js';
+import { ARArtifact } from './schema/ar-artifact.js';
+import { JsonLd } from './schema/json-ld.js';
 
 /*
  * ArtifactDecoder accepts a jsonld block and will extract and return valid ARArtifacts
  *
  * */
 export class ArtifactDecoder {
-  constructor() {
-  }
-
   decode(jsonld: JsonLd): ARArtifact[] {
     return this.decodeUnknown(jsonld).flat();
   }
 
   private decodeUnknown(jsonld: JsonLd | JsonLd[]): ARArtifact[] {
     if (Array.isArray(jsonld)) {
-      return this.decodeArray(jsonld)
+      return this.decodeArray(jsonld);
     }
 
     if (!('@type' in jsonld) || typeof jsonld['@type'] !== 'string') {
@@ -33,10 +30,10 @@ export class ArtifactDecoder {
     }
 
     switch (jsonld['@type'] as string) {
-      case "DataFeed":
+      case 'DataFeed':
         return this.decodeDataFeed(jsonld);
 
-      case "ARArtifact":
+      case 'ARArtifact':
         return this.decodeArArtifact(jsonld);
 
       default:
@@ -50,8 +47,12 @@ export class ArtifactDecoder {
 
   private decodeDataFeed(jsonld: JsonLd): ARArtifact[] {
     const elements = jsonld.dataFeedElement;
-    if (!elements) return [];
-    if (!Array.isArray(elements)) return this.decodeUnknown(elements);;
+    if (!elements) {
+      return [];
+    }
+    if (!Array.isArray(elements)) {
+      return this.decodeUnknown(elements);
+    }
 
     return this.decodeArray(elements);
   }

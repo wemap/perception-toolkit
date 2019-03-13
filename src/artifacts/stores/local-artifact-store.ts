@@ -8,35 +8,32 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { ARArtifact } from '../schema/ar-artifact.js';
+import { GeoCoordinates } from '../schema/geo-coordinates.js';
+import { JsonLd } from '../schema/json-ld.js';
+import { Marker } from '../../../defs/marker.js';
 import { LocalMarkerStore } from './local-marker-store.js';
-import { JsonLd } from '../schema/JsonLd.js';
-import { ARArtifact } from '../schema/ARArtifact.js';
-import { Marker } from '../schema/Marker.js';
-import { GeoCoordinates } from '../schema/GeoCoordinates.js';
 
 export class LocalArtifactStore {
   private markerStore = new LocalMarkerStore();
-
-  constructor() {
-  }
 
   addArtifact(artifact: ARArtifact): void {
     if (!artifact.arTarget) {
       return;
     }
 
-    let targets : JsonLd[] = [];
+    let targets: JsonLd[] = [];
     if (Array.isArray(artifact.arTarget)) {
       targets = artifact.arTarget;
     } else {
       targets = [artifact.arTarget];
     }
 
-    for (let target of targets) {
-      const target_type = target['@type'] || '';
+    for (const target of targets) {
+      const targetType = target['@type'] || '';
 
-      switch (target_type) {
-        case "Barcode":
+      switch (targetType) {
+        case 'Barcode':
           this.markerStore.addArtifact(artifact, target);
           break;
 
@@ -49,4 +46,4 @@ export class LocalArtifactStore {
   findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates) {
     return this.markerStore.findRelevantArtifacts(nearbyMarkers);
   }
-};
+}

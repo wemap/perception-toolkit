@@ -18,8 +18,9 @@ import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
 import { vibrate } from '../src/utils/vibrate.js';
 
-import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
+import { Marker } from '../defs/marker.js';
 import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
+import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
 
 const artloader = new ArtifactLoader();
@@ -87,20 +88,29 @@ async function loadInitialArtifacts() {
   const artifactGroups = await Promise.all([
       artloader.fromDocument(document, document.URL),
       artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
-    ])
-  for (let artifacts of artifactGroups) {
-    for (let artifact of artifacts) {
+    ]);
+  for (const artifacts of artifactGroups) {
+    for (const artifact of artifacts) {
       artstore.addArtifact(artifact);
     }
   }
 }
 
 /**
- * Load artifact content from url, usually discovered from environment.
+ * Load artifact content from url on same originn, usually discovered from environment.
+ *
+ * TODO: Consider constraining content-type, so as not to fetch needless large resources.
  */
-async function loadArtifactsFromUrl(url: URL) {
+async function loadArtifactsFromSameOriginUrl(url: URL) {
+  // Test that this URL is not from another origin
+  if (url.hostname !== window.location.hostname ||
+      url.port !== window.location.port ||
+      url.protocol !== window.location.protocol) {
+    return;
+  }
+
   const artifacts = await artloader.fromHtmlUrl(url);
-  for (let artifact of artifacts) {
+  for (const artifact of artifacts) {
     artstore.addArtifact(artifact);
   }
 }
@@ -109,10 +119,8 @@ async function loadArtifactsFromUrl(url: URL) {
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
-  console.log(contentDiff);
-  for (let { target, content, artifact } of contentDiff.found) {
+  for (const { target, content, artifact } of contentDiff.found) {
     // TODO: Card should accept the whole content object and template itself,
-    // Or, card should have more properties than just src.
 
     // Create a card for every found barcode.
     const card = new Card();
@@ -123,28 +131,22 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
   }
 }
 
-async function onMarkerFound(markerValue: string) {
+async function onMarkerFound(marker: Marker) {
   // If this marker is a URL, try loading artifacts from that URL
   try {
-    // This will throw if markerValue isn't a valid URL
-    const url = new URL(markerValue);
-
-    // TODO: how can we limit the content-type?
-    // Test that this URL is not from another origin
-    if (url.hostname == window.location.hostname &&
-        url.port == window.location.port &&
-        url.protocol == window.location.protocol) {
-
-      // ...if it is, try to load any artifacts defined from the source
-      loadArtifactsFromUrl(url);
-    }
+    // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
+    // Do not supply a base url argument, since we do not want to support relative URLs,
+    // and because that would turn lots of normal string values into valid relative URLs.
+    const url = new URL(marker.value);
+    await loadArtifactsFromSameOriginUrl(url);
   } catch (_) {
+    // Do nothing if this isn't a valid URL
   }
 
-  const contentDiffs = await artdealer.markerFound({ type: 'qrcode', value: markerValue });
+  // Update the UI
+  const contentDiffs = await artdealer.markerFound(marker);
   updateContentDisplay(contentDiffs);
 }
-(window as any).onMarkerFound = onMarkerFound;
 
 /**
  * Creates the stream an initializes capture.
@@ -208,7 +210,7 @@ async function onCaptureFrame(evt: Event) {
     clearTimeout(hintTimeout);
     (evt.target as StreamCapture).hideOverlay();
 
-    await onMarkerFound(barcode.rawValue);
+    await onMarkerFound({ type: 'qrcode', value: barcode.rawValue });
   }
 
   // Hide the loader if there is one.

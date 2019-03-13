@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { JsonLd } from './JsonLd.js';
-
-export interface GeoCoordinates extends JsonLd {
+export interface JsonLd {
+  '@type'?: string;
+  [propName: string]: any; // string | boolean | number | JsonLd | JsonLd[]
 }

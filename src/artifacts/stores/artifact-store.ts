@@ -8,11 +8,11 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { ARArtifact } from '../schema/ARArtifact.js';
-import { Marker } from '../schema/Marker.js';
-import { GeoCoordinates } from '../schema/GeoCoordinates.js';
+import { ARArtifact } from '../schema/ar-artifact.js';
+import { GeoCoordinates } from '../schema/geo-coordinates.js';
+import { Marker } from '../../../defs/marker.js';
 
 export interface ArtifactStore {
   addArtifact(artifact: ARArtifact): void;
-  findRelevantArtifacts(nearbyMarkers: Array<Marker>, geo: GeoCoordinates): Array<ARArtifact>;
+  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): ARArtifact[];
 }

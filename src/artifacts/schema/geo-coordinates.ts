@@ -8,11 +8,13 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { JsonLd } from './JsonLd.js';
-import { Marker } from './Marker.js';
-import { GeoCoordinates } from './GeoCoordinates.js';
+import { JsonLd } from './json-ld.js';
 
-export interface ARArtifact extends JsonLd {
-  arTarget?: JsonLd | JsonLd[];
-  arContent?: JsonLd | JsonLd[];
+export interface GeoCoordinates extends JsonLd {
+  address?: string; // PostalAddress
+  addressCountry?: string; // Country
+  elevation?: string | number;
+  latitude?: string | number;
+  longitude?: string | number;
+  postalCode?: string;
 }

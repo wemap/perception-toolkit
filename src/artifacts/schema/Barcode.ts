@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { JsonLd } from './JsonLd.js';
+import { JsonLd } from './json-ld.js';
 
 export interface Barcode extends JsonLd {
   text?: string;
