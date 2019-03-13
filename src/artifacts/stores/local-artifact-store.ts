@@ -8,10 +8,10 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+import { Marker } from '../../../defs/marker.js';
 import { ARArtifact } from '../schema/ar-artifact.js';
 import { GeoCoordinates } from '../schema/geo-coordinates.js';
 import { JsonLd } from '../schema/json-ld.js';
-import { Marker } from '../../../defs/marker.js';
 import { LocalMarkerStore } from './local-marker-store.js';
 
 export class LocalArtifactStore {

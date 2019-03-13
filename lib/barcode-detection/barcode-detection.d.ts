@@ -20,17 +20,17 @@ declare global {
                 onboardingImages?: string[];
                 button?: HTMLElement;
                 buttonSelector?: string;
+                buttonVisibilityClass?: string;
                 hintTimeout?: number;
-            };
-            deviceSupport: {
-                detectSupport(): Promise<boolean>;
+                detectionMode?: 'active' | 'passive';
+                showLoaderDuringBoot?: boolean;
             };
             loader: {
                 hideLoader(): void;
                 showLoader(): void;
             };
             main: {
-                initialize(): void;
+                initialize(detectionMode?: 'active' | 'passive'): void;
             };
             onboarding: {
                 startOnboardingProcess(images: string[]): Promise<void>;

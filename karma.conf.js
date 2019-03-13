@@ -82,7 +82,7 @@ module.exports = function(config) {
           browsers.push("Firefox");
         }
 
-        return ['ChromeHeadless'];
+        return browsers;
       }
     },
 

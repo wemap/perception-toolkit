@@ -7,11 +7,12 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-export { vibrate } from '../src/utils/vibrate.js';
-export { Card } from '../src/elements/card/card.js';
-export { ActionButton } from '../src/elements/action-button/action-button.js';
 /**
- * Starts the user onboarding.
+ * Shows an overlay message. If there is already an overlay message a second
+ * call will update the message rather than create a new overlay.
  */
-export declare function initialize(detectionMode?: 'active' | 'passive'): Promise<void>;
-export declare function close(): void;
+export declare function showOverlay(message: string, target?: HTMLElement): HTMLDivElement;
+/**
+ * Hides the overlay if there is one.
+ */
+export declare function hideOverlay(): void;

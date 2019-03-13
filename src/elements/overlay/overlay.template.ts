@@ -7,11 +7,23 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-export { vibrate } from '../src/utils/vibrate.js';
-export { Card } from '../src/elements/card/card.js';
-export { ActionButton } from '../src/elements/action-button/action-button.js';
-/**
- * Starts the user onboarding.
- */
-export declare function initialize(detectionMode?: 'active' | 'passive'): Promise<void>;
-export declare function close(): void;
+
+export const styles = `
+:host {
+  --baseline: 12px;
+  position: fixed;
+  display: block;
+  top: 50%;
+  left: 50%;
+  min-width: 280px;
+  padding: var(--baseline) calc(var(--baseline) * 2);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+  color: #FFF;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  z-index: 2;
+}
+`;

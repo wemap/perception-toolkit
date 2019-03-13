@@ -17,6 +17,18 @@ declare global {
 import { fade } from '../../utils/fade.js';
 import { html, styles } from './card.template.js';
 
+export interface CardData {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  image?: string;
+  price?: {
+    value: string;
+    currency: string;
+  };
+  url?: string;
+}
+
 /**
  * A data card for information output.
  *
@@ -50,7 +62,7 @@ export class Card extends HTMLElement {
    */
   sandboxAttribute: string = 'allow-same-origin';
 
-  private srcInternal: string | URL = '';
+  private srcInternal: string | URL | CardData = '';
   private widthInternal: number | undefined;
   private heightInternal: number | undefined;
   private root = this.attachShadow({ mode: 'open' });
@@ -69,7 +81,7 @@ export class Card extends HTMLElement {
     return this.srcInternal;
   }
 
-  set src(src: string | URL) {
+  set src(src: string | URL | CardData) {
     this.srcInternal = src;
     this.render();
   }
@@ -145,11 +157,13 @@ export class Card extends HTMLElement {
       return;
     }
 
+    container.classList.remove('padded');
     if (this.srcIsString(this.src)) {
       container.textContent = this.src;
-    } else if (typeof this.src === 'undefined') {
-      container.textContent = 'Unexpected content';
-    } else {
+      container.classList.add('padded');
+    } else if (this.srcIsCardData(this.src)) {
+      this.renderCardData(this.src);
+    } else if (this.srcIsUrl(this.src)) {
       const iframe = document.createElement('iframe');
       iframe.src = this.src.toString();
       iframe.setAttribute('sandbox', this.sandboxAttribute);
@@ -159,11 +173,52 @@ export class Card extends HTMLElement {
       iframe.height = (this.height || 0).toString();
 
       container.appendChild(iframe);
+    } else {
+      container.textContent = 'Unexpected content';
     }
   }
 
-  private srcIsString(msg: string | URL): msg is string {
+  private renderCardData(data: CardData) {
+    const container = this.root.querySelector('#container') as HTMLElement;
+    if (!container) {
+      return;
+    }
+
+    container.innerHTML = '';
+    if (data.title) {
+      const title = document.createElement('h1');
+      title.setAttribute('id', 'title');
+      title.textContent = data.title;
+      container.appendChild(title);
+    }
+
+    if (data.image) {
+      const img = document.createElement('div');
+      img.setAttribute('id', 'image');
+      img.style.backgroundImage = `url(${data.image})`;
+
+      container.appendChild(img);
+    }
+
+    if (data.description) {
+      const description = document.createElement('div');
+      description.setAttribute('id', 'description');
+      description.textContent = data.description;
+
+      container.appendChild(description);
+    }
+  }
+
+  private srcIsString(msg: string | URL | CardData): msg is string {
     return typeof msg === 'string';
+  }
+
+  private srcIsCardData(msg: string | URL | CardData): msg is CardData {
+    return typeof msg === 'object' && typeof (msg as URL).href === 'undefined';
+  }
+
+  private srcIsUrl(msg: string | URL | CardData): msg is URL {
+    return typeof msg === 'object' && typeof (msg as URL).href !== 'undefined';
   }
 
   private setDimensions() {

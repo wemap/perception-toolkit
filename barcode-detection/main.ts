@@ -9,14 +9,19 @@
  */
 
 import { detectBarcodes } from '../src/detectors/barcode.js';
+import { ActionButton } from '../src/elements/action-button/action-button.js';
 import { Card } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
-import { NoSupportCard } from '../src/elements/no-support-card/no-support-card.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
+import { hideOverlay, showOverlay } from '../src/elements/overlay/overlay.js';
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
+import { fire } from '../src/utils/fire.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
-import { vibrate } from '../src/utils/vibrate.js';
+
+export { vibrate } from '../src/utils/vibrate.js';
+export { Card } from '../src/elements/card/card.js';
+export { ActionButton } from '../src/elements/action-button/action-button.js';
 
 import { Marker } from '../defs/marker.js';
 import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
@@ -30,40 +35,45 @@ const artdealer = new ArtifactDealer();
 artdealer.addArtifactStore(artstore);
 
 const detectedBarcodes = new Set<string>();
+const barcodeDetect = 'barcodedetect';
+const cameraAccessDenied = 'cameraaccessdenied';
 
 // Register custom elements.
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
-customElements.define(NoSupportCard.defaultTagName, NoSupportCard);
 customElements.define(Card.defaultTagName, Card);
+customElements.define(ActionButton.defaultTagName, ActionButton);
 
 // Register events.
 window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
 window.addEventListener('offline', onConnectivityChanged);
 window.addEventListener('online', onConnectivityChanged);
 
-const attemptDetection = detectBarcodes(new ImageData(1, 1));
+// While the onboarding begins, attempt a fake detection. If the polyfill is
+// necessary, or the detection fails, we should find out.
+const polyfillPrefix = window.PerceptionToolkit.config.root || '';
+const attemptDetection = detectBarcodes(new ImageData(1, 1), { polyfillPrefix });
 
 /**
  * Starts the user onboarding.
  */
-export async function initialize() {
+export async function initialize(detectionMode: 'active' | 'passive' = 'passive') {
   const onboarding = document.querySelector(OnboardingCard.defaultTagName);
   if (!onboarding) {
-    beginDetection();
+    beginDetection(detectionMode);
     return;
   }
 
   // When onboarding is finished, start the stream and remove the loader.
   onboarding.addEventListener(OnboardingCard.onboardingFinishedEvent, () => {
     onboarding.remove();
-    beginDetection();
+    beginDetection(detectionMode);
   });
 }
 
 /**
  * Initializes the main behavior.
  */
-async function beginDetection() {
+async function beginDetection(detectionMode: 'active' | 'passive') {
   try {
     // Wait for the faked detection to resolve.
     await attemptDetection;
@@ -72,14 +82,11 @@ async function beginDetection() {
     await loadInitialArtifacts();
 
     // Create the stream.
-    await createStreamCapture();
+    await createStreamCapture(detectionMode);
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
-    showNoSupportCard();
   }
 }
-
-let hintTimeout: number;
 
 /**
  * Load artifact content for initial set.
@@ -123,14 +130,14 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
     // TODO: Card should accept the whole content object and template itself,
 
     // Create a card for every found barcode.
-    const card = new Card();
-    card.src = content.name;
-
-    const container = createContainerIfRequired();
-    container.appendChild(card);
+    // const card = new Card();
+    // card.src = content.name;
   }
 }
 
+/*
+ * Handle Marker discovery
+ */
 async function onMarkerFound(marker: Marker) {
   // If this marker is a URL, try loading artifacts from that URL
   try {
@@ -148,16 +155,25 @@ async function onMarkerFound(marker: Marker) {
   updateContentDisplay(contentDiffs);
 }
 
+let hintTimeout: number;
+const capture = new StreamCapture();
 /**
  * Creates the stream an initializes capture.
  */
-async function createStreamCapture() {
-  const capture = new StreamCapture();
-  capture.captureRate = 600;
+async function createStreamCapture(detectionMode: 'active' | 'passive') {
+  if (detectionMode === 'passive') {
+    capture.captureRate = 600;
+  } else {
+    showOverlay('Tap to capture');
+    capture.addEventListener('click', async () => {
+      capture.paused = true;
+      showOverlay('Processing...');
+      const imgData = await capture.captureFrame();
+      fire(StreamCapture.frameEvent, capture, {imgData, detectionMode});
+    });
+  }
   capture.captureScale = 0.8;
-  capture.addEventListener(StreamCapture.closeEvent, () => {
-    capture.remove();
-  });
+  capture.addEventListener(StreamCapture.closeEvent, close);
 
   const streamOpts = {
     video: {
@@ -167,24 +183,54 @@ async function createStreamCapture() {
 
   // Attempt to get access to the user's camera.
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(streamOpts);
+    let stream = await navigator.mediaDevices.getUserMedia(streamOpts);
     const devices = await navigator.mediaDevices.enumerateDevices();
 
     const hasEnvCamera = await supportsEnvironmentCamera(devices);
     capture.flipped = !hasEnvCamera;
-    capture.start(stream);
 
+    // Ensure the stream is stopped and started when the user changes tabs.
+    let isRequestingNewStream = false;
+    window.addEventListener('visibilitychange', async () => {
+      if (isRequestingNewStream) {
+        return;
+      }
+
+      if (document.hidden) {
+        capture.stop();
+      } else {
+        // Block multiple requests for a new stream.
+        isRequestingNewStream = true;
+        stream = await navigator.mediaDevices.getUserMedia(streamOpts);
+        isRequestingNewStream = false;
+
+        // Bail if the document is hidden again.
+        if (document.hidden) {
+          return;
+        }
+        capture.start(stream);
+      }
+    });
+
+    capture.start(stream);
     document.body.appendChild(capture);
 
     hintTimeout = setTimeout(() => {
-      capture.showOverlay('Make sure the barcode is inside the box.');
+      showOverlay('Make sure the barcode is inside the box.');
     }, window.PerceptionToolkit.config.hintTimeout || 5000) as unknown as number;
   } catch (e) {
     // User has denied or there are no cameras.
-    console.log(e);
+    fire(cameraAccessDenied, window);
   }
 }
 
+export function close() {
+  capture.stop();
+  capture.remove();
+  hideOverlay();
+}
+
+let isProcessingCapture = false;
 /**
  * Processes the image data captured by the StreamCapture class, and hands off
  * the image data to the barcode detector for processing.
@@ -192,9 +238,16 @@ async function createStreamCapture() {
  * @param evt The Custom Event containing the captured frame data.
  */
 async function onCaptureFrame(evt: Event) {
-  const { detail } = evt as CustomEvent<{imgData: ImageData}>;
-  const { imgData } = detail;
-  const barcodes = await detectBarcodes(imgData);
+  // Prevent overloading the capture process.
+  if (isProcessingCapture) {
+    return;
+  }
+  isProcessingCapture = true;
+
+  const capture = evt.target as StreamCapture;
+  const { detail } = evt as CustomEvent<{imgData: ImageData, detectionMode?: string}>;
+  const { detectionMode, imgData } = detail;
+  const barcodes = await detectBarcodes(imgData, { polyfillPrefix });
 
   for (const barcode of barcodes) {
     if (detectedBarcodes.has(barcode.rawValue)) {
@@ -203,15 +256,25 @@ async function onCaptureFrame(evt: Event) {
 
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
+    fire(barcodeDetect, capture, { value: barcode.rawValue });
+  }
 
-    vibrate(200);
-
+  if (barcodes.length > 0) {
     // Hide the hint if it's shown. Cancel it if it's pending.
     clearTimeout(hintTimeout);
-    (evt.target as StreamCapture).hideOverlay();
-
-    await onMarkerFound({ type: 'qrcode', value: barcode.rawValue });
+    hideOverlay();
+  } else if (detectionMode && detectionMode === 'active') {
+    showOverlay('No barcodes found');
   }
+
+  capture.paused = false;
+
+  // Provide a cool-off before allowing another detection. This aids the case
+  // where a recently-scanned barcode is mistakenly re-scanned, but with errors.
+  setTimeout(() => {
+    detectedBarcodes.clear();
+    isProcessingCapture = false;
+  }, 1000);
 
   // Hide the loader if there is one.
   const loader = document.querySelector(DotLoader.defaultTagName);
@@ -222,6 +285,9 @@ async function onCaptureFrame(evt: Event) {
   loader.remove();
 }
 
+/**
+ * Handles connectivity change for the user.
+ */
 function onConnectivityChanged() {
   const connected = navigator.onLine;
   const capture =
@@ -232,25 +298,8 @@ function onConnectivityChanged() {
   }
 
   if (!connected) {
-    capture.showOverlay('Currently offline. Please reconnect to the network.');
+    showOverlay('Currently offline. Please reconnect to the network.');
   } else {
-    capture.hideOverlay();
+    hideOverlay();
   }
-}
-
-function showNoSupportCard() {
-  const noSupport = new NoSupportCard();
-  document.body.appendChild(noSupport);
-}
-
-function createContainerIfRequired() {
-  let detectedBarcodesContainer = document.querySelector('#container');
-
-  if (!detectedBarcodesContainer) {
-    detectedBarcodesContainer = document.createElement('div');
-    detectedBarcodesContainer.id = 'container';
-    document.body.appendChild(detectedBarcodesContainer);
-  }
-
-  return detectedBarcodesContainer;
 }

@@ -12,6 +12,17 @@ declare global {
         path: Element[];
     }
 }
+export interface CardData {
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    image?: string;
+    price?: {
+        value: string;
+        currency: string;
+    };
+    url?: string;
+}
 /**
  * A data card for information output.
  *
@@ -52,7 +63,7 @@ export declare class Card extends HTMLElement {
      * Gets & sets the src for the card. If the src is a URL the content is
      * `iframe`'d in using a sandbox that disallows
      */
-    src: string | URL;
+    src: string | URL | CardData;
     /**
      * Gets & sets the width of the card.
      */
@@ -75,6 +86,9 @@ export declare class Card extends HTMLElement {
     close(fadeDuration?: number): Promise<void>;
     private onClick;
     private render;
+    private renderCardData;
     private srcIsString;
+    private srcIsCardData;
+    private srcIsUrl;
     private setDimensions;
 }

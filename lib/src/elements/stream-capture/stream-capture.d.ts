@@ -77,7 +77,10 @@ export declare class StreamCapture extends HTMLElement {
      * Whether to flip the stream's image.
      */
     flipped: boolean;
-    private overlay;
+    /**
+     * Whether to pause the frame.
+     */
+    paused: boolean;
     private video;
     private stream;
     private canvas;
@@ -93,15 +96,6 @@ export declare class StreamCapture extends HTMLElement {
      * Starts the capture of the stream.
      */
     start(stream: MediaStream): void;
-    /**
-     * Shows an overlay message. If there is already an overlay message a second
-     * call will update the message rather than create a new overlay.
-     */
-    showOverlay(message: string): void;
-    /**
-     * Hides the overlay if there is one.
-     */
-    hideOverlay(): void;
     /**
      * Manually captures a frame. Intended to be used when `captureRate` is `0`.
      */

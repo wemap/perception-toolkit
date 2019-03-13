@@ -67,13 +67,17 @@
         transform: translate(-50%, -50%);
       }
 
-      no-support-card {
+      data-card.no-support {
         opacity: 0;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
       }
 
-      data-card {
+      #container data-card {
         margin-top: 16px;
         pointer-events: auto;
       }
@@ -137,6 +141,7 @@
     window.PerceptionToolkit = window.PerceptionToolkit || {};
     window.PerceptionToolkit.config = {
       button: document.getElementById('get-started'),
+      showLoaderDuringBoot: false,
       onboarding: true,
       onboardingImages: [
         '/demo/images/step1.jpg',
@@ -145,6 +150,29 @@
       ],
       hintTimeout: 7000
     };
+
+    const container = document.body.querySelector('#container');
+    window.addEventListener('barcodedetect', (evt) => {
+      // Prevent multiple cards from showing.
+      if (container.hasChildNodes()) {
+        return;
+      }
+
+      const { vibrate, ActionButton, Card } = window.PerceptionToolkit.main;
+      vibrate(200);
+
+      const card = new Card();
+      card.src = evt.detail.value;
+      container.appendChild(card);
+    });
+
+    window.addEventListener('cameraaccessdenied', () => {
+      const { Card } = window.PerceptionToolkit.main;
+      const card = new Card();
+      card.src = 'Camera unavailable or access denied';
+      container.appendChild(card);
+    });
+
   </script>
 
   <script src="/lib/bundled/barcode-detection/barcode-detection.min.js"></script>

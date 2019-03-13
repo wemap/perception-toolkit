@@ -48,6 +48,17 @@ describe('Card', () => {
     assert(container.textContent, message2);
   });
 
+  it('renders more complex data', () => {
+    const card = new Card();
+    card.src = {
+      description: 'bar',
+      title: 'foo',
+    };
+
+    assert.isDefined(card.shadowRoot!.querySelector('#title'));
+    assert.isDefined(card.shadowRoot!.querySelector('#description'));
+  });
+
   it('removes itself on close', (done) => {
     const card = new Card();
     document.body.appendChild(card);
