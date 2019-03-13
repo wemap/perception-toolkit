@@ -24,9 +24,15 @@ export class LocalMarkerStore {
   findRelevantArtifacts(markers: Marker[]) {
     const ret = [];
     for (const marker of markers) {
-      if (!marker.value) { continue; }
+      if (!marker.value) {
+        continue;
+      }
+
       const targetAndArtifact = this.markers.get(marker.value);
-      if (targetAndArtifact) { ret.push(targetAndArtifact); }
+
+      if (targetAndArtifact) {
+        ret.push(targetAndArtifact);
+      }
     }
     return ret;
   }

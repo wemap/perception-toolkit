@@ -10,7 +10,7 @@
 
 import { detectBarcodes } from '../src/detectors/barcode.js';
 import { ActionButton } from '../src/elements/action-button/action-button.js';
-import { Card } from '../src/elements/card/card.js';
+import { Card, CardData } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { hideOverlay, showOverlay } from '../src/elements/overlay/overlay.js';
@@ -18,6 +18,7 @@ import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js'
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { fire } from '../src/utils/fire.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
+import { vibrate } from '../src/utils/vibrate.js';
 
 export { vibrate } from '../src/utils/vibrate.js';
 export { Card } from '../src/elements/card/card.js';
@@ -126,19 +127,35 @@ async function loadArtifactsFromSameOriginUrl(url: URL) {
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
+  if (!window.PerceptionToolkit.config.cardContainer) {
+    return;
+  }
+  const container = window.PerceptionToolkit.config.cardContainer;
+
+  // Prevent multiple cards from showing.
+  if (container.hasChildNodes()) {
+    return;
+  }
+
   for (const { target, content, artifact } of contentDiff.found) {
     // TODO: Card should accept the whole content object and template itself,
 
     // Create a card for every found barcode.
-    // const card = new Card();
-    // card.src = content.name;
+    const card = new Card();
+    card.src = content as CardData;
+    container.appendChild(card);
   }
 }
 
 /*
  * Handle Marker discovery
  */
-async function onMarkerFound(marker: Marker) {
+async function onMarkerFound(evt: Event) {
+  const { detail } = evt as CustomEvent<string>;
+  const marker: Marker = { type: 'qrcode', value: detail };
+
+  vibrate(200);
+
   // If this marker is a URL, try loading artifacts from that URL
   try {
     // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
@@ -174,6 +191,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   }
   capture.captureScale = 0.8;
   capture.addEventListener(StreamCapture.closeEvent, close);
+  capture.addEventListener(barcodeDetect, onMarkerFound);
 
   const streamOpts = {
     video: {
@@ -256,7 +274,7 @@ async function onCaptureFrame(evt: Event) {
 
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
-    fire(barcodeDetect, capture, { value: barcode.rawValue });
+    fire(barcodeDetect, capture, barcode.rawValue);
   }
 
   if (barcodes.length > 0) {
