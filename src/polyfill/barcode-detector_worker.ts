@@ -19,14 +19,14 @@ function getDetectorModule() {
 }
 
 class WasmBarcodeDetector {
-  process(data: ArrayBuffer) {
+  process(data: ImageData) {
     const Module = getDetectorModule();
     const format = '';
-    const fileData = new Uint8Array(data);
+    const fileData = data.data;
     const buffer = Module._malloc(fileData.length);
     Module.HEAPU8.set(fileData, buffer);
     const result =
-        Module.readBarcodeFromPng(buffer, fileData.length, true, format);
+        Module.readBarcodeFromPng(data.data, data.width, data.height);
     Module._free(buffer);
 
     if (result.text) {
@@ -58,7 +58,7 @@ self.onmessage = (e: MessageEvent) => {
 
     if ('importScripts' in self) {
       // Import the emscripten'd file that loads the wasm.
-      importScripts(`${pathPrefix}third_party/zxing/zxing.js`);
+      importScripts(`${pathPrefix}third_party/zxing/zxing_reader.js`);
     }
     return;
   }

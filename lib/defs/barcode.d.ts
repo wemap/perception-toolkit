@@ -28,5 +28,5 @@ export interface BarcodeDectionResult {
     error: string;
 }
 export declare type BarcodeWasmModule = WasmModule & {
-    readBarcodeFromPng(buffer: number, length: number, tryHarder: boolean, format: string): BarcodeDectionResult;
+    readBarcodeFromPng(buffer: Uint8ClampedArray, width: number, height: number): BarcodeDectionResult;
 };
