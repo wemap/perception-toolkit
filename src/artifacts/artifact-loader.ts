@@ -13,8 +13,9 @@ import { JsonLd } from './schema/json-ld.js';
 
 // TODO: Consider merging from*Url functions and just branching on response content-type
 export class ArtifactLoader {
-  private decoder = new ArtifactDecoder();
+  private readonly decoder = new ArtifactDecoder();
 
+  // TODO (#35): Change ArtifactsLoader to only "index" URLs where Artifacts could actually exist
   async fromHtmlUrl(url: URL|string) {
     // Note: according to MDN, can use XHR request to create Document direct from URL
     // This may be better, because could have document.location.href (etc) settings automatically?

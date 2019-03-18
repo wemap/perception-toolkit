@@ -14,7 +14,7 @@ import { ARArtifact } from '../schema/ar-artifact.js';
 import { Barcode } from '../schema/barcode.js';
 
 export class LocalMarkerStore {
-  private markers = new Map<string, NearbyResult>();
+  private readonly markers = new Map<string, NearbyResult>();
 
   addMarker(artifact: ARArtifact, barcode: Barcode): void {
     if (!barcode.text) {
