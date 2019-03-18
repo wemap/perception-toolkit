@@ -242,6 +242,7 @@ export function close() {
   capture.stop();
   capture.remove();
   hideOverlay();
+  clearTimeout(hintTimeout);
 }
 
 let isProcessingCapture = false;
