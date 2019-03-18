@@ -94,9 +94,9 @@ async function beginDetection(detectionMode: 'active' | 'passive') {
  */
 async function loadInitialArtifacts() {
   const artifactGroups = await Promise.all([
-      artloader.fromDocument(document, document.URL),
-      artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
-    ]);
+    artloader.fromDocument(document, document.URL),
+    artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
+  ]);
   for (const artifacts of artifactGroups) {
     for (const artifact of artifacts) {
       artstore.addArtifact(artifact);
@@ -106,8 +106,6 @@ async function loadInitialArtifacts() {
 
 /**
  * Load artifact content from url on same originn, usually discovered from environment.
- *
- * TODO: Consider constraining content-type, so as not to fetch needless large resources.
  */
 async function loadArtifactsFromSameOriginUrl(url: URL) {
   // Test that this URL is not from another origin
@@ -138,8 +136,6 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
   }
 
   for (const { target, content, artifact } of contentDiff.found) {
-    // TODO: Card should accept the whole content object and template itself,
-
     // Create a card for every found barcode.
     const card = new Card();
     card.src = content as CardData;

@@ -16,7 +16,7 @@ import { JsonLd } from './schema/json-ld.js';
 import { ArtifactStore } from './stores/artifact-store.js';
 
 export interface NearbyResult {
-  target?: JsonLd; // TODO: this comes from art-store
+  target?: JsonLd;
   content?: JsonLd;
   artifact: ARArtifact;
 }
@@ -27,15 +27,13 @@ export interface NearbyResultDelta {
 }
 
 export class ArtifactDealer {
-  private artstores: ArtifactStore[] = [];
-  private currentGeolocation: GeoCoordinates = {};
-  private nearbyMarkers = new Map<string, Marker>();
+  private readonly artstores: ArtifactStore[] = [];
+  private readonly nearbyMarkers = new Map<string, Marker>();
   private nearbyResults = new Set<NearbyResult>();
+  private currentGeolocation: GeoCoordinates = {};
 
   async addArtifactStore(artstore: ArtifactStore): Promise<NearbyResultDelta> {
     this.artstores.push(artstore);
-    // TODO: Subscribe for artstore update events, call generateEvents each update.
-
     return this.generateDiffs();
   }
 
@@ -54,16 +52,16 @@ export class ArtifactDealer {
     return this.generateDiffs();
   }
 
-  // TODO: Future ArtStores may actually be async, and should convert this code to not rely
-  // on sync implementation of findRelevantArtifacts()
+  // TODO (#34): Change ArtStore's `findRelevantArtifacts` to be async
+  // TODO (#33): Replace map+flat with flatMap once it is polyfilled for all platforms.
   async generateDiffs(): Promise<NearbyResultDelta> {
     // 1. Using current context (geo, markers), ask artstores to compute relevant artifacts
-    const pendingNearbyResults = new Set(this.artstores.flatMap((artstore) => {
+    const pendingNearbyResults = new Set(this.artstores.map((artstore) => {
       return artstore.findRelevantArtifacts(
         Array.from(this.nearbyMarkers.values()),
         this.currentGeolocation
       );
-    }));
+    }).flat(1));
 
     // 2. Diff with previous list to compute new/old artifacts.
     //    New ones are those which haven't appeared before.

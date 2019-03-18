@@ -17,7 +17,7 @@ import { ArtifactStore } from './artifact-store.js';
 import { LocalMarkerStore } from './local-marker-store.js';
 
 export class LocalArtifactStore implements ArtifactStore {
-  private markerStore = new LocalMarkerStore();
+  private readonly markerStore = new LocalMarkerStore();
 
   addArtifact(artifact: ARArtifact): void {
     if (!artifact.arTarget) {
