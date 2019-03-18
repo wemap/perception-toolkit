@@ -10,7 +10,7 @@
 
 import { detectBarcodes } from '../src/detectors/barcode.js';
 import { ActionButton } from '../src/elements/action-button/action-button.js';
-import { Card } from '../src/elements/card/card.js';
+import { Card, CardData } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { hideOverlay, showOverlay } from '../src/elements/overlay/overlay.js';
@@ -18,10 +18,22 @@ import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js'
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { fire } from '../src/utils/fire.js';
 import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
+import { vibrate } from '../src/utils/vibrate.js';
 
 export { vibrate } from '../src/utils/vibrate.js';
 export { Card } from '../src/elements/card/card.js';
 export { ActionButton } from '../src/elements/action-button/action-button.js';
+
+import { Marker } from '../defs/marker.js';
+import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
+import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
+import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
+
+const artloader = new ArtifactLoader();
+const artstore = new LocalArtifactStore();
+const artdealer = new ArtifactDealer();
+
+artdealer.addArtifactStore(artstore);
 
 const detectedBarcodes = new Set<string>();
 const barcodeDetect = 'barcodedetect';
@@ -67,11 +79,93 @@ async function beginDetection(detectionMode: 'active' | 'passive') {
     // Wait for the faked detection to resolve.
     await attemptDetection;
 
+    // Start loading some artifacts.
+    await loadInitialArtifacts();
+
     // Create the stream.
     await createStreamCapture(detectionMode);
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
   }
+}
+
+/**
+ * Load artifact content for initial set.
+ */
+async function loadInitialArtifacts() {
+  const artifactGroups = await Promise.all([
+    artloader.fromDocument(document, document.URL),
+    artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
+  ]);
+  for (const artifacts of artifactGroups) {
+    for (const artifact of artifacts) {
+      artstore.addArtifact(artifact);
+    }
+  }
+}
+
+/**
+ * Load artifact content from url on same originn, usually discovered from environment.
+ */
+async function loadArtifactsFromSameOriginUrl(url: URL) {
+  // Test that this URL is not from another origin
+  if (url.hostname !== window.location.hostname ||
+      url.port !== window.location.port ||
+      url.protocol !== window.location.protocol) {
+    return;
+  }
+
+  const artifacts = await artloader.fromHtmlUrl(url);
+  for (const artifact of artifacts) {
+    artstore.addArtifact(artifact);
+  }
+}
+
+/**
+ * Whenever we find nearby content, show it
+ */
+async function updateContentDisplay(contentDiff: NearbyResultDelta) {
+  if (!window.PerceptionToolkit.config.cardContainer) {
+    return;
+  }
+  const container = window.PerceptionToolkit.config.cardContainer;
+
+  // Prevent multiple cards from showing.
+  if (container.hasChildNodes()) {
+    return;
+  }
+
+  for (const { target, content, artifact } of contentDiff.found) {
+    // Create a card for every found barcode.
+    const card = new Card();
+    card.src = content as CardData;
+    container.appendChild(card);
+  }
+}
+
+/*
+ * Handle Marker discovery
+ */
+async function onMarkerFound(evt: Event) {
+  const { detail } = evt as CustomEvent<string>;
+  const marker: Marker = { type: 'qrcode', value: detail };
+
+  vibrate(200);
+
+  // If this marker is a URL, try loading artifacts from that URL
+  try {
+    // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
+    // Do not supply a base url argument, since we do not want to support relative URLs,
+    // and because that would turn lots of normal string values into valid relative URLs.
+    const url = new URL(marker.value);
+    await loadArtifactsFromSameOriginUrl(url);
+  } catch (_) {
+    // Do nothing if this isn't a valid URL
+  }
+
+  // Update the UI
+  const contentDiffs = await artdealer.markerFound(marker);
+  updateContentDisplay(contentDiffs);
 }
 
 let hintTimeout: number;
@@ -93,6 +187,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   }
   capture.captureScale = 0.8;
   capture.addEventListener(StreamCapture.closeEvent, close);
+  capture.addEventListener(barcodeDetect, onMarkerFound);
 
   const streamOpts = {
     video: {
@@ -179,7 +274,7 @@ async function onCaptureFrame(evt: Event) {
 
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
-    fire(barcodeDetect, capture, { value: barcode.rawValue });
+    fire(barcodeDetect, capture, barcode.rawValue);
   }
 
   if (barcodes.length > 0) {

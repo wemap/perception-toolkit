@@ -18,8 +18,8 @@ import { fade } from '../../utils/fade.js';
 import { html, styles } from './card.template.js';
 
 export interface CardData {
-  title?: string;
-  subtitle?: string;
+  name?: string;
+  disambiguatingDescription?: string;
   description?: string;
   image?: string;
   price?: {
@@ -185,10 +185,10 @@ export class Card extends HTMLElement {
     }
 
     container.innerHTML = '';
-    if (data.title) {
+    if (data.name) {
       const title = document.createElement('h1');
       title.setAttribute('id', 'title');
-      title.textContent = data.title;
+      title.textContent = data.name;
       container.appendChild(title);
     }
 

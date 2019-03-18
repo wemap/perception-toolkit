@@ -106,6 +106,27 @@
       }
     </style>
 
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "ARArtifact",
+      "arTarget": {
+        "@type": "Barcode",
+        "text": "Inline Barcode"
+      },
+      "arContent": {
+        "@type": "WebPage",
+        "url": "http://localhost:8080/demo/barcode-detection/index.html",
+        "name": "This is a Result!",
+        "description": "Description",
+        "image": "http://localhost:8080/demo/images/step1.jpg"
+      }
+    }
+
+    </script>
+
+    <script type="application/ld+json" src="barcode-listing-linked.jsonld"></script>
+
     <script>
       window.WebComponents = window.WebComponents || {};
       window.WebComponents.root = '/node_modules/@webcomponents/webcomponentsjs/';
@@ -120,6 +141,7 @@
     window.PerceptionToolkit = window.PerceptionToolkit || {};
     window.PerceptionToolkit.config = {
       button: document.getElementById('get-started'),
+      cardContainer: document.body.querySelector('#container'),
       showLoaderDuringBoot: false,
       onboarding: true,
       onboardingImages: [
@@ -129,21 +151,6 @@
       ],
       hintTimeout: 7000
     };
-
-    const container = document.body.querySelector('#container');
-    window.addEventListener('barcodedetect', (evt) => {
-      // Prevent multiple cards from showing.
-      if (container.hasChildNodes()) {
-        return;
-      }
-
-      const { vibrate, ActionButton, Card } = window.PerceptionToolkit.main;
-      vibrate(200);
-
-      const card = new Card();
-      card.src = evt.detail.value;
-      container.appendChild(card);
-    });
 
     window.addEventListener('cameraaccessdenied', () => {
       const { Card } = window.PerceptionToolkit.main;
