@@ -165,10 +165,10 @@ export async function initializeExperience() {
     }
   }
 
+  showLoader();
+
   // Load the main experience if necessary.
   if (!mainHasLoaded) {
-    showLoader();
-
     mainHasLoaded =
         await injectScript(`${root}/lib/bundled/barcode-detection/main.min.js`);
   }
