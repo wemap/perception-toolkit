@@ -127,6 +127,9 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
         if (document.hidden) {
           return;
         }
+
+        // Ensure the capture is definitely stopped before starting a new one.
+        capture.stop();
         capture.start(stream);
       }
     });
