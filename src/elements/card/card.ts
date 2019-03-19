@@ -174,7 +174,9 @@ export class Card extends HTMLElement {
 
       container.appendChild(iframe);
     } else {
+      console.warn('Unexpected card content', this.src);
       container.textContent = 'Unexpected content';
+      container.classList.add('padded');
     }
   }
 

@@ -79,7 +79,7 @@ export async function initialize(opts: InitOpts) {
 /**
  * Initializes the main behavior.
  */
-async function beginDetection({ detectionMode, sitemapUrl }: InitOpts) {
+async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpts) {
   try {
     // Wait for the faked detection to resolve.
     await attemptDetection;
