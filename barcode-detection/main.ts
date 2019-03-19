@@ -38,6 +38,7 @@ artdealer.addArtifactStore(artstore);
 const detectedBarcodes = new Set<string>();
 const barcodeDetect = 'barcodedetect';
 const cameraAccessDenied = 'cameraaccessdenied';
+const markerChanges = 'markerchanges';
 
 // Register custom elements.
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
@@ -145,12 +146,11 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
     return;
   }
 
-  for (const { content } of contentDiff.found) {
+  for (const { target, content, artifact } of contentDiff.found) {
     // Create a card for every found barcode.
     const card = new Card();
     card.src = content as CardData;
     container.appendChild(card);
-
   }
 }
 
@@ -178,8 +178,7 @@ async function onMarkerFound(evt: Event) {
   const contentDiffs = await artdealer.markerFound(marker);
   updateContentDisplay(contentDiffs);
 
-  // Fire the event for any other place that needs it.
-  fire(barcodeDetect, capture, contentDiffs);
+  fire(markerChanges, capture, contentDiffs);
 }
 
 let hintTimeout: number;
@@ -288,6 +287,7 @@ async function onCaptureFrame(evt: Event) {
 
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
+    fire(barcodeDetect, capture, barcode.rawValue);
   }
 
   if (barcodes.length > 0) {
