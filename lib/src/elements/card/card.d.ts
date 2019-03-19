@@ -13,8 +13,8 @@ declare global {
     }
 }
 export interface CardData {
-    title?: string;
-    subtitle?: string;
+    name?: string;
+    disambiguatingDescription?: string;
     description?: string;
     image?: string;
     price?: {
