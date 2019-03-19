@@ -145,11 +145,12 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
     return;
   }
 
-  for (const { target, content, artifact } of contentDiff.found) {
+  for (const { content } of contentDiff.found) {
     // Create a card for every found barcode.
     const card = new Card();
     card.src = content as CardData;
     container.appendChild(card);
+
   }
 }
 
@@ -176,6 +177,9 @@ async function onMarkerFound(evt: Event) {
   // Update the UI
   const contentDiffs = await artdealer.markerFound(marker);
   updateContentDisplay(contentDiffs);
+
+  // Fire the event for any other place that needs it.
+  fire(barcodeDetect, capture, contentDiffs);
 }
 
 let hintTimeout: number;
@@ -284,7 +288,6 @@ async function onCaptureFrame(evt: Event) {
 
     // Prevent multiple markers for the same barcode.
     detectedBarcodes.add(barcode.rawValue);
-    fire(barcodeDetect, capture, barcode.rawValue);
   }
 
   if (barcodes.length > 0) {
