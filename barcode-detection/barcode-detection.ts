@@ -32,7 +32,8 @@ declare global {
         cardContainer?: HTMLElement,
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
-        showLoaderDuringBoot?: boolean
+        showLoaderDuringBoot?: boolean,
+        sitemapUrl?: string,
       },
 
       loader: {
@@ -41,7 +42,10 @@ declare global {
       },
 
       main: {
-        initialize(detectionMode?: 'active' | 'passive'): void;
+        initialize(opts: {
+          detectionMode?: 'active' | 'passive',
+          sitemapUrl?: string
+        }): void;
       }
 
       onboarding: {
@@ -150,7 +154,7 @@ export async function initializeExperience() {
   const { idbKeyval } = window;
   const { showLoader, hideLoader } = window.PerceptionToolkit.loader;
   const { config } = window.PerceptionToolkit;
-  const { root = '' } = config;
+  const { root = '', sitemapUrl, detectionMode } = config;
 
   if (config && config.onboardingImages && config.onboarding) {
     // Recall whether the user has done onboarding before.
@@ -175,5 +179,5 @@ export async function initializeExperience() {
   }
 
   const { initialize } = window.PerceptionToolkit.main;
-  initialize(config.detectionMode);
+  initialize({ detectionMode, sitemapUrl });
 }

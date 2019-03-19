@@ -54,33 +54,38 @@ window.addEventListener('online', onConnectivityChanged);
 const polyfillPrefix = window.PerceptionToolkit.config.root || '';
 const attemptDetection = detectBarcodes(new ImageData(1, 1), { polyfillPrefix });
 
+interface InitOpts {
+  detectionMode: 'active' | 'passive';
+  sitemapUrl?: string;
+}
+
 /**
  * Starts the user onboarding.
  */
-export async function initialize(detectionMode: 'active' | 'passive' = 'passive') {
+export async function initialize(opts: InitOpts) {
   const onboarding = document.querySelector(OnboardingCard.defaultTagName);
   if (!onboarding) {
-    beginDetection(detectionMode);
+    beginDetection(opts);
     return;
   }
 
   // When onboarding is finished, start the stream and remove the loader.
   onboarding.addEventListener(OnboardingCard.onboardingFinishedEvent, () => {
     onboarding.remove();
-    beginDetection(detectionMode);
+    beginDetection(opts);
   });
 }
 
 /**
  * Initializes the main behavior.
  */
-async function beginDetection(detectionMode: 'active' | 'passive') {
+async function beginDetection({ detectionMode, sitemapUrl }: InitOpts) {
   try {
     // Wait for the faked detection to resolve.
     await attemptDetection;
 
     // Start loading some artifacts.
-    await loadInitialArtifacts();
+    await loadInitialArtifacts(sitemapUrl);
 
     // Create the stream.
     await createStreamCapture(detectionMode);
@@ -92,11 +97,16 @@ async function beginDetection(detectionMode: 'active' | 'passive') {
 /**
  * Load artifact content for initial set.
  */
-async function loadInitialArtifacts() {
-  const artifactGroups = await Promise.all([
+async function loadInitialArtifacts(sitemapUrl?: string) {
+  const srcs = [
     artloader.fromDocument(document, document.URL),
-    artloader.fromJsonUrl(new URL('./barcode-listing-sitemap.jsonld', document.URL)),
-  ]);
+  ];
+
+  if (sitemapUrl) {
+    srcs.push(artloader.fromJsonUrl(new URL(sitemapUrl, document.URL)));
+  }
+
+  const artifactGroups = await Promise.all(srcs);
   for (const artifacts of artifactGroups) {
     for (const artifact of artifacts) {
       artstore.addArtifact(artifact);

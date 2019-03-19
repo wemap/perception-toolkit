@@ -25,13 +25,17 @@ declare global {
                 hintTimeout?: number;
                 detectionMode?: 'active' | 'passive';
                 showLoaderDuringBoot?: boolean;
+                sitemapUrl?: string;
             };
             loader: {
                 hideLoader(): void;
                 showLoader(): void;
             };
             main: {
-                initialize(detectionMode?: 'active' | 'passive'): void;
+                initialize(opts: {
+                    detectionMode?: 'active' | 'passive';
+                    sitemapUrl?: string;
+                }): void;
             };
             onboarding: {
                 startOnboardingProcess(images: string[]): Promise<void>;

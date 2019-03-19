@@ -10,8 +10,12 @@
 export { vibrate } from '../src/utils/vibrate.js';
 export { Card } from '../src/elements/card/card.js';
 export { ActionButton } from '../src/elements/action-button/action-button.js';
+interface InitOpts {
+    detectionMode: 'active' | 'passive';
+    sitemapUrl?: string;
+}
 /**
  * Starts the user onboarding.
  */
-export declare function initialize(detectionMode?: 'active' | 'passive'): Promise<void>;
+export declare function initialize(opts: InitOpts): Promise<void>;
 export declare function close(): void;
