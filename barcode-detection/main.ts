@@ -35,7 +35,7 @@ const artdealer = new ArtifactDealer();
 
 artdealer.addArtifactStore(artstore);
 
-const detectedBarcodes = new Set<string>();
+const detectedMarkers = new Map<string, number>();
 const barcodeDetect = 'barcodedetect';
 const cameraAccessDenied = 'cameraaccessdenied';
 const markerChanges = 'markerchanges';
@@ -161,8 +161,6 @@ async function onMarkerFound(evt: Event) {
   const { detail } = evt as CustomEvent<string>;
   const marker: Marker = { type: 'qrcode', value: detail };
 
-  vibrate(200);
-
   // If this marker is a URL, try loading artifacts from that URL
   try {
     // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
@@ -184,6 +182,7 @@ async function onMarkerFound(evt: Event) {
     return;
   }
 
+  vibrate(200);
   updateContentDisplay(contentDiffs);
 }
 
@@ -287,12 +286,15 @@ async function onCaptureFrame(evt: Event) {
   const barcodes = await detectBarcodes(imgData, { polyfillPrefix });
 
   for (const barcode of barcodes) {
-    if (detectedBarcodes.has(barcode.rawValue)) {
+    const markerAlreadyDetected = detectedMarkers.has(barcode.rawValue);
+
+    // Update the last time for this marker.
+    detectedMarkers.set(barcode.rawValue, self.performance.now());
+    if (markerAlreadyDetected) {
       continue;
     }
 
-    // Prevent multiple markers for the same barcode.
-    detectedBarcodes.add(barcode.rawValue);
+    // Only fire the event if the marker is freshly detected.
     fire(barcodeDetect, capture, barcode.rawValue);
   }
 
@@ -308,8 +310,21 @@ async function onCaptureFrame(evt: Event) {
 
   // Provide a cool-off before allowing another detection. This aids the case
   // where a recently-scanned barcode is mistakenly re-scanned, but with errors.
-  setTimeout(() => {
-    detectedBarcodes.clear();
+  setTimeout(async () => {
+    const now = self.performance.now();
+    const removals = [];
+    for (const [value, timeLastSeen] of detectedMarkers.entries()) {
+      if (now - timeLastSeen < 3000) {
+        continue;
+      }
+
+      const marker: Marker = { type: 'qrcode', value };
+      removals.push(artdealer.markerLost(marker));
+      detectedMarkers.delete(value);
+    }
+
+    // Wait for all dealer removals to conclude.
+    await Promise.all(removals);
     isProcessingCapture = false;
   }, 1000);
 
