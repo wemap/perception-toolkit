@@ -54,7 +54,7 @@ export class ArtifactDealer {
 
   // TODO (#34): Change ArtStore's `findRelevantArtifacts` to be async
   // TODO (#33): Replace map+flat with flatMap once it is polyfilled for all platforms.
-  async generateDiffs(): Promise<NearbyResultDelta> {
+  private async generateDiffs(): Promise<NearbyResultDelta> {
     // 1. Using current context (geo, markers), ask artstores to compute relevant artifacts
     const pendingNearbyResults = new Set(this.artstores.map((artstore) => {
       return artstore.findRelevantArtifacts(
