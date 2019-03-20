@@ -14,4 +14,4 @@
  * fire('eventname', someElement, {foo: 'bar'});
  * ```
  */
-export declare function fire(name: string, target: HTMLElement | Window, detail?: {}): void;
+export declare function fire(name: string, target: HTMLElement | Window, detail?: {}): CustomEvent<{} | undefined>;

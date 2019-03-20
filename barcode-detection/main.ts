@@ -146,7 +146,7 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
     return;
   }
 
-  for (const { target, content, artifact } of contentDiff.found) {
+  for (const { content } of contentDiff.found) {
     // Create a card for every found barcode.
     const card = new Card();
     card.src = content as CardData;
@@ -176,9 +176,15 @@ async function onMarkerFound(evt: Event) {
 
   // Update the UI
   const contentDiffs = await artdealer.markerFound(marker);
-  updateContentDisplay(contentDiffs);
+  const markerChangeEvt = fire(markerChanges, capture, contentDiffs);
 
-  fire(markerChanges, capture, contentDiffs);
+  // If the developer prevents default on the marker changes event then don't
+  // handle the UI updates; they're doing it themselves.
+  if (markerChangeEvt.defaultPrevented) {
+    return;
+  }
+
+  updateContentDisplay(contentDiffs);
 }
 
 let hintTimeout: number;

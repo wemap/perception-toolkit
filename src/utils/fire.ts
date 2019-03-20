@@ -18,4 +18,6 @@
 export function fire(name: string, target: HTMLElement | Window, detail?: {}) {
   const evt = new CustomEvent<typeof detail>(name, { bubbles: true, detail });
   target.dispatchEvent(evt);
+
+  return evt;
 }
