@@ -224,7 +224,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
     // Ensure the stream is stopped and started when the user changes tabs.
     let isRequestingNewStream = false;
     window.addEventListener('visibilitychange', async () => {
-      if (isRequestingNewStream) {
+      if (isRequestingNewStream || capture.parentNode === null) {
         return;
       }
 
