@@ -7,11 +7,18 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-import { JsonLd } from './schema/json-ld.js';
-export declare class ArtifactLoader {
-    private readonly decoder;
-    fromHtmlUrl(url: URL | string): Promise<any[]>;
-    fromJsonUrl(url: URL | string): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
-    fromDocument(doc: Document, url: URL | string): Promise<any[]>;
-    fromJson(json: JsonLd): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
+
+/**
+ * The flat() method creates a new array with all sub-array elements concatenated into it.
+ * Unlike Array.prototoype.flat, does not support recursively flattening up to the specified depth.
+ */
+export function flat(arr: any[]): any[] {
+  /*
+  if ('flat' in arr) {
+    return (arr as any[]).flat();
+  }
+  */
+  // As Per: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+  // flat() is equivalent to:
+  return arr.reduce((acc, val) => acc.concat(val), []);
 }

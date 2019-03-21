@@ -7,11 +7,8 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-import { JsonLd } from './schema/json-ld.js';
-export declare class ArtifactLoader {
-    private readonly decoder;
-    fromHtmlUrl(url: URL | string): Promise<any[]>;
-    fromJsonUrl(url: URL | string): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
-    fromDocument(doc: Document, url: URL | string): Promise<any[]>;
-    fromJson(json: JsonLd): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
-}
+/**
+ * The flatMap() method first maps each element using a mapping function, then flattens the result into a new array.
+ * It is identical to a map followed by a flat of depth 1.
+ */
+export declare function flatMap(arr: any[], mapper: (arg0: any) => any): any[];

@@ -7,11 +7,19 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-import { JsonLd } from './schema/json-ld.js';
-export declare class ArtifactLoader {
-    private readonly decoder;
-    fromHtmlUrl(url: URL | string): Promise<any[]>;
-    fromJsonUrl(url: URL | string): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
-    fromDocument(doc: Document, url: URL | string): Promise<any[]>;
-    fromJson(json: JsonLd): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
-}
+
+const { assert } = chai;
+
+import { flat } from './flat.js';
+
+describe('Flat', () => {
+  it('flattens 1 level deep', () => {
+    assert.deepEqual(flat([1, 2, [3, 4]]), [1, 2, 3, 4]);
+  });
+  it('flattens only 1 level deep', () => {
+    assert.deepEqual(flat([1, 2, [3, 4, [5, 6]]]), [1, 2, 3, 4, [5, 6]]);
+  });
+  it('removes empty slots in arrays', () => {
+    assert.deepEqual(flat([1, 2, /* none */, 4, 5]), [1, 2, 4, 5]);
+  });
+});

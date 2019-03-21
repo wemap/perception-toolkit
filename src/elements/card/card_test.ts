@@ -52,7 +52,7 @@ describe('Card', () => {
     const card = new Card();
     card.src = {
       description: 'bar',
-      title: 'foo',
+      name: 'foo',
     };
 
     assert.isDefined(card.shadowRoot!.querySelector('#title'));
