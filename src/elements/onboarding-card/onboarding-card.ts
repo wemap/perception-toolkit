@@ -23,13 +23,14 @@ const IO_POLYFILL_PATH =
 /**
  * @ignore
  */
-export async function loadIntersectionObserverPolyfillIfNeeded(force = false) {
+export async function loadIntersectionObserverPolyfillIfNeeded({
+      force = false, polyfillPrefix = ''}) {
   if (!force && await IntersectionObserverSupport.supported()) {
     return true;
   }
 
   try {
-    await injectScript(IO_POLYFILL_PATH);
+    await injectScript(`${polyfillPrefix}${IO_POLYFILL_PATH}`);
 
     // Force the polyfill to check every 300ms.
     (IntersectionObserver as any).prototype.POLL_INTERVAL = 300;
@@ -103,7 +104,7 @@ export class OnboardingCard extends HTMLElement {
     return ['width', 'height', 'mode'];
   }
 
-  ready = loadIntersectionObserverPolyfillIfNeeded();
+  ready: Promise<boolean>;
 
   private readonly root = this.attachShadow({ mode: 'open' });
   private readonly itemsInView = new Set<Element>();
@@ -120,8 +121,10 @@ export class OnboardingCard extends HTMLElement {
   private onIntersectionBound = this.onIntersection.bind(this);
 
   /* istanbul ignore next */
-  constructor() {
+  constructor({ polyfillPrefix = ''} = {}) {
     super();
+
+    this.ready = loadIntersectionObserverPolyfillIfNeeded({ polyfillPrefix });
   }
 
   /**

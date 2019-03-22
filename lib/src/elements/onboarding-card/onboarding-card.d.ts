@@ -10,7 +10,10 @@
 /**
  * @ignore
  */
-export declare function loadIntersectionObserverPolyfillIfNeeded(force?: boolean): Promise<boolean>;
+export declare function loadIntersectionObserverPolyfillIfNeeded({ force, polyfillPrefix }: {
+    force?: boolean | undefined;
+    polyfillPrefix?: string | undefined;
+}): Promise<boolean>;
 /**
  * Provides a mechanism for onboarding users to your experience. Each child node
  * of the element is assumed to be a discrete step in the process.
@@ -78,7 +81,9 @@ export declare class OnboardingCard extends HTMLElement {
     private onContainerClickBound;
     private onButtonClickBound;
     private onIntersectionBound;
-    constructor();
+    constructor({ polyfillPrefix }?: {
+        polyfillPrefix?: string | undefined;
+    });
     /**
      * Gets & sets the width of the card.
      */
