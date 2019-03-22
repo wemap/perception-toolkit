@@ -29,6 +29,7 @@ export const styles = `
   flex-direction: column;
   outline: none;
   z-index: 1;
+  overflow: auto;
 
   padding: var(--padding);
   border-radius: var(--borderRadius);
