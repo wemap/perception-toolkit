@@ -9,6 +9,7 @@
  */
 
 import { ArtifactDecoder } from './artifact-decoder.js';
+import { ARArtifact } from './schema/ar-artifact.js';
 import { JsonLd } from './schema/json-ld.js';
 
 // TODO: Consider merging from*Url functions and just branching on response content-type
@@ -16,7 +17,7 @@ export class ArtifactLoader {
   private readonly decoder = new ArtifactDecoder();
 
   // TODO (#35): Change ArtifactsLoader to only "index" URLs where Artifacts could actually exist
-  async fromHtmlUrl(url: URL|string) {
+  async fromHtmlUrl(url: URL|string): Promise<ARArtifact[]> {
     // Note: according to MDN, can use XHR request to create Document direct from URL
     // This may be better, because could have document.location.href (etc) settings automatically?
     // Note: this already proved issue when getting .src property of script/link tags, since relative
@@ -26,10 +27,10 @@ export class ArtifactLoader {
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    return this.fromDocument(doc, url);
+    return this.fromElement(doc, url);
   }
 
-  async fromJsonUrl(url: URL|string) {
+  async fromJsonUrl(url: URL|string): Promise<ARArtifact[]> {
     const response = await fetch(url.toString());
     if (!response.ok) {
         throw Error(response.statusText);
@@ -38,22 +39,22 @@ export class ArtifactLoader {
     return this.fromJson(json);
   }
 
-  async fromDocument(doc: Document, url: URL|string) {
+  async fromElement(el: NodeSelector, url: URL|string): Promise<ARArtifact[]> {
     const ret = [];
 
-    const inlineScripts = doc.querySelectorAll('script[type=\'application/ld+json\']:not([src])');
+    const inlineScripts = el.querySelectorAll('script[type=\'application/ld+json\']:not([src])');
     for (const jsonldScript of inlineScripts) {
       ret.push(this.fromJson(JSON.parse(jsonldScript.textContent || '')));
     }
 
-    const externalScripts = doc.querySelectorAll('script[type=\'application/ld+json\'][src]');
+    const externalScripts = el.querySelectorAll('script[type=\'application/ld+json\'][src]');
     for (const jsonldScript of externalScripts) {
       const src = jsonldScript.getAttribute('src');
       if (!src) { continue; }
       ret.push(this.fromJsonUrl(new URL(src, /* base= */ url)));
     }
 
-    const jsonldLinks = doc.querySelectorAll('link[rel=\'alternate\'][type=\'application/ld+json\'][href]');
+    const jsonldLinks = el.querySelectorAll('link[rel=\'alternate\'][type=\'application/ld+json\'][href]');
     for (const jsonldLink of jsonldLinks) {
       const href = jsonldLink.getAttribute('href');
       if (!href) { continue; }
@@ -63,7 +64,7 @@ export class ArtifactLoader {
     return (await Promise.all(ret)).flat(1);
   }
 
-  async fromJson(json: JsonLd) {
+  async fromJson(json: JsonLd): Promise<ARArtifact[]> {
     return this.decoder.decode(json);
   }
 }
