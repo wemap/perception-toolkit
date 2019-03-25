@@ -12,13 +12,25 @@
  * The flat() method creates a new array with all sub-array elements concatenated into it.
  * Unlike Array.prototoype.flat, does not support recursively flattening up to the specified depth.
  */
-export function flat(arr: any[]): any[] {
-  /*
-  if ('flat' in arr) {
-    return (arr as any[]).flat();
-  }
-  */
+function flatPolyfill<U>(arr: any[], depth?: number): any[] {
   // As Per: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
   // flat() is equivalent to:
-  return arr.reduce((acc, val) => acc.concat(val), []);
+  const flatOnce = (arr: any[]) => arr.reduce((acc, val) => acc.concat(val), []);
+  let ret = flatOnce(arr);
+
+  // This will iteratively flatten, depth number of times.
+  if (depth) {
+    for (let i = 1; i < depth; i++) {
+      ret = flatOnce(ret);
+    }
+  }
+  return ret;
+}
+
+export function flat<U>(arr: any[], depth?: number): any[] {
+  if ('flat' in Array.prototype) {
+    return arr.flat(depth);
+  } else {
+    return flatPolyfill(arr);
+  }
 }
