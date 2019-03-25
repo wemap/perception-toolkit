@@ -29,6 +29,7 @@ function flatPolyfill<U>(arr: any[], depth?: number): any[] {
 
 export function flat<U>(arr: any[], depth?: number): any[] {
   if ('flat' in Array.prototype) {
+    // @ts-ignore
     return arr.flat(depth);
   } else {
     return flatPolyfill(arr);
