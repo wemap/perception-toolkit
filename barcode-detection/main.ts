@@ -25,20 +25,15 @@ export { Card } from '../src/elements/card/card.js';
 export { ActionButton } from '../src/elements/action-button/action-button.js';
 
 import { Marker } from '../defs/marker.js';
-import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
-import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
-import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
-
-const artloader = new ArtifactLoader();
-const artstore = new LocalArtifactStore();
-const artdealer = new ArtifactDealer();
-
-artdealer.addArtifactStore(artstore);
+import { NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
+import { MeaningMaker } from './meaning-maker.js';
 
 const detectedMarkers = new Map<string, number>();
 const barcodeDetect = 'barcodedetect';
 const cameraAccessDenied = 'cameraaccessdenied';
 const markerChanges = 'markerchanges';
+
+const meaningMaker = new MeaningMaker();
 
 // Register custom elements.
 customElements.define(StreamCapture.defaultTagName, StreamCapture);
@@ -85,50 +80,16 @@ async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpt
     // Wait for the faked detection to resolve.
     await attemptDetection;
 
-    // Start loading some artifacts.
-    await loadInitialArtifacts(sitemapUrl);
+    // Initialize MeaningMaker
+    await meaningMaker.init();
+    if (sitemapUrl) {
+      await meaningMaker.loadArtifactsFromJsonldUrl(new URL(sitemapUrl, document.URL));
+    }
 
     // Create the stream.
     await createStreamCapture(detectionMode);
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
-  }
-}
-
-/**
- * Load artifact content for initial set.
- */
-async function loadInitialArtifacts(sitemapUrl?: string) {
-  const srcs = [
-    artloader.fromDocument(document, document.URL),
-  ];
-
-  if (sitemapUrl) {
-    srcs.push(artloader.fromJsonUrl(new URL(sitemapUrl, document.URL)));
-  }
-
-  const artifactGroups = await Promise.all(srcs);
-  for (const artifacts of artifactGroups) {
-    for (const artifact of artifacts) {
-      artstore.addArtifact(artifact);
-    }
-  }
-}
-
-/**
- * Load artifact content from url on same originn, usually discovered from environment.
- */
-async function loadArtifactsFromSameOriginUrl(url: URL) {
-  // Test that this URL is not from another origin
-  if (url.hostname !== window.location.hostname ||
-      url.port !== window.location.port ||
-      url.protocol !== window.location.protocol) {
-    return;
-  }
-
-  const artifacts = await artloader.fromHtmlUrl(url);
-  for (const artifact of artifacts) {
-    artstore.addArtifact(artifact);
   }
 }
 
@@ -161,19 +122,8 @@ async function onMarkerFound(evt: Event) {
   const { detail } = evt as CustomEvent<string>;
   const marker: Marker = { type: 'qrcode', value: detail };
 
-  // If this marker is a URL, try loading artifacts from that URL
-  try {
-    // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
-    // Do not supply a base url argument, since we do not want to support relative URLs,
-    // and because that would turn lots of normal string values into valid relative URLs.
-    const url = new URL(marker.value);
-    await loadArtifactsFromSameOriginUrl(url);
-  } catch (_) {
-    // Do nothing if this isn't a valid URL
-  }
-
   // Update the UI
-  const contentDiffs = await artdealer.markerFound(marker);
+  const contentDiffs = await meaningMaker.markerFound(marker);
   const markerChangeEvt = fire(markerChanges, capture, contentDiffs);
 
   // If the developer prevents default on the marker changes event then don't
@@ -264,6 +214,13 @@ export function close() {
   capture.remove();
   hideOverlay();
   clearTimeout(hintTimeout);
+
+  const onboarding = document.querySelector(OnboardingCard.defaultTagName);
+  if (!onboarding) {
+    return;
+  }
+
+  onboarding.remove();
 }
 
 let isProcessingCapture = false;
@@ -319,7 +276,7 @@ async function onCaptureFrame(evt: Event) {
       }
 
       const marker: Marker = { type: 'qrcode', value };
-      removals.push(artdealer.markerLost(marker));
+      removals.push(meaningMaker.markerLost(marker));
       detectedMarkers.delete(value);
     }
 
