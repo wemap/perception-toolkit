@@ -7,11 +7,12 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
+import { ARArtifact } from './schema/ar-artifact.js';
 import { JsonLd } from './schema/json-ld.js';
 export declare class ArtifactLoader {
     private readonly decoder;
-    fromHtmlUrl(url: URL | string): Promise<any[]>;
-    fromJsonUrl(url: URL | string): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
-    fromDocument(doc: Document, url: URL | string): Promise<any[]>;
-    fromJson(json: JsonLd): Promise<import("./schema/ar-artifact.js").ARArtifact[]>;
+    fromHtmlUrl(url: URL | string): Promise<ARArtifact[]>;
+    fromJsonUrl(url: URL | string): Promise<ARArtifact[]>;
+    fromElement(el: NodeSelector, url: URL | string): Promise<ARArtifact[]>;
+    fromJson(json: JsonLd): Promise<ARArtifact[]>;
 }
