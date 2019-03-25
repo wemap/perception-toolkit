@@ -30,5 +30,5 @@ export declare class ArtifactDealer {
     updateGeolocation(coords: GeoCoordinates): Promise<NearbyResultDelta>;
     markerFound(marker: Marker): Promise<NearbyResultDelta>;
     markerLost(marker: Marker): Promise<NearbyResultDelta>;
-    private generateDiffs;
+    generateDiffs(): Promise<NearbyResultDelta>;
 }
