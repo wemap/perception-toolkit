@@ -24,6 +24,9 @@ export class ArtifactLoader {
     // Urls are based off this document root, not the fetched source.
 
     const response = await fetch(url.toString());
+    if (!response.ok) {
+      return [];
+    }
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');

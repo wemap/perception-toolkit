@@ -16,43 +16,53 @@ type ExtractionRule = [ QuerySelector, ElementProcessorFn ];
 type ExtractionRules = ExtractionRule[];
 
 function processRulesUntilFirstMatch(doc: Document, rules: ExtractionRules): string|undefined {
-  let ret = undefined;
-
   for (const [selector, elementProcessorFn] of rules) {
     const element = document.querySelector(selector);
     if (!element) {
       continue;
     }
-    ret = elementProcessorFn(element);
-    if (ret !== null) {
-      return ret;
+    const val = elementProcessorFn(element);
+    if (val !== undefined && val !== null) {
+      return val;
     }
   }
-  return ret;
 }
 
 function extractTitle(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['meta[property="og:title"]', (el) => el.getAttribute('content')],
     ['title', (el) => el.textContent],
+    ['meta[property="og:title"]', (el) => el.getAttribute('content')],
   ]);
 }
 function extractDescription(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['meta[property="og:description"]', (el) => el.getAttribute('content')],
     ['meta[name="description"]', (el) => el.getAttribute('content')],
     ['meta[itemprop="description"]', (el) => el.getAttribute('content')],
+    ['meta[property="og:description"]', (el) => el.getAttribute('content')],
   ]);
 }
 function extractImage(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['title', (el) => el.textContent]
+    ['meta[itemprop="image"]', (el) => el.getAttribute('content')],
+    ['meta[property="og:image:secure_url"]', (el) => el.getAttribute('content')],
+    ['meta[property="og:image:url"]', (el) => el.getAttribute('content')],
+    ['meta[property="og:image"]', (el) => el.getAttribute('content')],
   ]);
 }
 
-export async function extractCardData(url: URL): Promise<CardData | null> {
+// TODO: turn relative URLs into absolute URLs?
+export async function extractCardDataFromDoc(doc: Document, url: URL): Promise<CardData | null> {
   const ret: CardData = {};
 
+  ret.name = extractTitle(doc);
+  ret.description = extractDescription(doc);
+  ret.image = extractImage(doc);
+  ret.url = url.toString();
+
+  return ret;
+}
+
+export async function extractCardDataFromPage(url: URL): Promise<CardData | null> {
   const response = await fetch(url.toString());
   if (!response.ok) {
     return null;
@@ -61,10 +71,5 @@ export async function extractCardData(url: URL): Promise<CardData | null> {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  ret.name = extractTitle(doc);
-  ret.description = extractDescription(doc);
-  ret.image = extractImage(doc);
-  ret.url = url.toString();
-
-  return ret;
+  return extractCardDataFromDoc(doc, url);
 }

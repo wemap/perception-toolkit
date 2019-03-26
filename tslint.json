@@ -15,7 +15,8 @@
     "callable-types": false,
     "only-arrow-functions": false,
     "no-bitwise": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "object-literal-sort-keys": false
   },
   "rulesDirectory": [],
   "linterOptions": {
