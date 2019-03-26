@@ -10,6 +10,7 @@
 
 import { ARArtifact } from './schema/ar-artifact.js';
 import { JsonLd } from './schema/json-ld.js';
+import { flatMap } from '../utils/flat-map.js';
 
 /*
  * ArtifactDecoder accepts a jsonld block and will extract and return valid ARArtifacts
@@ -17,7 +18,7 @@ import { JsonLd } from './schema/json-ld.js';
  * */
 export class ArtifactDecoder {
   decode(jsonld: JsonLd): ARArtifact[] {
-    return this.decodeUnknown(jsonld).flat();
+    return this.decodeUnknown(jsonld);
   }
 
   private decodeUnknown(jsonld: JsonLd | JsonLd[]): ARArtifact[] {
@@ -42,7 +43,7 @@ export class ArtifactDecoder {
   }
 
   private decodeArray(arr: JsonLd[]): ARArtifact[] {
-    return arr.map(e => this.decodeUnknown(e)).flat();
+    return flatMap(arr, e => this.decodeUnknown(e));
   }
 
   private decodeDataFeed(jsonld: JsonLd): ARArtifact[] {
