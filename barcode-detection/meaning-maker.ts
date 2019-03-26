@@ -9,11 +9,14 @@
  */
 
 import { Marker } from '../defs/marker';
-import { ArtifactDealer, NearbyResultDelta } from '../src/artifacts/artifact-dealer';
+import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer';
 import { ArtifactLoader } from '../src/artifacts/artifact-loader';
+import { extractPageMetadata } from '../src/artifacts/extract-page-metadata.js';
 import { ARArtifact } from '../src/artifacts/schema/ar-artifact';
 import { GeoCoordinates } from '../src/artifacts/schema/geo-coordinates';
+import { JsonLd } from '../src/artifacts/schema/json-ld';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
+import { fetchAsDocument } from '../src/utils/fetch-as-document';
 
 /*
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
@@ -53,33 +56,27 @@ export class MeaningMaker {
   /**
    * Load artifact content from url on same origin, usually discovered from environment.
    */
-  async loadArtifactsFromSameOriginUrl(url: URL) {
-    // Ensure this URL is on same origin
-    if (url.hostname !== window.location.hostname ||
-        url.port !== window.location.port ||
-        url.protocol !== window.location.protocol) {
-      return;
-    }
-
+  async loadArtifactsFromHtmlUrl(url: URL) {
     const artifacts = await this.artloader.fromHtmlUrl(url);
-    for (const artifact of artifacts) {
-      this.artstore.addArtifact(artifact);
-    }
+    this.saveArtifacts(artifacts);
   }
 
   async markerFound(marker: Marker): Promise<NearbyResultDelta> {
     // If this marker is a URL, try loading artifacts from that URL
-    try {
-      // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
-      // Do not supply a base url argument, since we do not want to support relative URLs,
-      // and because that would turn lots of normal string values into valid relative URLs.
-      const url = new URL(marker.value);
-      await this.loadArtifactsFromSameOriginUrl(url);
-    } catch (_) {
-      // Do nothing if this isn't a valid URL
+    const url = this.ensureSameOriginURL(marker.value);
+    if (url) {
+      await this.loadArtifactsFromHtmlUrl(url);
     }
 
-    return this.artdealer.markerFound(marker);
+    const results = await this.artdealer.markerFound(marker);
+
+    // If any results have URL-only content -- try loading from the page itself
+    for (const result of results.found) {
+      await this.attemptEnrichContentWithPageMetadata(result);
+    }
+    // Do not enrich lost content.  Should only need target info.
+
+    return results;
   }
 
   async markerLost(marker: Marker): Promise<NearbyResultDelta> {
@@ -94,5 +91,57 @@ export class MeaningMaker {
     for (const artifact of artifacts) {
       this.artstore.addArtifact(artifact);
     }
+  }
+
+  private ensureSameOriginURL(potentialUrl: string): URL | null {
+    try {
+      // This will throw if markerValue isn't a valid URL.
+      // Do not supply a base url argument, since we do not want to support relative URLs,
+      // and because that would turn lots of normal string values into valid relative URLs.
+      const url = new URL(potentialUrl);
+
+      if (url.hostname !== window.location.hostname ||
+          url.port !== window.location.port ||
+          url.protocol !== window.location.protocol) {
+        return url;
+      }
+    } catch (_) {
+      // Do nothing
+    }
+    return null;
+  }
+
+  private async tryExtractPageMetadata(potentialUrl: string): Promise<JsonLd | null> {
+    const url = this.ensureSameOriginURL(potentialUrl);
+    if (url) {
+      const doc = await fetchAsDocument(url);
+      if (doc) {
+        const pageMetadata = await extractPageMetadata(doc, url);
+        return pageMetadata;
+      }
+    }
+    return null;
+  }
+
+  private async attemptEnrichContentWithPageMetadata(result: NearbyResult): Promise<NearbyResult> {
+    if (result.content) {
+      if (typeof result.content === 'string') {
+        // if arContent is a string, try to treat it as a URL
+        const pageMetadata = await this.tryExtractPageMetadata(result.content);
+        if (pageMetadata) {
+          // Override the string URL with the metadata object
+          result.content = pageMetadata;
+        }
+      } else if ('url' in result.content && !('name' in result.content)) {
+        // if arContent has a 'url' property, but lacks properties, check the page for missing metadata.
+        // For now, make sure the @type's match exactly, so we only ever expand metadata.
+        const pageMetadata = await this.tryExtractPageMetadata(result.content.url);
+        if (pageMetadata && pageMetadata['@type'] === result.content['@type']) {
+          // Use the new metadata object, but keep all the existing property values.
+          result.content = Object.assign(pageMetadata, result.content);
+        }
+      }
+    }
+    return result;
   }
 }

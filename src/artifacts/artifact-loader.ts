@@ -12,6 +12,7 @@ import { ArtifactDecoder } from './artifact-decoder.js';
 import { ARArtifact } from './schema/ar-artifact.js';
 import { JsonLd } from './schema/json-ld.js';
 import { flat } from '../utils/flat.js';
+import { fetchAsDocument } from '../utils/fetch-as-document.js';
 
 // TODO: Consider merging from*Url functions and just branching on response content-type
 export class ArtifactLoader {
@@ -19,18 +20,10 @@ export class ArtifactLoader {
 
   // TODO (#35): Change ArtifactsLoader to only "index" URLs where Artifacts could actually exist
   async fromHtmlUrl(url: URL|string): Promise<ARArtifact[]> {
-    // Note: according to MDN, can use XHR request to create Document direct from URL
-    // This may be better, because could have document.location.href (etc) settings automatically?
-    // Note: this already proved issue when getting .src property of script/link tags, since relative
-    // Urls are based off this document root, not the fetched source.
-
-    const response = await fetch(url.toString());
-    if (!response.ok) {
+    const doc = await fetchAsDocument(url);
+    if (!doc) {
       return [];
     }
-    const html = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
     return this.fromElement(doc, url);
   }
 

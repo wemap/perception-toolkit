@@ -8,20 +8,21 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-const { assert } = chai;
+import { extractPageMetadata } from './extract-page-metadata.js';
+import { JsonLd } from './schema/json-ld.js';
 
-import { extractCardDataFromDoc } from './extract-card-data.js';
-import { CardData } from '../elements/card/card.js';
+const { assert } = chai;
 
 function createDocForHTML(html: string): Document {
   const parser = new DOMParser();
   return parser.parseFromString(html, 'text/html');
 }
 
-describe('Clamp', () => {
-  it('clamps min', async () => {
+describe('ExtractPageMetadata', () => {
+  it('extract simple page metadata', async () => {
     const url = new URL('https://sample.testpage.dev');
-    const expectedCardData: CardData = {
+    const expectedPageMetadata: JsonLd = {
+      '@type': 'WebPage',
       name: 'Test Title',
       description: 'Test Description',
       image: 'Test Image URL',
@@ -31,14 +32,15 @@ describe('Clamp', () => {
       <!doctype html>
       <html>
       <head>
-        <title>${expectedCardData.name}</title>
-        <meta name="description" content="${expectedCardData.description}" />
-        <meta itemprop="image" content="${expectedCardData.image}" />
+        <title>${expectedPageMetadata.name}</title>
+        <meta name="description" content="${expectedPageMetadata.description}" />
+        <meta itemprop="image" content="${expectedPageMetadata.image}" />
       </head>
       <body>
       </body>
       </html>
     `;
-    assert.deepEqual(await extractCardDataFromDoc(createDocForHTML(html), url), expectedCardData);
+    const pageMetadata = await extractPageMetadata(createDocForHTML(html), url);
+    assert.deepEqual(pageMetadata, expectedPageMetadata);
   });
 });

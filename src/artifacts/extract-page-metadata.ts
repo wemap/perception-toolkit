@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { CardData } from '../elements/card/card.js';
+import { JsonLd } from './schema/json-ld.js';
 
 type QuerySelector = string;
 type ElementProcessorFn = (element: Element) => string|null;
@@ -51,25 +51,14 @@ function extractImage(doc: Document): string|undefined {
 }
 
 // TODO: turn relative URLs into absolute URLs?
-export async function extractCardDataFromDoc(doc: Document, url: URL): Promise<CardData | null> {
-  const ret: CardData = {};
-
-  ret.name = extractTitle(doc);
-  ret.description = extractDescription(doc);
-  ret.image = extractImage(doc);
-  ret.url = url.toString();
+export async function extractPageMetadata(doc: Document, url: URL|string = doc.URL): Promise<JsonLd> {
+  const ret: JsonLd = {
+    '@type': 'WebPage',
+    'name': extractTitle(doc),
+    'description': extractDescription(doc),
+    'image': extractImage(doc),
+    'url': url.toString(),
+  };
 
   return ret;
-}
-
-export async function extractCardDataFromPage(url: URL): Promise<CardData | null> {
-  const response = await fetch(url.toString());
-  if (!response.ok) {
-    return null;
-  }
-  const html = await response.text();
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  return extractCardDataFromDoc(doc, url);
 }

@@ -35,6 +35,7 @@
     "karma-typescript": "^4.0.0",
     "minify": "^4.1.0",
     "mocha": "^5.2.0",
+    "mockttp": "^0.13.0",
     "node-glob": "^1.2.0",
     "node-gzip": "^1.1.2",
     "rimraf": "^2.6.3",
