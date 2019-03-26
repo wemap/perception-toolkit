@@ -11,6 +11,7 @@
 import { ArtifactDecoder } from './artifact-decoder.js';
 import { ARArtifact } from './schema/ar-artifact.js';
 import { JsonLd } from './schema/json-ld.js';
+import { flat } from '../utils/flat.js';
 
 // TODO: Consider merging from*Url functions and just branching on response content-type
 export class ArtifactLoader {
@@ -61,7 +62,7 @@ export class ArtifactLoader {
       ret.push(this.fromJsonUrl(new URL(href, /* base= */ url)));
     }
 
-    return (await Promise.all(ret)).flat(1);
+    return flat(await Promise.all(ret));
   }
 
   async fromJson(json: JsonLd): Promise<ARArtifact[]> {

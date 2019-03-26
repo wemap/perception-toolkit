@@ -14,6 +14,7 @@ import { ARArtifact } from './schema/ar-artifact.js';
 import { GeoCoordinates } from './schema/geo-coordinates.js';
 import { JsonLd } from './schema/json-ld.js';
 import { ArtifactStore } from './stores/artifact-store.js';
+import { flatMap } from '../utils/flat-map.js';
 
 export interface NearbyResult {
   target?: JsonLd;
@@ -56,19 +57,19 @@ export class ArtifactDealer {
   // TODO (#33): Replace map+flat with flatMap once it is polyfilled for all platforms.
   private async generateDiffs(): Promise<NearbyResultDelta> {
     // 1. Using current context (geo, markers), ask artstores to compute relevant artifacts
-    const pendingNearbyResults = new Set(this.artstores.map((artstore) => {
+    const pendingNearbyResults: Set<NearbyResult> = new Set(flatMap(this.artstores, (artstore) => {
       return artstore.findRelevantArtifacts(
         Array.from(this.nearbyMarkers.values()),
         this.currentGeolocation
       );
-    }).flat(1));
+    }));
 
     // 2. Diff with previous list to compute new/old artifacts.
     //    New ones are those which haven't appeared before.
     //    Old ones are those which are no longer nearby.
     //    The remainder (intersection) are not reported.
-    const newNearbyResults = [...pendingNearbyResults].filter(a => !this.nearbyResults.has(a));
-    const oldNearbyresults = [...this.nearbyResults].filter(a => !pendingNearbyResults.has(a));
+    const newNearbyResults: NearbyResult[] = [...pendingNearbyResults].filter(a => !this.nearbyResults.has(a));
+    const oldNearbyresults: NearbyResult[] = [...this.nearbyResults].filter(a => !pendingNearbyResults.has(a));
 
     const ret: NearbyResultDelta = {
       found: [],
