@@ -36,6 +36,7 @@ export function flatMap<T, U, This = undefined>(
       thisArg?: This
     ): U[] {
   if ('flatMap' in Array.prototype) {
+    // ts-ignore used to pass karma tests.  TS complains flatMap() is not defined, even though we are feature detecting.
     // @ts-ignore
     return arr.flatMap(callback);
   } else {
