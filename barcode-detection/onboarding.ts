@@ -12,7 +12,9 @@ import { fire } from '../src/utils/fire.js';
 import { loadImages } from '../src/utils/load-images.js';
 
 export async function startOnboardingProcess(images: string[]) {
-  const onboarding = new OnboardingCard();
+  const { config } = window.PerceptionToolkit || { config: { root: '' } };
+  const { root = '' } = config;
+  const onboarding = new OnboardingCard({polyfillPrefix: root});
   await onboarding.ready;
 
   onboarding.mode = 'fade';

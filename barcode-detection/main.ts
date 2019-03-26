@@ -271,7 +271,7 @@ async function onCaptureFrame(evt: Event) {
     const now = self.performance.now();
     const removals = [];
     for (const [value, timeLastSeen] of detectedMarkers.entries()) {
-      if (now - timeLastSeen < 3000) {
+      if (now - timeLastSeen < 1000) {
         continue;
       }
 
