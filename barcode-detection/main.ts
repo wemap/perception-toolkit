@@ -17,7 +17,7 @@ import { hideOverlay, showOverlay } from '../src/elements/overlay/overlay.js';
 import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { fire } from '../src/utils/fire.js';
-import { DEBUG_LEVEL, log } from '../src/utils/logger.js';
+import { DEBUG_LEVEL, enableLogLevel, log } from '../src/utils/logger.js';
 import { vibrate } from '../src/utils/vibrate.js';
 
 export { vibrate } from '../src/utils/vibrate.js';
@@ -44,6 +44,9 @@ customElements.define(ActionButton.defaultTagName, ActionButton);
 window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
 window.addEventListener('offline', onConnectivityChanged);
 window.addEventListener('online', onConnectivityChanged);
+
+// Log errors by default.
+enableLogLevel(DEBUG_LEVEL.ERROR);
 
 // While the onboarding begins, attempt a fake detection. If the polyfill is
 // necessary, or the detection fails, we should find out.
