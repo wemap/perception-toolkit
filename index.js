@@ -10,6 +10,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
+const path = require('path');
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 const argv = require('yargs')
@@ -256,7 +257,12 @@ async function visitUrls() {
   }
 
   const contents = JSON.stringify(targets, null, 2);
-  fs.writeFile(dest, contents, 'utf8', (err) => {
+  const destPath = path.join(process.cwd(), dest);
+  if (verbose) {
+    console.log(`[Write]: ${destPath}`);
+  }
+
+  fs.writeFile(destPath, contents, 'utf8', (err) => {
     if (err) {
       console.error(err);
       process.exit(1);
