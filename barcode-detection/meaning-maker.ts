@@ -59,19 +59,22 @@ export class MeaningMaker {
   async loadArtifactsFromHtmlUrl(url: URL) {
     const artifacts = await this.artloader.fromHtmlUrl(url);
     this.saveArtifacts(artifacts);
+    return artifacts;
   }
 
   async markerFound(marker: Marker): Promise<NearbyResultDelta> {
     // If this marker is a URL, try loading artifacts from that URL
-    const url = this.ensureSameOriginURL(marker.value);
+    const url = this.ensureValidSameOriginURL(marker.value);
     if (url) {
-      await this.loadArtifactsFromHtmlUrl(url);
+      // TODO: fetchAsDocument here, pass that into loader.  Reuse doc below.
+      const artifacts = await this.loadArtifactsFromHtmlUrl(url);
     }
 
     const results = await this.artdealer.markerFound(marker);
 
     // If any results have URL-only content -- try loading from the page itself
     for (const result of results.found) {
+      // TODO: if this result is the same URL as the one we just fetched, re-use the doc.
       await this.attemptEnrichContentWithPageMetadata(result);
     }
     // Do not enrich lost content.  Should only need target info.
@@ -93,26 +96,23 @@ export class MeaningMaker {
     }
   }
 
-  private ensureSameOriginURL(potentialUrl: string): URL | null {
+  private ensureValidSameOriginURL(potentialUrl: string): URL | null {
     try {
       // This will throw if potentialUrl isn't a valid URL.
       // Do not supply a base url argument, since we do not want to support relative URLs,
       // and because that would turn lots of normal string values into valid relative URLs.
       const url = new URL(potentialUrl);
-
-      if (url.hostname !== window.location.hostname ||
-          url.port !== window.location.port ||
-          url.protocol !== window.location.protocol) {
+      if (url.origin === window.location.origin) {
         return url;
       }
     } catch (_) {
-      // Do nothing
+      // Fallthrough
     }
     return null;
   }
 
   private async tryExtractPageMetadata(potentialUrl: string): Promise<JsonLd | null> {
-    const url = this.ensureSameOriginURL(potentialUrl);
+    const url = this.ensureValidSameOriginURL(potentialUrl);
     if (url) {
       const doc = await fetchAsDocument(url);
       if (doc) {

@@ -17,7 +17,7 @@ type ExtractionRules = ExtractionRule[];
 
 function processRulesUntilFirstMatch(doc: Document, rules: ExtractionRules): string|undefined {
   for (const [selector, elementProcessorFn] of rules) {
-    const element = document.querySelector(selector);
+    const element = doc.querySelector(selector);
     if (!element) {
       continue;
     }
@@ -30,6 +30,7 @@ function processRulesUntilFirstMatch(doc: Document, rules: ExtractionRules): str
 
 function extractTitle(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
+    ['head[itemscope][itemtype="http://schema.org/WebPage"] *[itemprop="name"]', (el) => el.getAttribute('content')],
     ['title', (el) => el.textContent],
     ['meta[property="og:title"]', (el) => el.getAttribute('content')],
   ]);
@@ -37,30 +38,38 @@ function extractTitle(doc: Document): string|undefined {
 
 function extractDescription(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
+    ['head[itemscope][itemtype="http://schema.org/WebPage"] *[itemprop="description"]',
+        (el) => el.getAttribute('content')],
     ['meta[name="description"]', (el) => el.getAttribute('content')],
-    ['meta[itemprop="description"]', (el) => el.getAttribute('content')],
     ['meta[property="og:description"]', (el) => el.getAttribute('content')],
   ]);
 }
 
 function extractImage(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['meta[itemprop="image"]', (el) => el.getAttribute('content')],
+    ['head[itemscope][itemtype="http://schema.org/WebPage"] *[itemprop="image"]',
+        (el) => el.getAttribute('content') || el.getAttribute('href')],
     ['meta[property="og:image:secure_url"]', (el) => el.getAttribute('content')],
     ['meta[property="og:image:url"]', (el) => el.getAttribute('content')],
     ['meta[property="og:image"]', (el) => el.getAttribute('content')],
   ]);
 }
 
+function addPropertyIfDefined(obj: JsonLd, prop: string, value: any|undefined) {
+  if (value !== undefined) {
+    obj[prop] = value;
+  }
+}
+
 // TODO: turn relative URLs into absolute URLs?
 export async function extractPageMetadata(doc: Document, url: URL|string = doc.URL): Promise<JsonLd> {
   const ret: JsonLd = {
     '@type': 'WebPage',
-    'name': extractTitle(doc),
-    'description': extractDescription(doc),
-    'image': extractImage(doc),
     'url': url.toString(),
   };
+  addPropertyIfDefined(ret, 'name', extractTitle(doc));
+  addPropertyIfDefined(ret, 'description', extractDescription(doc));
+  addPropertyIfDefined(ret, 'image', extractImage(doc));
 
   return ret;
 }
