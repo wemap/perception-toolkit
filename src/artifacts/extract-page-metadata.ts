@@ -34,6 +34,7 @@ function extractTitle(doc: Document): string|undefined {
     ['meta[property="og:title"]', (el) => el.getAttribute('content')],
   ]);
 }
+
 function extractDescription(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
     ['meta[name="description"]', (el) => el.getAttribute('content')],
@@ -41,6 +42,7 @@ function extractDescription(doc: Document): string|undefined {
     ['meta[property="og:description"]', (el) => el.getAttribute('content')],
   ]);
 }
+
 function extractImage(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
     ['meta[itemprop="image"]', (el) => el.getAttribute('content')],

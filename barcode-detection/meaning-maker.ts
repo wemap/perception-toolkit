@@ -95,7 +95,7 @@ export class MeaningMaker {
 
   private ensureSameOriginURL(potentialUrl: string): URL | null {
     try {
-      // This will throw if markerValue isn't a valid URL.
+      // This will throw if potentialUrl isn't a valid URL.
       // Do not supply a base url argument, since we do not want to support relative URLs,
       // and because that would turn lots of normal string values into valid relative URLs.
       const url = new URL(potentialUrl);
