@@ -31,6 +31,10 @@ const argv = require('yargs')
       default: false,
       type: 'boolean'
     })
+    .option('remap', {
+      alias: 'r',
+      type: 'string'
+    })
     .argv;
 
 if (!argv.start) {
@@ -72,7 +76,7 @@ function isHtml(response) {
   return isHtml;
 }
 
-function isSitemapXML(response) {
+function isSitemapXml(response) {
   let isSitemap = response.url().endsWith('sitemap.xml');
 
   const headers = response.headers();
@@ -156,7 +160,7 @@ function generateJsonLdFromPage() {
 
 async function visitUrls() {
   const jsonLdFound = new Map();
-  const { start, followLinks, verbose } = argv;
+  const { start, followLinks, remap, verbose } = argv;
   const toVisit = new Set();
   const haveVisited = new Set();
 
@@ -203,7 +207,7 @@ async function visitUrls() {
         // Ask the page for new URLs.
         foundUrls = await page.evaluate(getPageUrls);
 
-      } else if (isSitemapXML(response)) {
+      } else if (isSitemapXml(response)) {
         // Ask the sitemap for new URLs.
         foundUrls = await page.evaluate(getSitemapUrls);
       } else {
@@ -218,7 +222,12 @@ async function visitUrls() {
     // Append any additional links found.
     if (followLinks) {
       let addedCount = 0;
-      for (const foundUrl of foundUrls) {
+      for (let foundUrl of foundUrls) {
+        if (remap) {
+          const foundOrigin = new URL(foundUrl).origin;
+          foundUrl = foundUrl.replace(foundOrigin, remap);
+        }
+
         if (haveVisited.has(foundUrl)) {
           continue;
         }
@@ -264,7 +273,7 @@ async function visitUrls() {
 
   fs.writeFile(destPath, contents, 'utf8', (err) => {
     if (err) {
-      console.error(err);
+      console.error(err.message);
       process.exit(1);
     }
 
