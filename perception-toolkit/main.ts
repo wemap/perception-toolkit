@@ -36,7 +36,7 @@ import { NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
 import { MeaningMaker } from './meaning-maker.js';
 
 const detectedMarkers = new Map<string, number>();
-const barcodeDetect = 'barcodedetect';
+const markerDetect = 'markerdetect';
 const cameraAccessDenied = 'cameraaccessdenied';
 const markerChanges = 'markerchanges';
 
@@ -58,6 +58,8 @@ enableLogLevel(DEBUG_LEVEL.ERROR);
 // While the onboarding begins, attempt a fake detection. If the polyfill is
 // necessary, or the detection fails, we should find out.
 const polyfillPrefix = window.PerceptionToolkit.config.root || '';
+
+// TODO: Attempt the correct detection based on the target types.
 const attemptDetection = detectBarcodes(new ImageData(1, 1), { polyfillPrefix });
 
 interface InitOpts {
@@ -99,7 +101,7 @@ async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpt
     // Create the stream.
     await createStreamCapture(detectionMode);
   } catch (e) {
-    log(e.message, DEBUG_LEVEL.ERROR, 'Barcode detection');
+    log(e.message, DEBUG_LEVEL.ERROR, 'Begin detection');
   }
 }
 
@@ -107,21 +109,18 @@ async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpt
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
-  if (!window.PerceptionToolkit.config.cardContainer) {
-    return;
-  }
-  const container = window.PerceptionToolkit.config.cardContainer;
+  const { cardContainer } = window.PerceptionToolkit.config;
 
   // Prevent multiple cards from showing.
-  if (container.hasChildNodes()) {
+  if (!cardContainer || cardContainer.hasChildNodes()) {
     return;
   }
 
   for (const { content } of contentDiff.found) {
-    // Create a card for every found barcode.
+    // Create a card for every found marker.
     const card = new Card();
     card.src = content as CardData;
-    container.appendChild(card);
+    cardContainer.appendChild(card);
   }
 }
 
@@ -165,7 +164,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   }
   capture.captureScale = 0.8;
   capture.addEventListener(StreamCapture.closeEvent, close);
-  capture.addEventListener(barcodeDetect, onMarkerFound);
+  capture.addEventListener(markerDetect, onMarkerFound);
 
   const streamOpts = {
     video: {
@@ -211,7 +210,7 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
     document.body.appendChild(capture);
 
     hintTimeout = setTimeout(() => {
-      showOverlay('Make sure the barcode is inside the box.');
+      showOverlay('Make sure the marker is inside the box.');
     }, window.PerceptionToolkit.config.hintTimeout || 5000) as unknown as number;
   } catch (e) {
     // User has denied or there are no cameras.
@@ -236,7 +235,7 @@ export function close() {
 let isProcessingCapture = false;
 /**
  * Processes the image data captured by the StreamCapture class, and hands off
- * the image data to the barcode detector for processing.
+ * the image data to the detector for processing.
  *
  * @param evt The Custom Event containing the captured frame data.
  */
@@ -250,33 +249,35 @@ async function onCaptureFrame(evt: Event) {
   const capture = evt.target as StreamCapture;
   const { detail } = evt as CustomEvent<{imgData: ImageData, detectionMode?: string}>;
   const { detectionMode, imgData } = detail;
-  const barcodes = await detectBarcodes(imgData, { polyfillPrefix });
 
-  for (const barcode of barcodes) {
-    const markerAlreadyDetected = detectedMarkers.has(barcode.rawValue);
+  // TODO: Expand with other types besides barcodes.
+  const markers = await detectBarcodes(imgData, { polyfillPrefix });
+
+  for (const marker of markers) {
+    const markerAlreadyDetected = detectedMarkers.has(marker.rawValue);
 
     // Update the last time for this marker.
-    detectedMarkers.set(barcode.rawValue, self.performance.now());
+    detectedMarkers.set(marker.rawValue, self.performance.now());
     if (markerAlreadyDetected) {
       continue;
     }
 
     // Only fire the event if the marker is freshly detected.
-    fire(barcodeDetect, capture, barcode.rawValue);
+    fire(markerDetect, capture, marker.rawValue);
   }
 
-  if (barcodes.length > 0) {
+  if (markers.length > 0) {
     // Hide the hint if it's shown. Cancel it if it's pending.
     clearTimeout(hintTimeout);
     hideOverlay();
   } else if (detectionMode && detectionMode === 'active') {
-    showOverlay('No barcodes found');
+    showOverlay('No markers found');
   }
 
   capture.paused = false;
 
   // Provide a cool-off before allowing another detection. This aids the case
-  // where a recently-scanned barcode is mistakenly re-scanned, but with errors.
+  // where a recently-scanned markers are mistakenly re-scanned.
   setTimeout(async () => {
     const now = self.performance.now();
     const removals = [];
