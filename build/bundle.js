@@ -78,15 +78,16 @@ async function buildBarcodeDetection() {
   }
 
   // Barcode Detection.
-  const inputs = await promGlob('barcode-detection/*.ts');
+  const inputs = await promGlob('perception-toolkit/*.ts');
   for (const input of inputs) {
     const newFileName = basename(input).replace(/ts$/, 'js');
     const moduleName = newFileName.replace(/\.js$/, '')
-        .replace(/-(.)/, (v) => v.toUpperCase().substr(1));
+        .replace(/-(.)/, (v) => v.toUpperCase().substr(1))
+        .replace(/^(.)/, (v) => v.toUpperCase());
 
     // Rollup parts.
     const name = `PerceptionToolkit.${moduleName}`;
-    const file = `lib/bundled/barcode-detection/${newFileName}`;
+    const file = `lib/bundled/perception-toolkit/${newFileName}`;
     const bundle = await rollup.rollup({...options.input, input});
     await bundle.write({...options.output, file, name});
   }

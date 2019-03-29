@@ -16,10 +16,6 @@
  */
 declare global {
     interface Window {
-        idbKeyval: {
-            set(name: string, value: any): Promise<void>;
-            get(name: string): Promise<{}>;
-        };
         PerceptionToolkit: {
             config: {
                 root?: string;
@@ -34,17 +30,17 @@ declare global {
                 showLoaderDuringBoot?: boolean;
                 sitemapUrl?: string;
             };
-            loader: {
+            Loader: {
                 hideLoader(): void;
                 showLoader(): void;
             };
-            main: {
+            Main: {
                 initialize(opts: {
                     detectionMode?: 'active' | 'passive';
                     sitemapUrl?: string;
                 }): void;
             };
-            onboarding: {
+            Onboarding: {
                 startOnboardingProcess(images: string[]): Promise<void>;
             };
         };

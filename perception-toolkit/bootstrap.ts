@@ -19,15 +19,11 @@ import { Card } from '../src/elements/index.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
+import { fire } from '../src/utils/fire.js';
 import { injectScript } from '../src/utils/inject-script.js';
 
 declare global {
   interface Window {
-    idbKeyval: {
-      set(name: string, value: any): Promise<void>;
-      get(name: string): Promise<{}>;
-    };
-
     PerceptionToolkit: {
       config: {
         root?: string,
@@ -43,27 +39,29 @@ declare global {
         sitemapUrl?: string,
       },
 
-      loader: {
+      Loader: {
         hideLoader(): void;
         showLoader(): void;
       },
 
-      main: {
+      Main: {
         initialize(opts: {
           detectionMode?: 'active' | 'passive',
           sitemapUrl?: string
         }): void;
-      }
+      },
 
-      onboarding: {
+      Onboarding: {
         startOnboardingProcess(images: string[]): Promise<void>;
       }
     };
   }
 }
 
+const deviceNotSupported = 'devicenotsupported';
+
 /**
- * Load all the basics.
+ * Perform a device support test, then load the loader & onboarding.
  */
 const load: Promise<boolean> = new Promise(async (resolve) => {
   const { config } = window.PerceptionToolkit;
@@ -78,24 +76,17 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   // If everything necessary is supported, inject the loader and show it if
   // desired.
   if (support[GetUserMediaSupport.name] && support[WasmSupport.name]) {
-    await injectScript(`${root}/lib/bundled/barcode-detection/loader.min.js`);
+    await injectScript(`${root}/lib/bundled/perception-toolkit/loader.min.js`);
 
     // Only show the loader if requested.
     if (showLoaderDuringBoot) {
-      const { showLoader } = window.PerceptionToolkit.loader;
+      const { showLoader } = window.PerceptionToolkit.Loader;
       showLoader();
     }
 
     // Conditionally load the onboarding.
     if (config.onboarding && config.onboardingImages) {
-      // Start by checking if the user has seen the onboarding before.
-      await injectScript(`${root}/third_party/idb-keyval/idb-keyval-iife.min.js`);
-
-      const { idbKeyval } = window;
-      const onboarded = await idbKeyval.get('onboarded');
-      if (!onboarded) {
-        await injectScript(`${root}/lib/bundled/barcode-detection/onboarding.min.js`);
-      }
+      await injectScript(`${root}/lib/bundled/perception-toolkit/onboarding.min.js`);
     }
     resolve(true);
   } else {
@@ -103,9 +94,47 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   }
 });
 
-(async function addEventListeners() {
+let mainHasLoaded: {};
+/**
+ * Initialize the experience.
+ */
+export async function initializeExperience() {
   const supported = await load;
-  const { hideLoader, showLoader } = window.PerceptionToolkit.loader;
+  if (!supported) {
+    const { hideLoader } = window.PerceptionToolkit.Loader;
+    hideLoader();
+
+    fire(deviceNotSupported, window);
+    return;
+  }
+
+  const { showLoader, hideLoader } = window.PerceptionToolkit.Loader;
+  const { config } = window.PerceptionToolkit;
+  const { root = '', sitemapUrl, detectionMode } = config;
+
+  if (config && config.onboardingImages && config.onboarding) {
+    hideLoader();
+
+    const { startOnboardingProcess } = window.PerceptionToolkit.Onboarding;
+    await startOnboardingProcess(config.onboardingImages);
+  }
+
+  showLoader();
+
+  // Load the main experience if necessary.
+  if (!mainHasLoaded) {
+    mainHasLoaded =
+        await injectScript(`${root}/lib/bundled/perception-toolkit/main.min.js`);
+  }
+
+  const { initialize } = window.PerceptionToolkit.Main;
+  initialize({ detectionMode, sitemapUrl });
+}
+
+// Bootstrap.
+(async function() {
+  const supported = await load;
+  const { hideLoader, showLoader } = window.PerceptionToolkit.Loader;
   const { config } = window.PerceptionToolkit;
   const { buttonVisibilityClass = 'visible' } = config;
 
@@ -147,44 +176,3 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
     getStarted.classList.add(buttonVisibilityClass);
   });
 })();
-
-let mainHasLoaded: {};
-/**
- * Initialize the experience.
- */
-export async function initializeExperience() {
-  const supported = await load;
-  if (!supported) {
-    return;
-  }
-
-  const { idbKeyval } = window;
-  const { showLoader, hideLoader } = window.PerceptionToolkit.loader;
-  const { config } = window.PerceptionToolkit;
-  const { root = '', sitemapUrl, detectionMode } = config;
-
-  if (config && config.onboardingImages && config.onboarding) {
-    // Recall whether the user has done onboarding before.
-    const onboarded = await idbKeyval.get('onboarded');
-    if (!onboarded) {
-      hideLoader();
-
-      const { startOnboardingProcess } = window.PerceptionToolkit.onboarding;
-      await startOnboardingProcess(config.onboardingImages);
-
-      // Store for next time.
-      await idbKeyval.set('onboarded', true);
-    }
-  }
-
-  showLoader();
-
-  // Load the main experience if necessary.
-  if (!mainHasLoaded) {
-    mainHasLoaded =
-        await injectScript(`${root}/lib/bundled/barcode-detection/main.min.js`);
-  }
-
-  const { initialize } = window.PerceptionToolkit.main;
-  initialize({ detectionMode, sitemapUrl });
-}
