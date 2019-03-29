@@ -14,8 +14,7 @@
     "serve": "npx http-server -g",
     "test": "karma start"
   },
-  "author": "The Polymer Authors",
-  "license": "BSD-3-Clause",
+  "license": "apache-2.0",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
