@@ -27,7 +27,7 @@ Included in this toolkit is:
 
 ## Getting started
 
-1. `git clone https://github.com/PolymerLabs/perception-toolkit`
+1. `git clone https://github.com/GoogleChromeLabs/perception-toolkit`
 1. `npm i`
 1. `npm run build`
 1. `npm run serve`
