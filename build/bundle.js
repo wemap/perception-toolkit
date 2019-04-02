@@ -35,19 +35,6 @@ const promFsWrite = (file, data) => {
   });
 }
 
-const promFsRead = (file) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file, 'utf8', (err, contents) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      resolve(contents);
-    });
-  });
-}
-
 const promGlob = (path, opts = {}) => {
   return new Promise((resolve, reject) => {
     glob(path, opts, (err, files) => {
@@ -80,6 +67,11 @@ async function buildBarcodeDetection() {
   // Barcode Detection.
   const inputs = await promGlob('perception-toolkit/*.ts');
   for (const input of inputs) {
+    // Ignore meaning maker, it's only there for separation, not because it
+    // needs to be a separate bundle.
+    if (basename(input) === 'meaning-maker.ts') {
+      continue;
+    }
     const newFileName = basename(input).replace(/ts$/, 'js');
     const moduleName = newFileName.replace(/\.js$/, '')
         .replace(/-(.)/, (v) => v.toUpperCase().substr(1))

@@ -182,7 +182,7 @@
         // For the cases where we know something was found,
         // ignore. For the zero case we know there was a
         // scan of something we don't currently recognize.
-        if (found.length > 0) {
+        if (found.length !== 0 || lost.length !== 0) {
           return;
         }
 

@@ -60,6 +60,8 @@ declare global {
 
 const deviceNotSupported = 'devicenotsupported';
 
+window.PerceptionToolkit.config = window.PerceptionToolkit.config || {};
+
 /**
  * Perform a device support test, then load the loader & onboarding.
  */
