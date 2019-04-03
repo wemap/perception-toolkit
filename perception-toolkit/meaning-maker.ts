@@ -26,7 +26,7 @@ import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
  * It providess a good set of default behaviours, and can be replaced with alternative
  * strategies in some demos.
- * 
+ *
  * Things MeaningMaker does:
  * * Creates a default Artifact Loader, Store, and Dealer.
  * * Loads Artifacts from Document automatically on init.

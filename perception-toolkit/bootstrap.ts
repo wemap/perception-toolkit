@@ -106,7 +106,13 @@ export async function initializeExperience() {
     const { hideLoader } = window.PerceptionToolkit.Loader;
     hideLoader();
 
-    fire(deviceNotSupported, window);
+    const deviceNotSupportedEvt = fire(deviceNotSupported, window);
+    if (!deviceNotSupportedEvt.defaultPrevented) {
+      addCardToPage({
+        cls: 'no-support',
+        msg: 'Sorry, this browser does not support the required features',
+      });
+    }
     return;
   }
 
@@ -133,6 +139,26 @@ export async function initializeExperience() {
   initialize({ detectionMode, sitemapUrl });
 }
 
+function addCardToPage({msg = '', cls = ''}) {
+  if (!customElements.get(Card.defaultTagName)) {
+    customElements.define(Card.defaultTagName, Card);
+  }
+
+  const { config } = window.PerceptionToolkit;
+  const { cardContainer = document.body } = config;
+
+  // If there is already a card, leave.
+  if (cardContainer.querySelector(Card.defaultTagName)) {
+    return;
+  }
+
+  const card = new Card();
+  card.classList.add(cls);
+  card.src = msg;
+  cardContainer.appendChild(card);
+  return;
+}
+
 // Bootstrap.
 (async function() {
   const supported = await load;
@@ -156,15 +182,10 @@ export async function initializeExperience() {
     // If the button was visible and the user clicked it, show the no support
     // card here.
     if (!supported) {
-      if (!customElements.get(Card.defaultTagName)) {
-        customElements.define(Card.defaultTagName, Card);
-      }
-
-      const noSupport = new Card();
-      noSupport.classList.add('no-support');
-      noSupport.src =
-          'Sorry, this browser does not support the required features';
-      document.body.appendChild(noSupport);
+      addCardToPage({
+        cls: 'no-support',
+        msg: 'Sorry, this browser does not support the required features',
+      });
       return;
     }
 
