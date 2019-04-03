@@ -20,7 +20,7 @@ import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
 import { fire } from '../src/utils/fire.js';
-import { cameraAccessDenied, captureStopped, markerChanges } from './events.js';
+import { cameraAccessDenied, captureClosed, captureStopped, markerChanges } from './events.js';
 
 declare global {
   interface Window {
@@ -63,6 +63,7 @@ window.PerceptionToolkit.config = window.PerceptionToolkit.config || {};
 // Expose events.
 window.PerceptionToolkit.Events = {
   CameraAccessDenied: cameraAccessDenied,
+  CaptureClosed: captureClosed,
   CaptureStopped: captureStopped,
   DeviceNotSupported: deviceNotSupported,
   MarkerChanges: markerChanges,
