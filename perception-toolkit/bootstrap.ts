@@ -153,7 +153,7 @@ async function initializeExperience() {
 
   showLoader();
 
-  const { initialize } = await import('./main.js');
+  const { initialize, close } = await import('./main.js');
 
   // Now the experience is inited, update the closeExperience fn.
   window.PerceptionToolkit.Functions.closeExperience = close;
