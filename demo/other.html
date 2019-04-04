@@ -23,19 +23,34 @@
 
     <script type="application/ld+json">
     {
-      "@context": "http://schema.org",
-      "@type": "ARArtifact",
-      "arTarget": {
+      "@context": [
+        "https://schema.org",
+        {
+          "ar": "https://ar.schema.org"
+        }
+      ],
+      "@type": "ar:ARArtifact",
+      "ar:arTarget": {
         "@type": "Barcode",
         "text": "http://localhost:8080/demo/barcode-detection/other.html"
       },
-      "arContent": {
+      "ar:arContent": {
         "@type": "WebPage",
         "url": "http://localhost:8080/demo/barcode-detection/other.html",
         "name": "This is a Result!",
         "description": "Description",
         "image": "http://localhost:8080/demo/images/step2.jpg"
       }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebPage",
+      "urldf": "http://localhost:8080/demo/barcode-detection/other.html",
+      "name": "This is a Result!",
+      "description": "Description",
+      "image": "http://localhost:8080/demo/images/step2.jpg"
     }
     </script>
   </head>
