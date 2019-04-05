@@ -31,6 +31,7 @@ declare global {
                 showLoaderDuringBoot?: boolean;
                 sitemapUrl?: string;
                 onload?: () => void;
+                shouldLoadArtifactsFrom?: ((url: URL) => boolean) | string[];
             };
             Events: {
                 [key: string]: string;

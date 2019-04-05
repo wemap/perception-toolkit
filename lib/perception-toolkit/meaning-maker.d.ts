@@ -17,6 +17,7 @@
 import { Marker } from '../defs/marker';
 import { NearbyResultDelta } from '../src/artifacts/artifact-dealer';
 import { GeoCoordinates } from '../src/artifacts/schema/geo-coordinates';
+declare type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
 export declare class MeaningMaker {
     private readonly artloader;
     private readonly artstore;
@@ -33,9 +34,10 @@ export declare class MeaningMaker {
     /**
      * Load artifact content from url on same origin, usually discovered from environment.
      */
-    loadArtifactsFromSameOriginUrl(url: URL): Promise<void>;
-    markerFound(marker: Marker): Promise<NearbyResultDelta>;
+    loadArtifactsFromSupportedUrls(url: URL, shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback): Promise<void>;
+    markerFound(marker: Marker, shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback): Promise<NearbyResultDelta>;
     markerLost(marker: Marker): Promise<NearbyResultDelta>;
     updateGeolocation(coords: GeoCoordinates): Promise<NearbyResultDelta>;
     private saveArtifacts;
 }
+export {};
