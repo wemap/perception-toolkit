@@ -37,7 +37,8 @@ declare global {
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,
         sitemapUrl?: string,
-        onload?: () => void
+        onload?: () => void,
+        shouldLoadArtifactsFrom?: ((url: URL) => boolean) | string[];
       },
 
       Events: {
