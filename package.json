@@ -6,12 +6,11 @@
   "jsnext:main": "lib/index.js",
   "scripts": {
     "docs": "typedoc --tsconfig ./tsconfig.docs.json",
-    "watch": "tsc --watch",
     "build": "npm run compile && npm run bundle && npm run polyfill",
     "bundle": "rollup -c",
     "compile": "rimraf ./lib && tsc",
     "polyfill": "node build/polyfills.js",
-    "serve": "npx http-server -g",
+    "serve": "http-server -g -c0 --cors=\"*\"",
     "test": "karma start"
   },
   "license": "apache-2.0",
