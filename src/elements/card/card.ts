@@ -30,10 +30,6 @@ export interface CardData {
   disambiguatingDescription?: string;
   description?: string;
   image?: string;
-  price?: {
-    value: string;
-    currency: string;
-  };
   url?: string;
 }
 
