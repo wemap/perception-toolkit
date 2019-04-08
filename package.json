@@ -9,6 +9,7 @@
     "build": "npm run compile && npm run bundle && npm run polyfill",
     "bundle": "rollup -c",
     "compile": "rimraf ./lib && tsc",
+    "gzip": "find lib -type f -name '*.js' -exec gzip -kf \"{}\" \\;",
     "polyfill": "node build/polyfills.js",
     "serve": "http-server -g -c0 --cors=\"*\"",
     "test": "karma start"
