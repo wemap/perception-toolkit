@@ -97,8 +97,6 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   const { config } = window.PerceptionToolkit;
   const { showLoaderDuringBoot = true } = config;
 
-  console.log('Loading!');
-
   // Detect the necessary support.
   const deviceSupport = new DeviceSupport();
   deviceSupport.addDetector(GetUserMediaSupport);
@@ -143,14 +141,11 @@ async function handleUnsupported() {
  */
 async function initializeExperience() {
   const supported = await load;
-  console.log('Supported', supported);
 
   if (!supported) {
     await handleUnsupported();
     return;
   }
-
-  console.log('Support good');
 
   const { showLoader, hideLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
@@ -196,11 +191,6 @@ function addCardToPage({msg = '', cls = ''}) {
 // Bootstrap.
 (async function() {
   const supported = await load;
-  if (!supported) {
-    await handleUnsupported();
-    return;
-  }
-
   const { hideLoader, showLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
   const { buttonVisibilityClass = 'visible' } = config;
@@ -217,14 +207,11 @@ function addCardToPage({msg = '', cls = ''}) {
   getStarted.classList.toggle(buttonVisibilityClass, supported);
 
   // When getStarted is clicked, load the experience.
-  getStarted.addEventListener('click', (e) => {
+  getStarted.addEventListener('click', async () => {
     // If the button was visible and the user clicked it, show the no support
     // card here.
     if (!supported) {
-      addCardToPage({
-        cls: 'no-support',
-        msg: 'Sorry, this browser does not support the required features',
-      });
+      await handleUnsupported();
       return;
     }
 
