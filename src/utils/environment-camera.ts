@@ -31,7 +31,8 @@
  */
 export async function supportsEnvironmentCamera(devices: MediaDeviceInfo[]) {
   const cameras = devices.filter(t => t.kind === 'videoinput');
-  const isBackCamera = cameras.some((camera) => camera.label === 'Back Camera');
+  const hasBackCamera =
+      cameras.some((camera) => camera.label === 'Back Camera');
   const hasEnvironment = cameras.some((camera) => {
     if (!('getCapabilities' in camera)) {
       return false;
@@ -45,5 +46,5 @@ export async function supportsEnvironmentCamera(devices: MediaDeviceInfo[]) {
     return capabilities.facingMode.find((f: string) => 'environment');
   });
 
-  return hasEnvironment || isBackCamera;
+  return hasEnvironment || hasBackCamera;
 }
