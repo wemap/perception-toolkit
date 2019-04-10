@@ -39,8 +39,12 @@ export const styles = `
   color: var(--color);
 }
 
-#container {
+:host(:not(.no-support)) > #container {
   white-space: nowrap;
+}
+
+:host(.no-support) > #container {
+  text-align: center;
 }
 
 #container.padded {

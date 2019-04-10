@@ -97,6 +97,8 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   const { config } = window.PerceptionToolkit;
   const { showLoaderDuringBoot = true } = config;
 
+  console.log('Loading!');
+
   // Detect the necessary support.
   const deviceSupport = new DeviceSupport();
   deviceSupport.addDetector(GetUserMediaSupport);
@@ -123,24 +125,32 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   }
 });
 
+async function handleUnsupported() {
+  const { hideLoader } = await import('./loader.js');
+  hideLoader();
+
+  const deviceNotSupportedEvt = fire(deviceNotSupported, window);
+  if (!deviceNotSupportedEvt.defaultPrevented) {
+    addCardToPage({
+      cls: 'no-support',
+      msg: 'Sorry, this browser does not support the required features',
+    });
+  }
+}
+
 /**
  * Initialize the experience.
  */
 async function initializeExperience() {
   const supported = await load;
-  if (!supported) {
-    const { hideLoader } = await import('./loader.js');
-    hideLoader();
+  console.log('Supported', supported);
 
-    const deviceNotSupportedEvt = fire(deviceNotSupported, window);
-    if (!deviceNotSupportedEvt.defaultPrevented) {
-      addCardToPage({
-        cls: 'no-support',
-        msg: 'Sorry, this browser does not support the required features',
-      });
-    }
+  if (!supported) {
+    await handleUnsupported();
     return;
   }
+
+  console.log('Support good');
 
   const { showLoader, hideLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
@@ -186,6 +196,11 @@ function addCardToPage({msg = '', cls = ''}) {
 // Bootstrap.
 (async function() {
   const supported = await load;
+  if (!supported) {
+    await handleUnsupported();
+    return;
+  }
+
   const { hideLoader, showLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
   const { buttonVisibilityClass = 'visible' } = config;

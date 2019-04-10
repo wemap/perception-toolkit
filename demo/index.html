@@ -69,6 +69,8 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 90vw;
       }
 
       onboarding-card {
@@ -184,6 +186,10 @@
           // ignore. For the zero case we know there was a
           // scan of something we don't currently recognize.
           if (found.length !== 0 || lost.length !== 0) {
+            return;
+          }
+
+          if (cardContainer.childNodes.length > 0) {
             return;
           }
 

@@ -165,6 +165,7 @@ export class StreamCapture extends HTMLElement {
       requestAnimationFrame((now) => update(now));
     };
 
+    video.setAttribute('playsinline', 'playsinline');
     video.muted = true;
     video.srcObject = this.stream;
     video.play();
