@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import { Card } from '../src/elements/index.js';
+import { ActionButton, Card } from '../src/elements/index.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
 import { fire } from '../src/utils/fire.js';
-import { injectScript } from '../src/utils/inject-script.js';
+import { cameraAccessDenied, captureClosed, captureStopped, markerChanges } from './events.js';
 
 declare global {
   interface Window {
@@ -33,41 +33,69 @@ declare global {
         buttonSelector?: string,
         buttonVisibilityClass?: string,
         cardContainer?: HTMLElement,
+        cardUrlLabel?: string,
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,
         sitemapUrl?: string,
+        onload?: () => void,
+        shouldLoadArtifactsFrom?: ((url: URL) => boolean) | string[];
       },
 
-      Loader: {
-        hideLoader(): void;
-        showLoader(): void;
-      },
+      Events: {
+        [key: string]: string;
+      };
 
-      Main: {
-        initialize(opts: {
-          detectionMode?: 'active' | 'passive',
-          sitemapUrl?: string
-        }): void;
-      },
+      Elements: {
+        Card: typeof Card;
+        ActionButton: typeof ActionButton;
+      };
 
-      Onboarding: {
-        startOnboardingProcess(images: string[]): Promise<void>;
+      Functions: {
+        initializeExperience: typeof initializeExperience;
+        closeExperience: () => void;
       }
     };
   }
 }
 
-const deviceNotSupported = 'devicenotsupported';
+const deviceNotSupported = 'pt.devicenotsupported';
 
 window.PerceptionToolkit.config = window.PerceptionToolkit.config || {};
+
+// Expose events.
+window.PerceptionToolkit.Events = {
+  CameraAccessDenied: cameraAccessDenied,
+  CaptureClosed: captureClosed,
+  CaptureStopped: captureStopped,
+  DeviceNotSupported: deviceNotSupported,
+  MarkerChanges: markerChanges,
+};
+
+// Expose elements.
+window.PerceptionToolkit.Elements = {
+  ActionButton,
+  Card
+};
+
+// Expose functions.
+window.PerceptionToolkit.Functions = {
+  initializeExperience,
+  closeExperience() {
+    // Replaced when main.ts has loaded.
+  }
+};
+
+if (window.PerceptionToolkit.config.onload) {
+  window.PerceptionToolkit.config.onload.call(null);
+}
 
 /**
  * Perform a device support test, then load the loader & onboarding.
  */
 const load: Promise<boolean> = new Promise(async (resolve) => {
   const { config } = window.PerceptionToolkit;
-  const { root = '', showLoaderDuringBoot = true } = config;
+  const { showLoaderDuringBoot = true } = config;
 
   // Detect the necessary support.
   const deviceSupport = new DeviceSupport();
@@ -78,17 +106,16 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   // If everything necessary is supported, inject the loader and show it if
   // desired.
   if (support[GetUserMediaSupport.name] && support[WasmSupport.name]) {
-    await injectScript(`${root}/lib/bundled/perception-toolkit/loader.min.js`);
+    const { showLoader } = await import('./loader.js');
 
     // Only show the loader if requested.
     if (showLoaderDuringBoot) {
-      const { showLoader } = window.PerceptionToolkit.Loader;
       showLoader();
     }
 
     // Conditionally load the onboarding.
     if (config.onboarding && config.onboardingImages) {
-      await injectScript(`${root}/lib/bundled/perception-toolkit/onboarding.min.js`);
+      await import('./onboarding.js');
     }
     resolve(true);
   } else {
@@ -96,47 +123,75 @@ const load: Promise<boolean> = new Promise(async (resolve) => {
   }
 });
 
-let mainHasLoaded: {};
+async function handleUnsupported() {
+  const { hideLoader } = await import('./loader.js');
+  hideLoader();
+
+  const deviceNotSupportedEvt = fire(deviceNotSupported, window);
+  if (!deviceNotSupportedEvt.defaultPrevented) {
+    addCardToPage({
+      cls: 'no-support',
+      msg: 'Sorry, this browser does not support the required features',
+    });
+  }
+}
+
 /**
  * Initialize the experience.
  */
-export async function initializeExperience() {
+async function initializeExperience() {
   const supported = await load;
-  if (!supported) {
-    const { hideLoader } = window.PerceptionToolkit.Loader;
-    hideLoader();
 
-    fire(deviceNotSupported, window);
+  if (!supported) {
+    await handleUnsupported();
     return;
   }
 
-  const { showLoader, hideLoader } = window.PerceptionToolkit.Loader;
+  const { showLoader, hideLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
-  const { root = '', sitemapUrl, detectionMode } = config;
+  const { sitemapUrl, detectionMode = 'passive' } = config;
 
   if (config && config.onboardingImages && config.onboarding) {
     hideLoader();
 
-    const { startOnboardingProcess } = window.PerceptionToolkit.Onboarding;
+    const { startOnboardingProcess } = await import('./onboarding.js');
     await startOnboardingProcess(config.onboardingImages);
   }
 
   showLoader();
 
-  // Load the main experience if necessary.
-  if (!mainHasLoaded) {
-    mainHasLoaded =
-        await injectScript(`${root}/lib/bundled/perception-toolkit/main.min.js`);
+  const { initialize, close } = await import('./main.js');
+
+  // Now the experience is inited, update the closeExperience fn.
+  window.PerceptionToolkit.Functions.closeExperience = close;
+
+  initialize({ detectionMode, sitemapUrl });
+}
+
+function addCardToPage({msg = '', cls = ''}) {
+  if (!customElements.get(Card.defaultTagName)) {
+    customElements.define(Card.defaultTagName, Card);
   }
 
-  const { initialize } = window.PerceptionToolkit.Main;
-  initialize({ detectionMode, sitemapUrl });
+  const { config } = window.PerceptionToolkit;
+  const { cardContainer = document.body } = config;
+
+  // If there is already a card, leave.
+  if (cardContainer.querySelector(Card.defaultTagName)) {
+    return;
+  }
+
+  const card = new Card();
+  card.classList.add(cls);
+  card.src = msg;
+  cardContainer.appendChild(card);
+  return;
 }
 
 // Bootstrap.
 (async function() {
   const supported = await load;
-  const { hideLoader, showLoader } = window.PerceptionToolkit.Loader;
+  const { hideLoader, showLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
   const { buttonVisibilityClass = 'visible' } = config;
 
@@ -152,19 +207,11 @@ export async function initializeExperience() {
   getStarted.classList.toggle(buttonVisibilityClass, supported);
 
   // When getStarted is clicked, load the experience.
-  getStarted.addEventListener('click', (e) => {
+  getStarted.addEventListener('click', async () => {
     // If the button was visible and the user clicked it, show the no support
     // card here.
     if (!supported) {
-      if (!customElements.get(Card.defaultTagName)) {
-        customElements.define(Card.defaultTagName, Card);
-      }
-
-      const noSupport = new Card();
-      noSupport.classList.add('no-support');
-      noSupport.src =
-          'Sorry, this browser does not support the required features';
-      document.body.appendChild(noSupport);
+      await handleUnsupported();
       return;
     }
 
@@ -174,7 +221,7 @@ export async function initializeExperience() {
   });
 
   // When captureclose is fired, show the button again.
-  window.addEventListener('captureclose', () => {
+  window.addEventListener(captureStopped, () => {
     getStarted.classList.add(buttonVisibilityClass);
   });
 })();

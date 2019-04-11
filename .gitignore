@@ -5,3 +5,6 @@ src/*.js
 *.gz
 .vscode
 docs
+.rpt2_cache
+*.swp
+lib

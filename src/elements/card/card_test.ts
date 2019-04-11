@@ -56,14 +56,23 @@ describe('Card', () => {
   });
 
   it('renders more complex data', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+
+    const image = canvas.toDataURL('image/png');
+
     const card = new Card();
     card.src = {
       description: 'bar',
+      image,
       name: 'foo',
     };
 
-    assert.isDefined(card.shadowRoot!.querySelector('#title'));
-    assert.isDefined(card.shadowRoot!.querySelector('#description'));
+    document.body.appendChild(card);
+
+    assert.isNotNull(card.shadowRoot!.querySelector('#title'));
+    assert.isNotNull(card.shadowRoot!.querySelector('#description'));
   });
 
   it('removes itself on close', (done) => {

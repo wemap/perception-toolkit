@@ -15,11 +15,7 @@
  * limitations under the License.
  */
 
-/**
- * Convenience function used internally for detecting `ImageData` vs
- * `HTMLImageElement`.
- */
-export function isImageData(imgData: ImageData | HTMLImageElement | HTMLCanvasElement):
-    imgData is ImageData {
-  return typeof (imgData as ImageData).data !== 'undefined';
-}
+export { captureStopped, closeEvent as captureClosed } from '../src/elements/stream-capture/stream-capture.js';
+export const markerDetect = 'pt.markerdetect';
+export const cameraAccessDenied = 'pt.cameraaccessdenied';
+export const markerChanges = 'pt.markerchanges';

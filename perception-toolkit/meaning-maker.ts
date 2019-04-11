@@ -25,6 +25,8 @@ import { JsonLd } from '../src/artifacts/schema/json-ld';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
 import { fetchAsDocument } from '../src/utils/fetch-as-document';
 
+type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
+
 /*
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
  * It providess a good set of default behaviours, and can be replaced with alternative
@@ -69,9 +71,12 @@ export class MeaningMaker {
     return artifacts;
   }
 
-  async markerFound(marker: Marker): Promise<NearbyResultDelta> {
+  async markerFound(marker: Marker, shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback):
+      Promise<NearbyResultDelta> {
     // If this marker is a URL, try loading artifacts from that URL
-    const url = this.ensureValidSameOriginURL(marker.value);
+
+    const url = this.checkIsFetchableURL(marker.value, shouldFetchArtifactsFrom);
+
     if (url) {
       // TODO: fetchAsDocument here, pass that into loader.  Reuse doc below.
       const artifacts = await this.loadArtifactsFromHtmlUrl(url);
@@ -103,13 +108,23 @@ export class MeaningMaker {
     }
   }
 
-  private ensureValidSameOriginURL(potentialUrl: string): URL | null {
+  private checkIsFetchableURL(potentialUrl: string,
+                              shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback): URL | null {
+    if (!shouldFetchArtifactsFrom) {
+      // If there's no callback provided, match to current origin.
+      shouldFetchArtifactsFrom = (url: URL) => url.origin === window.location.origin;
+    } else if (Array.isArray(shouldFetchArtifactsFrom)) {
+      // If an array of strings, remap it.
+      const origins = shouldFetchArtifactsFrom;
+      shouldFetchArtifactsFrom = (url: URL) => !!origins.find(o => o === url.origin);
+    }
+
     try {
       // This will throw if potentialUrl isn't a valid URL.
       // Do not supply a base url argument, since we do not want to support relative URLs,
       // and because that would turn lots of normal string values into valid relative URLs.
       const url = new URL(potentialUrl);
-      if (url.origin === window.location.origin) {
+      if (shouldFetchArtifactsFrom(url)) {
         return url;
       }
     } catch (_) {
@@ -119,7 +134,7 @@ export class MeaningMaker {
   }
 
   private async tryExtractPageMetadata(potentialUrl: string): Promise<JsonLd | null> {
-    const url = this.ensureValidSameOriginURL(potentialUrl);
+    const url = this.checkIsFetchableURL(potentialUrl);
     if (url) {
       const doc = await fetchAsDocument(url);
       if (doc) {

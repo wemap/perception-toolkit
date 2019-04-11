@@ -22,6 +22,7 @@ declare global {
 }
 
 import { fade } from '../../utils/fade.js';
+import { DEBUG_LEVEL, log } from '../../utils/logger.js';
 import { html, styles } from './card.template.js';
 
 export interface CardData {
@@ -29,10 +30,6 @@ export interface CardData {
   disambiguatingDescription?: string;
   description?: string;
   image?: string;
-  price?: {
-    value: string;
-    currency: string;
-  };
   url?: string;
 }
 
@@ -160,6 +157,7 @@ export class Card extends HTMLElement {
 
   private render() {
     const container = this.root.querySelector('#container') as HTMLElement;
+    /* istanbul ignore next */
     if (!container) {
       return;
     }
@@ -181,7 +179,7 @@ export class Card extends HTMLElement {
 
       container.appendChild(iframe);
     } else {
-      console.warn('Unexpected card content', this.src);
+      log(`Unexpected card content: ${this.src}`, DEBUG_LEVEL.WARNING);
       container.textContent = 'Unexpected content';
       container.classList.add('padded');
     }
@@ -189,11 +187,13 @@ export class Card extends HTMLElement {
 
   private renderCardData(data: CardData) {
     const container = this.root.querySelector('#container') as HTMLElement;
+    /* istanbul ignore if */
     if (!container) {
       return;
     }
 
     container.innerHTML = '';
+    /* istanbul ignore else */
     if (data.name) {
       const title = document.createElement('h1');
       title.setAttribute('id', 'title');
@@ -201,20 +201,26 @@ export class Card extends HTMLElement {
       container.appendChild(title);
     }
 
-    if (data.image) {
-      const img = document.createElement('div');
-      img.setAttribute('id', 'image');
-      img.style.backgroundImage = `url(${data.image})`;
-
-      container.appendChild(img);
-    }
-
+    /* istanbul ignore else */
     if (data.description) {
       const description = document.createElement('div');
       description.setAttribute('id', 'description');
       description.textContent = data.description;
 
       container.appendChild(description);
+    }
+
+    /* istanbul ignore else */
+    if (data.image) {
+      const img = document.createElement('div');
+      img.setAttribute('id', 'image');
+      img.style.backgroundImage = `url(${data.image})`;
+
+      if (data.description || data.name) {
+        img.classList.add('top-margin');
+      }
+
+      container.appendChild(img);
     }
   }
 
