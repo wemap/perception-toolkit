@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ActionButton, Card } from '../src/elements/index.js';
+import { ActionButton, Card, captureStarted } from '../src/elements/index.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
@@ -67,6 +67,7 @@ window.PerceptionToolkit.config = window.PerceptionToolkit.config || {};
 window.PerceptionToolkit.Events = {
   CameraAccessDenied: cameraAccessDenied,
   CaptureClosed: captureClosed,
+  CaptureStarted: captureStarted,
   CaptureStopped: captureStopped,
   DeviceNotSupported: deviceNotSupported,
   MarkerChanges: markerChanges,
