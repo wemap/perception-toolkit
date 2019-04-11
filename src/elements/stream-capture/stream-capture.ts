@@ -19,7 +19,6 @@ import { clamp } from '../../utils/clamp.js';
 import { fire } from '../../utils/fire.js';
 import { html, styles } from './stream-capture.template.js';
 
-export const captureStopped = 'pt.capturestopped';
 /**
  * The name for captured frame events.
  */
@@ -28,12 +27,12 @@ export const frameEvent = 'pt.captureframe';
 /**
  * The name for start capture events.
  */
-export const startEvent = 'pt.capturestarted';
+export const captureStarted = 'pt.capturestarted';
 
 /**
  * The name for stop capture events.
  */
-export const stopEvent = 'pt.capturestopped';
+export const captureStopped = 'pt.capturestopped';
 
 /**
  * The name for stop capture events.
@@ -207,7 +206,7 @@ export class StreamCapture extends HTMLElement {
 
       requestAnimationFrame((now) => {
         update(now);
-        fire(startEvent, this);
+        fire(captureStarted, this);
       });
     }, { once: true });
   }
@@ -267,7 +266,7 @@ export class StreamCapture extends HTMLElement {
     this.canvas = undefined;
     this.ctx = undefined;
 
-    fire(stopEvent, this);
+    fire(captureStopped, this);
   }
 
   private setReticleOrientation(vertical: boolean) {

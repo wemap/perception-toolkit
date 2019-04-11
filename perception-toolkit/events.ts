@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-export { captureStopped, closeEvent as captureClosed } from '../src/elements/stream-capture/stream-capture.js';
+export {
+  captureStarted,
+  captureStopped,
+  closeEvent as captureClosed
+} from '../src/elements/stream-capture/stream-capture.js';
 export const markerDetect = 'pt.markerdetect';
 export const cameraAccessDenied = 'pt.cameraaccessdenied';
 export const markerChanges = 'pt.markerchanges';
