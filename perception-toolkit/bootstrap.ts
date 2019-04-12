@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import { ActionButton, Card, captureStarted } from '../src/elements/index.js';
+import { ActionButton, Card } from '../src/elements/index.js';
 import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
 import { fire } from '../src/utils/fire.js';
-import { cameraAccessDenied, captureClosed, captureStopped, markerChanges } from './events.js';
+import { cameraAccessDenied, captureClosed, captureStarted, captureStopped, markerChanges } from './events.js';
 
 declare global {
   interface Window {
@@ -34,6 +34,7 @@ declare global {
         buttonVisibilityClass?: string,
         cardContainer?: HTMLElement,
         cardUrlLabel?: string,
+        cardMainEntityLabel?: string,
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,

@@ -108,7 +108,8 @@ async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpt
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
-  const { cardContainer, cardUrlLabel } = window.PerceptionToolkit.config;
+  const { cardContainer, cardUrlLabel, cardMainEntityLabel } =
+      window.PerceptionToolkit.config;
 
   // Prevent multiple cards from showing.
   if (!cardContainer || cardContainer.hasChildNodes()) {
@@ -122,24 +123,36 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
     card.src = cardContent;
     cardContainer.appendChild(card);
 
-    if (typeof cardContent.url === 'undefined') {
-      continue;
+    if (typeof cardContent.url !== 'undefined') {
+      const viewDetails = createActionButton(cardContent.url,
+          cardUrlLabel || 'View Details');
+      card.appendChild(viewDetails);
     }
 
-    const targetUrl = cardContent.url;
-    const viewDetails = new ActionButton();
-    viewDetails.label = cardUrlLabel || 'View Details';
-    viewDetails.addEventListener('click', () => {
-      if (!targetUrl) {
-        return;
-      }
-
-      window.location.href = targetUrl;
-    });
-
-    card.appendChild(viewDetails);
+    if (typeof cardContent.mainEntity !== 'undefined' &&
+        typeof cardContent.mainEntity.url !== 'undefined') {
+      const launch = createActionButton(cardContent.mainEntity.url,
+          cardMainEntityLabel || 'Launch');
+      card.appendChild(launch);
+    }
   }
 }
+
+function createActionButton(url: string, label: string) {
+  const targetUrl = url;
+  const button = new ActionButton();
+  button.label = label;
+  button.addEventListener('click', () => {
+    if (!targetUrl) {
+      return;
+    }
+
+    window.open(targetUrl);
+  });
+
+  return button;
+}
+
 /*
  * Handle Marker discovery
  */
