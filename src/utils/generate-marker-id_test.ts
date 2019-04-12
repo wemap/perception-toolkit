@@ -17,22 +17,11 @@
 
 const { assert } = chai;
 
-import { flatPolyfill } from './flat.js';
+import { generateMarkerId } from './generate-marker-id.js';
 
-describe('Flat', () => {
-  it('flattens 1 level deep', () => {
-    assert.deepEqual(flatPolyfill([1, 2, [3, 4]]), [1, 2, 3, 4]);
-  });
-
-  it('flattens only 1 level deep by default', () => {
-    assert.deepEqual(flatPolyfill([1, 2, [3, 4, [5, 6]]]), [1, 2, 3, 4, [5, 6]]);
-  });
-
-  it('flattens multiple levels deep when asked', () => {
-    assert.deepEqual(flatPolyfill([1, 2, [3, 4, [5, 6]]], 2), [1, 2, 3, 4, 5, 6]);
-  });
-
-  it('removes empty slots in arrays', () => {
-    assert.deepEqual(flatPolyfill([1, 2, /* none */, 4, 5]), [1, 2, 4, 5]);
+describe('Generate Marker ID', () => {
+  it('generates marker IDs', async () => {
+    const id = generateMarkerId('foo', 'bar');
+    assert.equal(id, 'foo__bar');
   });
 });

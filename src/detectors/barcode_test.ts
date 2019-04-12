@@ -35,7 +35,7 @@ describe('BarcodeDetector', () => {
       if (throws) {
         instance.detect.throws(new Error('Detection failed'));
       } else {
-        instance.detect.returns(Promise.resolve([{rawValue: 'foo'}]));
+        instance.detect.returns(Promise.resolve([{rawValue: 'foo', format: 'qr_code'}]));
       }
 
       return instance;
@@ -53,7 +53,7 @@ describe('BarcodeDetector', () => {
         context: barcodeSpy as any, forceNewDetector: true
     });
 
-    assert.deepEqual(barcodes, [{rawValue: 'foo'}]);
+    assert.deepEqual(barcodes, [{rawValue: 'foo', format: 'qr_code'}]);
     assert(barcodeSpy.BarcodeDetector.called);
   });
 
@@ -84,6 +84,7 @@ describe('BarcodeDetector', () => {
     }
 
     const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 100;
     const barcodes = await detectBarcodes(canvas, { forceNewDetector: true });
 
     assert.deepEqual(barcodes, []);

@@ -6,15 +6,16 @@
   "jsnext:main": "lib/index.js",
   "scripts": {
     "docs": "typedoc --tsconfig ./tsconfig.docs.json",
-    "watch": "tsc --watch",
     "build": "npm run compile && npm run bundle && npm run polyfill",
-    "bundle": "node build/bundle.js",
+    "bundle": "rollup -c",
     "compile": "rimraf ./lib && tsc",
+    "gzip": "find lib -type f -name '*.js' -exec gzip -kf \"{}\" \\;",
     "polyfill": "node build/polyfills.js",
-    "serve": "npx http-server -g",
-    "test": "karma start"
+    "serve": "http-server -g -c0 --cors=\"*\"",
+    "test": "npm run build && karma start",
+    "postinstall": "npm run build"
   },
-  "license": "apache-2.0",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
@@ -32,20 +33,26 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-sinon": "^1.0.5",
     "karma-typescript": "^4.0.0",
-    "minify": "^4.1.0",
+    "magic-string": "^0.25.2",
     "mocha": "^5.2.0",
     "node-glob": "^1.2.0",
     "node-gzip": "^1.1.2",
-    "rimraf": "^2.6.3",
-    "rollup": "^1.1.2",
-    "rollup-plugin-typescript": "^1.0.0",
     "sinon": "^7.2.2",
+    "terser": "^3.17.0",
     "tslib": "^1.9.3",
     "tslint": "^5.12.1",
-    "typedoc": "^0.14.2",
-    "typescript": "^3.3.3"
+    "typedoc": "^0.14.2"
   },
   "dependencies": {
-    "@webcomponents/webcomponentsjs": "^2.2.3"
+    "@webcomponents/webcomponentsjs": "^2.2.3",
+    "ejs": "^2.6.1",
+    "minify": "^4.1.0",
+    "rimraf": "^2.6.3",
+    "rollup": "^1.8.0",
+    "rollup-plugin-license": "^0.8.1",
+    "rollup-plugin-terser": "^4.0.4",
+    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.20.1",
+    "typescript": "^3.3.3"
   }
 }

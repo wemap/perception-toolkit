@@ -21,7 +21,7 @@ import { Card, CardData } from '../src/elements/card/card.js';
 import { DotLoader } from '../src/elements/dot-loader/dot-loader.js';
 import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.js';
 import { hideOverlay, showOverlay } from '../src/elements/overlay/overlay.js';
-import { StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
+import { closeEvent, frameEvent, StreamCapture } from '../src/elements/stream-capture/stream-capture.js';
 import { supportsEnvironmentCamera } from '../src/utils/environment-camera.js';
 import { fire } from '../src/utils/fire.js';
 import { DEBUG_LEVEL, enableLogLevel, log } from '../src/utils/logger.js';
@@ -35,10 +35,9 @@ import { Marker } from '../defs/marker.js';
 import { NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
 import { MeaningMaker } from './meaning-maker.js';
 
-const detectedMarkers = new Map<string, number>();
-const markerDetect = 'markerdetect';
-const cameraAccessDenied = 'cameraaccessdenied';
-const markerChanges = 'markerchanges';
+import { cameraAccessDenied, markerChanges, markerDetect } from './events.js';
+
+const detectedMarkers = new Map<{value: string, format: string}, number>();
 
 const meaningMaker = new MeaningMaker();
 
@@ -48,7 +47,7 @@ customElements.define(Card.defaultTagName, Card);
 customElements.define(ActionButton.defaultTagName, ActionButton);
 
 // Register events.
-window.addEventListener(StreamCapture.frameEvent, onCaptureFrame);
+window.addEventListener(frameEvent, onCaptureFrame);
 window.addEventListener('offline', onConnectivityChanged);
 window.addEventListener('online', onConnectivityChanged);
 
@@ -109,7 +108,7 @@ async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpt
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
-  const { cardContainer } = window.PerceptionToolkit.config;
+  const { cardContainer, cardUrlLabel } = window.PerceptionToolkit.config;
 
   // Prevent multiple cards from showing.
   if (!cardContainer || cardContainer.hasChildNodes()) {
@@ -118,21 +117,40 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
 
   for (const { content } of contentDiff.found) {
     // Create a card for every found marker.
+    const cardContent = content as CardData;
     const card = new Card();
-    card.src = content as CardData;
+    card.src = cardContent;
     cardContainer.appendChild(card);
+
+    if (typeof cardContent.url === 'undefined') {
+      continue;
+    }
+
+    const targetUrl = cardContent.url;
+    const viewDetails = new ActionButton();
+    viewDetails.label = cardUrlLabel || 'View Details';
+    viewDetails.addEventListener('click', () => {
+      if (!targetUrl) {
+        return;
+      }
+
+      window.location.href = targetUrl;
+    });
+
+    card.appendChild(viewDetails);
   }
 }
-
 /*
  * Handle Marker discovery
  */
 async function onMarkerFound(evt: Event) {
-  const { detail } = evt as CustomEvent<string>;
-  const marker: Marker = { type: 'qrcode', value: detail };
+  const { detail } = evt as CustomEvent<{value: string, format: string}>;
+  const { value, format } = detail;
+  const marker: Marker = { type: format, value };
+  const { shouldLoadArtifactsFrom } = window.PerceptionToolkit.config;
 
   // Update the UI
-  const contentDiffs = await meaningMaker.markerFound(marker);
+  const contentDiffs = await meaningMaker.markerFound(marker, shouldLoadArtifactsFrom);
   const markerChangeEvt = fire(markerChanges, capture, contentDiffs);
 
   // If the developer prevents default on the marker changes event then don't
@@ -144,6 +162,13 @@ async function onMarkerFound(evt: Event) {
   vibrate(200);
   updateContentDisplay(contentDiffs);
 }
+
+let stream: MediaStream;
+const streamOpts = {
+  video: {
+    facingMode: 'environment'
+  }
+};
 
 let hintTimeout: number;
 const capture = new StreamCapture();
@@ -159,52 +184,22 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
       capture.paused = true;
       showOverlay('Processing...');
       const imgData = await capture.captureFrame();
-      fire(StreamCapture.frameEvent, capture, {imgData, detectionMode});
+      fire(frameEvent, capture, {imgData, detectionMode});
     });
   }
   capture.captureScale = 0.8;
-  capture.addEventListener(StreamCapture.closeEvent, close);
+  capture.addEventListener(closeEvent, close);
   capture.addEventListener(markerDetect, onMarkerFound);
-
-  const streamOpts = {
-    video: {
-      facingMode: 'environment'
-    }
-  };
 
   // Attempt to get access to the user's camera.
   try {
-    let stream = await navigator.mediaDevices.getUserMedia(streamOpts);
+    stream = await navigator.mediaDevices.getUserMedia(streamOpts);
     const devices = await navigator.mediaDevices.enumerateDevices();
 
     const hasEnvCamera = await supportsEnvironmentCamera(devices);
     capture.flipped = !hasEnvCamera;
 
-    // Ensure the stream is stopped and started when the user changes tabs.
-    let isRequestingNewStream = false;
-    window.addEventListener('visibilitychange', async () => {
-      if (isRequestingNewStream || capture.parentNode === null) {
-        return;
-      }
-
-      if (document.hidden) {
-        capture.stop();
-      } else {
-        // Block multiple requests for a new stream.
-        isRequestingNewStream = true;
-        stream = await navigator.mediaDevices.getUserMedia(streamOpts);
-        isRequestingNewStream = false;
-
-        // Bail if the document is hidden again.
-        if (document.hidden) {
-          return;
-        }
-
-        // Ensure the capture is definitely stopped before starting a new one.
-        capture.stop();
-        capture.start(stream);
-      }
-    });
+    window.addEventListener('visibilitychange', onVisibilityChange);
 
     capture.start(stream);
     document.body.appendChild(capture);
@@ -218,11 +213,40 @@ async function createStreamCapture(detectionMode: 'active' | 'passive') {
   }
 }
 
+let isRequestingNewStream = false;
+/**
+ * Ensure the stream is stopped and started when the user changes tabs.
+ */
+async function onVisibilityChange() {
+  if (isRequestingNewStream || capture.parentNode === null) {
+    return;
+  }
+
+  if (document.hidden) {
+    capture.stop();
+  } else {
+    // Block multiple requests for a new stream.
+    isRequestingNewStream = true;
+    stream = await navigator.mediaDevices.getUserMedia(streamOpts);
+    isRequestingNewStream = false;
+
+    // Bail if the document is hidden again.
+    if (document.hidden) {
+      return;
+    }
+
+    // Ensure the capture is definitely stopped before starting a new one.
+    capture.stop();
+    capture.start(stream);
+  }
+}
+
 export function close() {
   capture.stop();
   capture.remove();
   hideOverlay();
   clearTimeout(hintTimeout);
+  window.removeEventListener('visibilitychange', onVisibilityChange);
 
   const onboarding = document.querySelector(OnboardingCard.defaultTagName);
   if (!onboarding) {
@@ -254,16 +278,17 @@ async function onCaptureFrame(evt: Event) {
   const markers = await detectBarcodes(imgData, { polyfillPrefix });
 
   for (const marker of markers) {
-    const markerAlreadyDetected = detectedMarkers.has(marker.rawValue);
+    const value = { value: marker.rawValue, format: marker.format };
+    const markerAlreadyDetected = detectedMarkers.has(value);
 
     // Update the last time for this marker.
-    detectedMarkers.set(marker.rawValue, self.performance.now());
+    detectedMarkers.set(value, self.performance.now());
     if (markerAlreadyDetected) {
       continue;
     }
 
     // Only fire the event if the marker is freshly detected.
-    fire(markerDetect, capture, marker.rawValue);
+    fire(markerDetect, capture, value);
   }
 
   if (markers.length > 0) {
@@ -281,14 +306,14 @@ async function onCaptureFrame(evt: Event) {
   setTimeout(async () => {
     const now = self.performance.now();
     const removals = [];
-    for (const [value, timeLastSeen] of detectedMarkers.entries()) {
+    for (const [markerValue, timeLastSeen] of detectedMarkers.entries()) {
       if (now - timeLastSeen < 1000) {
         continue;
       }
 
-      const marker: Marker = { type: 'qrcode', value };
+      const marker: Marker = { value: markerValue.value, type: markerValue.format };
       removals.push(meaningMaker.markerLost(marker));
-      detectedMarkers.delete(value);
+      detectedMarkers.delete(markerValue);
     }
 
     // Wait for all dealer removals to conclude.

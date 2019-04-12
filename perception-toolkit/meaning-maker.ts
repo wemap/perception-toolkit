@@ -22,11 +22,13 @@ import { ARArtifact } from '../src/artifacts/schema/ar-artifact';
 import { GeoCoordinates } from '../src/artifacts/schema/geo-coordinates';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
 
+type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
+
 /*
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
  * It providess a good set of default behaviours, and can be replaced with alternative
  * strategies in some demos.
- * 
+ *
  * Things MeaningMaker does:
  * * Creates a default Artifact Loader, Store, and Dealer.
  * * Loads Artifacts from Document automatically on init.
@@ -60,11 +62,18 @@ export class MeaningMaker {
   /**
    * Load artifact content from url on same origin, usually discovered from environment.
    */
-  async loadArtifactsFromSameOriginUrl(url: URL) {
-    // Ensure this URL is on same origin
-    if (url.hostname !== window.location.hostname ||
-        url.port !== window.location.port ||
-        url.protocol !== window.location.protocol) {
+  async loadArtifactsFromSupportedUrls(url: URL,
+                                       shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback) {
+    // If there's no callback provided, match to current origin.
+    if (!shouldFetchArtifactsFrom) {
+      shouldFetchArtifactsFrom = (url: URL) => url.origin === window.location.origin;
+    } else if (Array.isArray(shouldFetchArtifactsFrom)) {
+      // If an array of strings, remap it.
+      const origins = shouldFetchArtifactsFrom;
+      shouldFetchArtifactsFrom = (url: URL) => !!origins.find(o => o === url.origin);
+    }
+
+    if (!shouldFetchArtifactsFrom(url)) {
       return;
     }
 
@@ -74,14 +83,15 @@ export class MeaningMaker {
     }
   }
 
-  async markerFound(marker: Marker): Promise<NearbyResultDelta> {
+  async markerFound(marker: Marker, shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback):
+      Promise<NearbyResultDelta> {
     // If this marker is a URL, try loading artifacts from that URL
     try {
       // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
       // Do not supply a base url argument, since we do not want to support relative URLs,
       // and because that would turn lots of normal string values into valid relative URLs.
       const url = new URL(marker.value);
-      await this.loadArtifactsFromSameOriginUrl(url);
+      await this.loadArtifactsFromSupportedUrls(url, shouldFetchArtifactsFrom);
     } catch (_) {
       // Do nothing if this isn't a valid URL
     }

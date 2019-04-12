@@ -17,11 +17,6 @@
 
 module.exports = function(config) {
   const options = {
-    logLevel: config.LOG_ERROR,
-    client: {
-      captureConsole: false
-    },
-
     basePath: "",
 
     files: [
@@ -64,7 +59,7 @@ module.exports = function(config) {
 
     karmaTypescriptConfig: {
       compilerOptions: {
-        lib: ['dom', 'dom.iterable', 'es2015'],
+        lib: ['dom', 'dom.iterable', 'esnext', 'esnext.array'],
         downlevelIteration: true,
       },
 

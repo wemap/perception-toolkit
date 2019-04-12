@@ -21,6 +21,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Perception Toolkit - Demo</title>
 
+    <link rel="stylesheet" href="../styles/perception-toolkit.css">
     <style>
       html, body {
         background: rgb(40, 74, 72);
@@ -34,20 +35,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-      }
-
-      #container {
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        padding: 32px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-        box-sizing: border-box;
-        z-index: 1;
-        pointer-events: none;
       }
 
       #get-started {
@@ -82,11 +69,8 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-      }
-
-      #container data-card {
-        margin-top: 16px;
-        pointer-events: auto;
+        width: 100%;
+        max-width: 90vw;
       }
 
       onboarding-card {
@@ -141,7 +125,7 @@
     <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
   </head>
 <body>
-  <div id="container"></div>
+  <div class="container"></div>
   <button id="get-started">Get started</button>
 
   <script src="/third_party/idb-keyval/idb-keyval-iife.min.js"></script>
@@ -153,13 +137,15 @@
         await idbKeyval.set('onboarded', true);
       }
 
+      const cardContainer = document.body.querySelector('.container');
+
       window.PerceptionToolkit = window.PerceptionToolkit || {};
       window.PerceptionToolkit.config = {
         // The element to use to launch.
         button: document.getElementById('get-started'),
 
         // The container for generated cards.
-        cardContainer: document.body.querySelector('#container'),
+        cardContainer,
 
         // Whether to show the onboarding flow. Note that this is superseded
         // internally by a flag
@@ -172,42 +158,62 @@
           '/demo/images/step3.jpg'
         ],
         hintTimeout: 7000,
-        sitemapUrl: './barcode-listing-sitemap.jsonld'
+        sitemapUrl: './barcode-listing-sitemap.jsonld',
+        onload() {
+          addEventListeners();
+        },
+        shouldLoadArtifactsFrom(url) {
+          switch (url.origin) {
+            case 'http://localhost:8080':
+            case 'http://localhost:8081':
+              return true;
+
+            default:
+              return false;
+          }
+        }
       };
 
-      // Fires with a diff of markers found & lost.
-      window.addEventListener('markerchanges', (evt) => {
-        const { found } = evt.detail;
+      // When the toolkit loads, add event listeners.
+      function addEventListeners() {
+        const { Events, Elements } = window.PerceptionToolkit;
 
-        // For the cases where we know something was found,
-        // ignore. For the zero case we know there was a
-        // scan of something we don't currently recognize.
-        if (found.length > 0) {
-          return;
-        }
+        // Fires with a diff of markers found & lost.
+        window.addEventListener(Events.MarkerChanges, (evt) => {
+          const { found, lost } = evt.detail;
 
-        const { Card } = window.PerceptionToolkit.Main;
-        const card = new Card();
-        card.src = 'Sorry, this item was not recognized.';
-        container.appendChild(card);
-      });
+          // For the cases where we know something was found,
+          // ignore. For the zero case we know there was a
+          // scan of something we don't currently recognize.
+          if (found.length !== 0 || lost.length !== 0) {
+            return;
+          }
 
-      // Fires the if the user denies camera access.
-      window.addEventListener('cameraaccessdenied', () => {
-        const { Card } = window.PerceptionToolkit.Main;
-        const card = new Card();
-        card.src = 'Camera unavailable or access denied';
-        container.appendChild(card);
-      });
+          if (cardContainer.childNodes.length > 0) {
+            return;
+          }
 
-      // Fires the if the device does not have the required APIs.
-      window.addEventListener('devicenotsupported', () => {
-        console.warn('Device Not Supported');
-      });
+          const card = new Elements.Card();
+          card.src = 'Sorry, this item was not recognized.';
+          cardContainer.appendChild(card);
+        });
 
-      // Add the toolkit.
+        // Fires the if the user denies camera access.
+        window.addEventListener(Events.CameraAccessDenied, () => {
+          const card = new Elements.Card();
+          card.src = 'Camera unavailable or access denied';
+          cardContainer.appendChild(card);
+        });
+
+        // Fires the if the device does not have the required APIs.
+        window.addEventListener(Events.DeviceNotSupported, () => {
+          console.warn('Device Not Supported');
+        });
+      }
+
+      // Embed the toolkit.
       const toolkit = document.createElement('script');
-      toolkit.src = '/lib/bundled/perception-toolkit/bootstrap.min.js';
+      toolkit.src = '/lib/bundled/bootstrap.js';
       document.head.appendChild(toolkit);
     }
 
