@@ -64,6 +64,11 @@ describe.only('LocalMarkerStore', () => {
       localMarkerStore.addMarker({}, { text: 'Barcode5' });
     });
 
+    it('ignores malformed search criteria', () => {
+      const results = localMarkerStore.findRelevantArtifacts([{ }]);
+      assert.lengthOf(results, 0);
+    });
+
     it('finds single marker by value', () => {
       const code = 'Barcode2';
       const results = localMarkerStore.findRelevantArtifacts([{ value: code }]);
@@ -86,7 +91,7 @@ describe.only('LocalMarkerStore', () => {
       assert.lengthOf(results, 2);
     });
 
-    it('return original artifact', () => {
+    it('returns original artifact', () => {
       const results = localMarkerStore.findRelevantArtifacts([{ value: specificBarcode.text }]);
       assert.lengthOf(results, 1);
       assert.deepEqual(results[0].target, specificBarcode);
