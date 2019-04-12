@@ -24,14 +24,14 @@ import { ARArtifact } from '../schema/ar-artifact.js';
 import { Barcode } from '../schema/barcode.js';
 
 describe.only('LocalMarkerStore', () => {
-  let localMarkerStore;
+  let localMarkerStore : LocalMarkerStore;
 
   beforeEach(() => {
     localMarkerStore = new LocalMarkerStore();
   });
 
   it('accepts barcodes', () => {
-    const barcode: Barcode = { text: 'Barcode Value' };
+    const barcode: Barcode = { '@type': 'Barcode', 'text': 'Barcode Value' };
     const artifact: ARArtifact = {
       arTarget: barcode,
       arContent: 'Fake URL'
@@ -50,7 +50,7 @@ describe.only('LocalMarkerStore', () => {
   });
 
   describe('FindRelevantMarkers', () => {
-    const specificBarcode = { text: 'Barcode1' };
+    const specificBarcode = { '@type': 'Barcode', 'text': 'Barcode1' };
     const specificArtifact = {
       arTarget: specificBarcode,
       arContent: 'Fake URL'
@@ -58,41 +58,39 @@ describe.only('LocalMarkerStore', () => {
 
     beforeEach(() => {
       localMarkerStore.addMarker(specificArtifact, specificBarcode);
-      localMarkerStore.addMarker({}, { text: 'Barcode2' });
-      localMarkerStore.addMarker({}, { text: 'Barcode3' });
-      localMarkerStore.addMarker({}, { text: 'Barcode4' });
-      localMarkerStore.addMarker({}, { text: 'Barcode5' });
-    });
-
-    it('ignores malformed search criteria', () => {
-      const results = localMarkerStore.findRelevantArtifacts([{ }]);
-      assert.lengthOf(results, 0);
+      localMarkerStore.addMarker({}, { '@type': 'Barcode', 'text': 'Barcode2' });
+      localMarkerStore.addMarker({}, { '@type': 'Barcode', 'text': 'Barcode3' });
+      localMarkerStore.addMarker({}, { '@type': 'Barcode', 'text': 'Barcode4' });
+      localMarkerStore.addMarker({}, { '@type': 'Barcode', 'text': 'Barcode5' });
     });
 
     it('finds single marker by value', () => {
       const code = 'Barcode2';
-      const results = localMarkerStore.findRelevantArtifacts([{ value: code }]);
+      const results = localMarkerStore.findRelevantArtifacts([{ type: 'qrcode', value: code }]);
       assert.lengthOf(results, 1);
-      assert.deepEqual(results[0].target, { text: code });
+      assert.deepEqual(results[0].target, { '@type': 'Barcode', 'text': code });
     });
 
     it('finds multiple markers together', () => {
       const results = localMarkerStore.findRelevantArtifacts([
-        { value: 'Barcode2' }, { value: 'Barcode3' }, { value: 'Barcode4' }, { value: 'Barcode5' }
+        { type: 'qrcode', value: 'Barcode2' },
+        { type: 'qrcode', value: 'Barcode3' },
+        { type: 'qrcode', value: 'Barcode4' },
+        { type: 'qrcode', value: 'Barcode5' },
       ]);
       assert.lengthOf(results, 4);
     });
 
     it('doesnt find non-existant markers', () => {
       const results = localMarkerStore.findRelevantArtifacts([
-        { value: 'Barcode2' }, { value: 'Barcode3' }, // Should find
-        { value: 'Barcode6' }, { value: 'Barcode7' }, // Should not find
+        { type: 'qrcode', value: 'Barcode2' }, { type: 'qrcode', value: 'Barcode3' }, // Should find
+        { type: 'qrcode', value: 'Barcode6' }, { type: 'qrcode', value: 'Barcode7' }, // Should not find
       ]);
       assert.lengthOf(results, 2);
     });
 
     it('returns original artifact', () => {
-      const results = localMarkerStore.findRelevantArtifacts([{ value: specificBarcode.text }]);
+      const results = localMarkerStore.findRelevantArtifacts([{ type: 'qrcode', value: specificBarcode.text }]);
       assert.lengthOf(results, 1);
       assert.deepEqual(results[0].target, specificBarcode);
       assert.deepEqual(results[0].artifact, specificArtifact);

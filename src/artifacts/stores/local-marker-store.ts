@@ -34,10 +34,6 @@ export class LocalMarkerStore {
   findRelevantArtifacts(markers: Marker[]): NearbyResult[] {
     const ret = [];
     for (const marker of markers) {
-      if (!marker.value) {
-        continue;
-      }
-
       const nearbyResult = this.markers.get(marker.value);
 
       if (nearbyResult) {

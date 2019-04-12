@@ -26,9 +26,9 @@ import { LocalMarkerStore } from './local-marker-store.js';
 export class LocalArtifactStore implements ArtifactStore {
   private readonly markerStore = new LocalMarkerStore();
 
-  addArtifact(artifact: ARArtifact): void {
+  addArtifact(artifact: ARArtifact): Number {
     if (!artifact.arTarget) {
-      return;
+      return 0;
     }
 
     let targets: ARTargetTypes[] = [];
@@ -38,19 +38,23 @@ export class LocalArtifactStore implements ArtifactStore {
       targets = [artifact.arTarget];
     }
 
+    let totalAdded = 0;
     for (const target of targets) {
       // TODO: add support for URL-only targets.  Fetch and get type from mime-type, or embedded schema.
       const targetType = target['@type'] || '';
 
       switch (targetType) {
         case 'Barcode':
-          this.markerStore.addMarker(artifact, target);
+          if (this.markerStore.addMarker(artifact, target)) {
+            totalAdded++;
+          }
           break;
 
         default:
           break; // We ignore types we don't support, and move on
       }
     }
+    return totalAdded;
   }
 
   findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): NearbyResult[] {
