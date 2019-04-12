@@ -34,6 +34,7 @@ declare global {
         buttonVisibilityClass?: string,
         cardContainer?: HTMLElement,
         cardUrlLabel?: string,
+        cardMainEntityLabel?: string,
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,
