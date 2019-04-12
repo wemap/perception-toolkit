@@ -31,6 +31,9 @@ export interface CardData {
   description?: string;
   image?: string;
   url?: string;
+  mainEntity?: {
+    url?: string;
+  };
 }
 
 /**
