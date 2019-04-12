@@ -23,11 +23,12 @@ import { Barcode } from '../schema/barcode.js';
 export class LocalMarkerStore {
   private readonly markers = new Map<string, NearbyResult>();
 
-  addMarker(artifact: ARArtifact, barcode: Barcode): void {
+  addMarker(artifact: ARArtifact, barcode: Barcode): boolean {
     if (!barcode.text) {
-      return;
+      return false;
     }
     this.markers.set(barcode.text, { target: barcode, artifact });
+    return true;
   }
 
   findRelevantArtifacts(markers: Marker[]): NearbyResult[] {

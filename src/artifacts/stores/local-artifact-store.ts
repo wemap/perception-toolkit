@@ -17,7 +17,7 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
+import { ARArtifact, ARTargetTypes } from '../schema/ar-artifact.js';
 import { GeoCoordinates } from '../schema/geo-coordinates.js';
 import { JsonLd } from '../schema/json-ld.js';
 import { ArtifactStore } from './artifact-store.js';
@@ -31,7 +31,7 @@ export class LocalArtifactStore implements ArtifactStore {
       return;
     }
 
-    let targets: JsonLd[] = [];
+    let targets: ARTargetTypes[] = [];
     if (Array.isArray(artifact.arTarget)) {
       targets = artifact.arTarget;
     } else {
@@ -39,6 +39,7 @@ export class LocalArtifactStore implements ArtifactStore {
     }
 
     for (const target of targets) {
+      // TODO: add support for URL-only targets.  Fetch and get type from mime-type, or embedded schema.
       const targetType = target['@type'] || '';
 
       switch (targetType) {
