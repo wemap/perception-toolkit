@@ -35,6 +35,7 @@ declare global {
         cardContainer?: HTMLElement,
         cardUrlLabel?: string,
         cardMainEntityLabel?: string,
+        cardShouldLaunchNewWindow?: boolean,
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,
