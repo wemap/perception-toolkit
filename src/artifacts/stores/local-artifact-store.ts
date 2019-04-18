@@ -17,9 +17,8 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
-import { GeoCoordinates } from '../schema/geo-coordinates.js';
-import { JsonLd } from '../schema/json-ld.js';
+import { ARArtifact, ARTarget } from '../schema/extension-ar-artifacts.js';
+import { Thing, GeoCoordinates } from '../schema/core-schema-org.js';
 import { ArtifactStore } from './artifact-store.js';
 import { LocalMarkerStore } from './local-marker-store.js';
 
@@ -31,14 +30,19 @@ export class LocalArtifactStore implements ArtifactStore {
       return;
     }
 
-    let targets: JsonLd[] = [];
+    let targets: ARTarget[] = [];
     if (Array.isArray(artifact.arTarget)) {
       targets = artifact.arTarget;
     } else {
       targets = [artifact.arTarget];
     }
 
+    const targetIsThing = (target: ARTarget): target is Thing => (target as Thing).hasOwnProperty('@type');
+
     for (const target of targets) {
+      if (!targetIsThing(target)) {
+        continue;
+      }
       const targetType = target['@type'] || '';
 
       switch (targetType) {

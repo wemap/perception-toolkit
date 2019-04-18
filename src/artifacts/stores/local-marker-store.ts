@@ -17,8 +17,8 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
-import { Barcode } from '../schema/barcode.js';
+import { ARArtifact } from '../schema/extension-ar-artifacts.js';
+import { Barcode } from '../schema/core-schema-org.js';
 
 export class LocalMarkerStore {
   private readonly markers = new Map<string, NearbyResult>();

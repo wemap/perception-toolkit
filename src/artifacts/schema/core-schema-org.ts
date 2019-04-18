@@ -17,7 +17,36 @@
 
 import { JsonLd } from './json-ld.js';
 
-export interface GeoCoordinates extends JsonLd {
+export interface Thing extends JsonLd {
+  name?: string;
+  url?: string;
+  image?: string | URL | ImageObject;
+  description?: string;
+  disambiguatingDescription?: string;
+  alternateName?: string;
+}
+
+export interface CreativeWork extends Thing {
+}
+
+export interface MediaObject extends CreativeWork {
+
+}
+export interface ImageObject extends MediaObject {
+
+}
+
+export interface Barcode extends ImageObject {
+  text?: string;
+}
+
+export interface Intangible extends Thing {
+}
+
+export interface StructuredValue extends Intangible {
+}
+
+export interface GeoCoordinates extends StructuredValue {
   address?: string; // PostalAddress
   addressCountry?: string; // Country
   elevation?: string | number;

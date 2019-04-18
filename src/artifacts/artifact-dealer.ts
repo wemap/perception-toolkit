@@ -17,15 +17,14 @@
 
 import { Marker } from '../../defs/marker.js';
 import { generateMarkerId } from '../utils/generate-marker-id.js';
-import { ARArtifact } from './schema/ar-artifact.js';
-import { GeoCoordinates } from './schema/geo-coordinates.js';
-import { JsonLd } from './schema/json-ld.js';
+import { ARArtifact, ARTarget, ARContent } from './schema/extension-ar-artifacts.js';
+import { GeoCoordinates } from './schema/core-schema-org.js';
 import { ArtifactStore } from './stores/artifact-store.js';
 import { flatMap } from '../utils/flat-map.js';
 
 export interface NearbyResult {
-  target?: JsonLd;
-  content?: JsonLd;
+  target?: ARTarget;
+  content?: ARContent;
   artifact: ARArtifact;
 }
 

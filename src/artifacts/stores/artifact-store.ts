@@ -17,8 +17,8 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
-import { GeoCoordinates } from '../schema/geo-coordinates.js';
+import { ARArtifact } from '../schema/extension-ar-artifacts.js';
+import { GeoCoordinates } from '../schema/core-schema-org.js'
 
 export interface ArtifactStore {
   addArtifact(artifact: ARArtifact): void;

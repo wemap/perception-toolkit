@@ -18,8 +18,8 @@
 import { Marker } from '../defs/marker';
 import { ArtifactDealer, NearbyResultDelta } from '../src/artifacts/artifact-dealer';
 import { ArtifactLoader } from '../src/artifacts/artifact-loader';
-import { ARArtifact } from '../src/artifacts/schema/ar-artifact';
-import { GeoCoordinates } from '../src/artifacts/schema/geo-coordinates';
+import { ARArtifact } from '../src/artifacts/schema/extension-ar-artifacts';
+import { GeoCoordinates } from '../src/artifacts/schema/core-schema-org.js';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
 
 type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
