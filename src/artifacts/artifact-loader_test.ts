@@ -15,7 +15,19 @@
  * limitations under the License.
  */
 
-//const { assert } = chai;
+const { assert } = chai;
 
-describe('ArtifactLoader', () => {
+import { ArtifactLoader } from './artifact-loader.js';
+
+describe.only('ArtifactLoader', () => {
+  let artLoader: ArtifactLoader;
+
+  beforeEach(() => {
+    artLoader = new ArtifactLoader();
+  });
+
+  it('does nothing', () => {
+
+  });
 });
+
