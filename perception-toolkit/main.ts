@@ -108,10 +108,18 @@ async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpt
  * Whenever we find nearby content, show it
  */
 async function updateContentDisplay(contentDiff: NearbyResultDelta) {
-  const { cardContainer, cardUrlLabel } = window.PerceptionToolkit.config;
+  const { cardContainer, cardUrlLabel, cardMainEntityLabel,
+      cardShouldLaunchNewWindow = false } =
+      window.PerceptionToolkit.config;
+
+  if (!cardContainer) {
+    log(`No card container provided, but event'a default was not prevented`,
+        DEBUG_LEVEL.ERROR);
+    return;
+  }
 
   // Prevent multiple cards from showing.
-  if (!cardContainer || cardContainer.hasChildNodes()) {
+  if (cardContainer.hasChildNodes()) {
     return;
   }
 
@@ -122,24 +130,47 @@ async function updateContentDisplay(contentDiff: NearbyResultDelta) {
     card.src = cardContent;
     cardContainer.appendChild(card);
 
-    if (typeof cardContent.url === 'undefined') {
-      continue;
+    if (typeof cardContent.url !== 'undefined') {
+      const viewDetails = createActionButton(cardContent.url,
+          cardUrlLabel || 'View Details',
+          cardShouldLaunchNewWindow);
+      card.appendChild(viewDetails);
     }
 
-    const targetUrl = cardContent.url;
-    const viewDetails = new ActionButton();
-    viewDetails.label = cardUrlLabel || 'View Details';
-    viewDetails.addEventListener('click', () => {
-      if (!targetUrl) {
-        return;
-      }
-
-      window.location.href = targetUrl;
-    });
-
-    card.appendChild(viewDetails);
+    if (typeof cardContent.mainEntity !== 'undefined' &&
+        typeof cardContent.mainEntity.url !== 'undefined') {
+      const launch = createActionButton(cardContent.mainEntity.url,
+          cardMainEntityLabel || 'Launch',
+          cardShouldLaunchNewWindow);
+      card.appendChild(launch);
+    }
   }
 }
+
+function createActionButton(url: string, label: string, launchNewWindow: boolean) {
+  const targetUrl = url;
+  const button = new ActionButton();
+  button.label = label;
+
+  const callback = launchNewWindow ?
+      () => {
+        if (!targetUrl) {
+          return;
+        }
+        window.open(targetUrl);
+      } :
+
+      () => {
+        if (!targetUrl) {
+          return;
+        }
+        window.location.href = targetUrl;
+      };
+
+  button.addEventListener('click', callback);
+  return button;
+}
+
 /*
  * Handle Marker discovery
  */
