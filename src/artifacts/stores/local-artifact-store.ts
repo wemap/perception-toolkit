@@ -17,37 +17,43 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact, ARTarget } from '../schema/extension-ar-artifacts.js';
-import { Thing, GeoCoordinates } from '../schema/core-schema-org.js';
+import { Barcode, GeoCoordinates, Thing, typeIsThing } from '../schema/core-schema-org.js';
+import { ARArtifact, ARTargetTypes, ARImageTarget } from '../schema/extension-ar-artifacts.js';
 import { ArtifactStore } from './artifact-store.js';
+import { LocalImageStore } from './local-image-store.js';
 import { LocalMarkerStore } from './local-marker-store.js';
+import { DetectableImage, DetectedImage } from '../../../defs/detected-image.js';
 
 export class LocalArtifactStore implements ArtifactStore {
   private readonly markerStore = new LocalMarkerStore();
+  private readonly imageStore = new LocalImageStore();
 
   addArtifact(artifact: ARArtifact): void {
     if (!artifact.arTarget) {
       return;
     }
 
-    let targets: ARTarget[] = [];
+    let targets: ARTargetTypes[];
     if (Array.isArray(artifact.arTarget)) {
       targets = artifact.arTarget;
     } else {
       targets = [artifact.arTarget];
     }
 
-    const targetIsThing = (target: ARTarget): target is Thing => (target as Thing).hasOwnProperty('@type');
 
     for (const target of targets) {
-      if (!targetIsThing(target)) {
+      if (!typeIsThing(target)) {
         continue;
       }
       const targetType = target['@type'] || '';
 
       switch (targetType) {
         case 'Barcode':
-          this.markerStore.addMarker(artifact, target);
+          this.markerStore.addMarker(artifact, target as Barcode);
+          break;
+
+        case 'ARImageTarget':
+          this.imageStore.addImageTarget(artifact, target as ARImageTarget);
           break;
 
         default:
@@ -56,7 +62,14 @@ export class LocalArtifactStore implements ArtifactStore {
     }
   }
 
-  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): NearbyResult[] {
-    return this.markerStore.findRelevantArtifacts(nearbyMarkers);
+  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates, detectedImages: DetectedImage[]): NearbyResult[] {
+    return [
+      ...this.markerStore.findRelevantArtifacts(nearbyMarkers),
+      ...this.imageStore.findRelevantArtifacts(detectedImages),
+    ];
+  }
+
+  getDetectableImages(): DetectableImage[] {
+    return this.imageStore.getDetectableImages();
   }
 }

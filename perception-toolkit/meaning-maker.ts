@@ -21,18 +21,20 @@ import { ArtifactLoader } from '../src/artifacts/artifact-loader';
 import { ARArtifact } from '../src/artifacts/schema/extension-ar-artifacts';
 import { GeoCoordinates } from '../src/artifacts/schema/core-schema-org.js';
 import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
+import { DetectableImage, DetectedImage } from '../defs/detected-image';
 
 type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
 
 /*
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
- * It providess a good set of default behaviours, and can be replaced with alternative
- * strategies in some demos.
+ * It provides a good set of default behaviours, but can be replaced with alternative
+ * strategies in advanced cases.
  *
- * Things MeaningMaker does:
+ * Things MeaningMaker adds in addition to just exposing `src/artficts/`:
  * * Creates a default Artifact Loader, Store, and Dealer.
- * * Loads Artifacts from Document automatically on init.
- * * Attempts to index Pages automatically when Markers are URLs.
+ * * Automatically loads Artifacts from embedding Document on init.
+ * * Attempts to index Pages when Markers are URLs.
+ * * Makes sure to only index content from supported domains/URLs.
  */
 export class MeaningMaker {
   private readonly artloader = new ArtifactLoader();
@@ -83,6 +85,22 @@ export class MeaningMaker {
     }
   }
 
+  /*
+   * Returns the full set of potential images which are worthy of detection at this moment.
+   * Each DetectableImage has one unique id, and also a list of potential Media which encodes it.
+   * It is up to the caller to select the correct media encoding.
+   */
+  async getDetectableImages(): Promise<DetectableImage[]> {
+    return this.artstore.getDetectableImages();
+  }
+
+  /*
+   * Inform MeaningMaker that `marker` has been detected in camera feed.
+   * `shouldFetchArtifactsFrom` is called if marker is a URL value.  If it returns `true`, MeaningMaker will index that
+   * URL and extract Artifacts, if it has not already done so.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
   async markerFound(marker: Marker, shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback):
       Promise<NearbyResultDelta> {
     // If this marker is a URL, try loading artifacts from that URL
@@ -99,14 +117,47 @@ export class MeaningMaker {
     return this.artdealer.markerFound(marker);
   }
 
+  /*
+   * Inform MeaningMaker that `marker` has been lost from camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
   async markerLost(marker: Marker): Promise<NearbyResultDelta> {
     return this.artdealer.markerLost(marker);
   }
 
+  /*
+   * Inform MeaningMaker that geo `coords` have changed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
   async updateGeolocation(coords: GeoCoordinates): Promise<NearbyResultDelta> {
     return this.artdealer.updateGeolocation(coords);
   }
 
+  /*
+   * Inform MeaningMaker that `detectedImage` has been found from camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async imageFound(detectedImage: DetectedImage) {
+    return this.artdealer.imageFound(detectedImage);
+  }
+
+  /*
+   * Inform MeaningMaker that `marker` has been lost from camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async imageLost(detectedImage: DetectedImage) {
+    return this.artdealer.imageLost(detectedImage);
+  }
+
+  /*
+   * Inform MeaningMaker that `marker` has been lost from camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
   private saveArtifacts(artifacts: ARArtifact[]) {
     for (const artifact of artifacts) {
       this.artstore.addArtifact(artifact);

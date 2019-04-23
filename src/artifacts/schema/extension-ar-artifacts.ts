@@ -17,17 +17,15 @@
 
 import { CreativeWork, ImageObject, MediaObject, Thing } from './core-schema-org.js';
 
-export type ARTarget = string | URL | Thing;
-export type ARContent = string | URL | CreativeWork;
+export type ARTargetTypes = string | URL | Thing;
+export type ARContentTypes = string | URL | CreativeWork;
 
 export interface ARArtifact extends CreativeWork {
-  arTarget?: ARTarget | ARTarget[];
-  arContent?: ARContent | ARContent[];
+  arTarget?: ARTargetTypes | ARTargetTypes[];
+  arContent?: ARContentTypes | ARContentTypes[];
 }
 
 export interface ARImageTarget extends CreativeWork {
-  name?: string;
-  description?: string;
-  image?: string | URL | ImageObject;
-  encoding?: MediaObject | MediaObject[];
+  // Use name, description, image from Thing
+  // Use encoding, associatedMedia from CreativeWork
 }

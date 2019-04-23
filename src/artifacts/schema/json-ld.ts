@@ -1,3 +1,5 @@
+import { Thing } from './core-schema-org';
+
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -14,6 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+export function typeIsJsonLd(type: any): type is JsonLd {
+  if (!type) {
+    return false;
+  }
+  const jsonld = type as JsonLd;
+  return jsonld.hasOwnProperty('@type');
+}
 
 export interface JsonLd {
   '@type'?: string;

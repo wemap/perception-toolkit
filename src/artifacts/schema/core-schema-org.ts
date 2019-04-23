@@ -15,7 +15,13 @@
  * limitations under the License.
  */
 
-import { JsonLd } from './json-ld.js';
+import { JsonLd, typeIsJsonLd } from './json-ld.js';
+
+export function typeIsThing(type: any): type is Thing {
+  const thing = type as Thing;
+  // TODO: should validate @type is within Thing hierarchy.  Almost everything is a Thing.
+  return typeIsJsonLd(thing);
+}
 
 export interface Thing extends JsonLd {
   name?: string;
@@ -27,9 +33,27 @@ export interface Thing extends JsonLd {
 }
 
 export interface CreativeWork extends Thing {
+  about?: Thing;
+  text?: string;
+  encoding?: MediaObject | MediaObject[];
+  associatedMedia?: MediaObject | MediaObject[]; // Synonym for encoding
+  // aggregateRating
+  // alternativeHeadline
+  // author
+  // contentLocation
+  encodingFormat?: string | URL;
+  // TODO: where is the media itself?
+}
+
+export interface WebPage extends CreativeWork {
+  primaryImageOfPage?: ImageObject;
+  significantLink?: string | URL;
 }
 
 export interface MediaObject extends CreativeWork {
+  contentUrl?: string | URL;
+  contentSize?: number;
+  encodingFormat?: string | URL;
 
 }
 export interface ImageObject extends MediaObject {
@@ -37,7 +61,7 @@ export interface ImageObject extends MediaObject {
 }
 
 export interface Barcode extends ImageObject {
-  text?: string;
+  /* use `text` property of CreativeWork */
 }
 
 export interface Intangible extends Thing {

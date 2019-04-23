@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-import { DetectedImage } from '../../../defs/detected-image.js';
-import { Marker } from '../../../defs/marker.js';
-import { NearbyResult } from '../artifact-dealer.js';
-import { GeoCoordinates } from '../schema/core-schema-org.js'
-import { ARArtifact } from '../schema/extension-ar-artifacts.js';
+import { MediaObject } from '../src/artifacts/schema/core-schema-org.js';
 
-export interface ArtifactStore {
-  addArtifact(artifact: ARArtifact): void;
-  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates, detectedImages: DetectedImage[]): NearbyResult[];
+export interface DetectableImage {
+  id: string;
+  media: MediaObject[];
+}
+
+export interface DetectedImage {
+  id: string;
 }
