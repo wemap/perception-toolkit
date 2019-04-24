@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-import { Marker } from '../defs/marker';
-import { ArtifactDealer, NearbyResultDelta } from '../src/artifacts/artifact-dealer';
-import { ArtifactLoader } from '../src/artifacts/artifact-loader';
-import { ARArtifact } from '../src/artifacts/schema/extension-ar-artifacts';
+import { Marker } from '../defs/marker.js';
+import { ArtifactDealer, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
+import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
+import { ARArtifact } from '../src/artifacts/schema/extension-ar-artifacts.js';
 import { GeoCoordinates } from '../src/artifacts/schema/core-schema-org.js';
-import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
-import { DetectableImage, DetectedImage } from '../defs/detected-image';
+import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
+import { DetectableImage, DetectedImage } from '../defs/detected-image.js';
 
 type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
 
@@ -136,7 +136,7 @@ export class MeaningMaker {
   }
 
   /*
-   * Inform MeaningMaker that `detectedImage` has been found from camera feed.
+   * Inform MeaningMaker that `detectedImage` has been found in camera feed.
    *
    * returns `NearbyResultDelta` which can be used to update UI.
    */
@@ -145,7 +145,7 @@ export class MeaningMaker {
   }
 
   /*
-   * Inform MeaningMaker that `marker` has been lost from camera feed.
+   * Inform MeaningMaker that `detectedImage` has been lost from camera feed.
    *
    * returns `NearbyResultDelta` which can be used to update UI.
    */
@@ -153,11 +153,6 @@ export class MeaningMaker {
     return this.artdealer.imageLost(detectedImage);
   }
 
-  /*
-   * Inform MeaningMaker that `marker` has been lost from camera feed.
-   *
-   * returns `NearbyResultDelta` which can be used to update UI.
-   */
   private saveArtifacts(artifacts: ARArtifact[]) {
     for (const artifact of artifacts) {
       this.artstore.addArtifact(artifact);

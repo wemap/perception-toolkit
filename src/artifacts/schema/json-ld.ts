@@ -1,5 +1,3 @@
-import { Thing } from './core-schema-org';
-
 /**
  * @license
  * Copyright 2019 Google LLC

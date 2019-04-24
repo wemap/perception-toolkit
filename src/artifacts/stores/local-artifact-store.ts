@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
+import { DetectableImage, DetectedImage } from '../../../defs/detected-image.js';
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
 import { Barcode, GeoCoordinates, Thing, typeIsThing } from '../schema/core-schema-org.js';
-import { ARArtifact, ARTargetTypes, ARImageTarget } from '../schema/extension-ar-artifacts.js';
+import { ARArtifact, ARImageTarget, ARTargetTypes } from '../schema/extension-ar-artifacts.js';
 import { ArtifactStore } from './artifact-store.js';
 import { LocalImageStore } from './local-image-store.js';
 import { LocalMarkerStore } from './local-marker-store.js';
-import { DetectableImage, DetectedImage } from '../../../defs/detected-image.js';
 
 export class LocalArtifactStore implements ArtifactStore {
   private readonly markerStore = new LocalMarkerStore();
@@ -40,7 +40,6 @@ export class LocalArtifactStore implements ArtifactStore {
       targets = [artifact.arTarget];
     }
 
-
     for (const target of targets) {
       if (!typeIsThing(target)) {
         continue;
@@ -53,7 +52,7 @@ export class LocalArtifactStore implements ArtifactStore {
           break;
 
         case 'ARImageTarget':
-          this.imageStore.addImageTarget(artifact, target as ARImageTarget);
+          this.imageStore.addImage(artifact, target as ARImageTarget);
           break;
 
         default:

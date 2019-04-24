@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { CreativeWork, ImageObject, MediaObject, Thing } from './core-schema-org.js';
+import { CreativeWork, Thing } from './core-schema-org.js';
 
 export type ARTargetTypes = string | URL | Thing;
 export type ARContentTypes = string | URL | CreativeWork;

@@ -37,12 +37,7 @@ export interface CreativeWork extends Thing {
   text?: string;
   encoding?: MediaObject | MediaObject[];
   associatedMedia?: MediaObject | MediaObject[]; // Synonym for encoding
-  // aggregateRating
-  // alternativeHeadline
-  // author
-  // contentLocation
   encodingFormat?: string | URL;
-  // TODO: where is the media itself?
 }
 
 export interface WebPage extends CreativeWork {

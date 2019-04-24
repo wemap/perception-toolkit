@@ -23,7 +23,7 @@ import { typeIsJsonLd } from '../schema/json-ld.js';
 export class LocalImageStore {
   private readonly images = new Map<string, NearbyResult>();
 
-  addImageTarget(artifact: ARArtifact, imageTarget: ARImageTarget): void {
+  addImage(artifact: ARArtifact, imageTarget: ARImageTarget): void {
     if (!imageTarget.name) {
       return;
     }
