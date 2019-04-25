@@ -47,7 +47,7 @@ describe('LocalMarkerStore', () => {
     });
   });
 
-  describe('FindRelevantMarkers', () => {
+  describe('FindRelevantArtifacts', () => {
     const specificBarcode = { '@type': 'Barcode', 'text': 'Barcode1' };
     const specificArtifact = {
       arTarget: specificBarcode,

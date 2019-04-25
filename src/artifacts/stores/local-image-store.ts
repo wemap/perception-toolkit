@@ -19,23 +19,25 @@ import { DetectableImage, DetectedImage } from '../../../defs/detected-image.js'
 import { NearbyResult } from '../artifact-dealer.js';
 import { ARArtifact, ARImageTarget } from '../schema/extension-ar-artifacts.js';
 import { typeIsJsonLd } from '../schema/json-ld.js';
+import { typeIsThing } from '../schema/core-schema-org.js';
 
 export class LocalImageStore {
   private readonly images = new Map<string, NearbyResult>();
 
-  addImage(artifact: ARArtifact, imageTarget: ARImageTarget): void {
+  addImage(artifact: ARArtifact, imageTarget: ARImageTarget): boolean {
     if (!imageTarget.name) {
-      return;
+      return false;
     }
 
     this.images.set(imageTarget.name, { target: imageTarget, artifact });
+    return true;
   }
 
   getDetectableImages(): DetectableImage[] {
     const allDetectableImages: DetectableImage[] = [];
 
-    for (const { target } of Object.values(this.images)) {
-      if (!target.name) {
+    for (const { target } of this.images.values()) {
+      if (!typeIsThing(target) || target['@type'] !== 'ARImageTarget' || !target.name) {
         continue;
       }
       const detectableImage: DetectableImage = {
@@ -43,7 +45,7 @@ export class LocalImageStore {
         'media': [],
       };
 
-      if (typeIsJsonLd(target.image)) {
+      if (typeIsThing(target.image)) {
         // target.image must be an ImageObject
         if (target.image['@type'] === 'ImageObject') {
           detectableImage.media.push(target.image);
@@ -58,11 +60,13 @@ export class LocalImageStore {
 
       // encoding and associatedMedia as synonyms.  They already contain MediaObjects.
       if (target.hasOwnProperty('encoding')) {
-        detectableImage.media.concat(target.encoding);
+        detectableImage.media = detectableImage.media.concat(target.encoding);
       }
       if (target.hasOwnProperty('associatedMedia')) {
-        detectableImage.media.concat(target.associatedMedia);
+        detectableImage.media = detectableImage.media.concat(target.associatedMedia);
       }
+
+      allDetectableImages.push(detectableImage);
     }
 
     return allDetectableImages;
