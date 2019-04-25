@@ -18,10 +18,8 @@
 const { assert } = chai;
 
 import { LocalMarkerStore } from './local-marker-store.js';
-import { Marker } from '../../../defs/marker.js';
-import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
-import { Barcode } from '../schema/barcode.js';
+import { Barcode } from '../schema/core-schema-org.js';
+import { ARArtifact } from '../schema/extension-ar-artifacts.js';
 
 describe('LocalMarkerStore', () => {
   let localMarkerStore : LocalMarkerStore;

@@ -18,8 +18,8 @@
 const { assert } = chai;
 
 import { LocalArtifactStore } from './local-artifact-store.js';
-import { Barcode } from '../schema/barcode.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
+import { ARArtifact, ARTargetTypes } from '../schema/extension-ar-artifacts.js';
+import { Barcode } from '../schema/core-schema-org.js';
 
 describe('LocalArtifactStore', () => {
   let localArtifactStore: LocalArtifactStore;
@@ -58,7 +58,7 @@ describe('LocalArtifactStore', () => {
     };
     assert.doesNotThrow(() => {
       const totalAdded = localArtifactStore.addArtifact(artifact);
-      assert.equal(totalAdded, artifact.arTarget.length);
+      assert.equal(totalAdded, (artifact.arTarget as ARTargetTypes[]).length);
     });
   });
 
@@ -85,7 +85,7 @@ describe('LocalArtifactStore', () => {
     });
 
     it('finds barcodess', () => {
-      const results = localArtifactStore.findRelevantArtifacts([{ type: 'qrcode', value: 'Barcode Value' }], {});
+      const results = localArtifactStore.findRelevantArtifacts([{ type: 'qrcode', value: 'Barcode Value' }], {}, []);
       assert.lengthOf(results, 1);
     });
 

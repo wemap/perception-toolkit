@@ -20,6 +20,7 @@ import { LocalArtifactStore } from './stores/local-artifact-store.js';
 const { assert } = chai;
 
 import { ArtifactDealer } from './artifact-dealer.js';
+import { Barcode } from './schema/core-schema-org.js';
 
 describe('ArtifactDealer', () => {
   let artDealer: ArtifactDealer;
@@ -77,7 +78,7 @@ describe('ArtifactDealer', () => {
         });
         assert.isArray(result.found);
         assert.lengthOf(result.found, 1);
-        assert.equal(result.found[0].target.text, value);
+        assert.equal((result.found[0].target as Barcode).text, value);
 
         assert.isArray(result.lost);
         assert.isEmpty(result.lost);
@@ -98,7 +99,7 @@ describe('ArtifactDealer', () => {
 
       assert.isArray(result.lost);
       assert.lengthOf(result.lost, 1);
-      assert.equal(result.lost[0].target.text, 'Barcode1');
+      assert.equal((result.lost[0].target as Barcode).text, 'Barcode1');
     });
 
     it('Ignores geolocation', async () => {

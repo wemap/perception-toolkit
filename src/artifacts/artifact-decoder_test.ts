@@ -18,8 +18,7 @@
 const { assert } = chai;
 
 import { ArtifactDecoder } from './artifact-decoder.js';
-import { ARArtifact } from './schema/ar-artifact.js';
-import { JsonLd } from './schema/json-ld.js';
+import { ARArtifact } from './schema/extension-ar-artifacts.js';
 
 describe('ArtifactDecoder', () => {
   let artDecoder: ArtifactDecoder;
