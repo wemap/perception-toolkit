@@ -26,8 +26,100 @@ describe.only('ArtifactLoader', () => {
     artLoader = new ArtifactLoader();
   });
 
-  it('does nothing', () => {
+  it('passes JSON to Artifact Decoder', async () => {
+    const result = await artLoader.fromJson({
+      '@type': 'ARArtifact',
+      'arTarget': {},
+      'arContent': {},
+    });
+    assert.isArray(result);
+    assert.lengthOf(result, 1);
+    assert.containsAllKeys(result[0], ['@type', 'arTarget', 'arContent']);
+  });
 
+  it('decodes inline script', async () => {
+    const html = `
+      <!doctype html>
+      <html>
+      <head>
+      <script type="application/ld+json">
+      {
+        "@type": "ARArtifact",
+        "arTarget": {},
+        "arContent": {}
+      }
+      </script>
+      </head>
+      </html>
+    `;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const result = await artLoader.fromElement(doc, 'Fake URL');
+    assert.isArray(result);
+    assert.lengthOf(result, 1);
+    assert.containsAllKeys(result[0], ['@type', 'arTarget', 'arContent']);
+  });
+
+  it('decodes nested inline script', async () => {
+    const html = `
+      <!doctype html>
+      <html>
+      <head>
+      </head>
+      <body>
+        <div><p>
+          <script type="application/ld+json">
+          {
+            "@type": "ARArtifact",
+            "arTarget": {},
+            "arContent": {}
+          }
+          </script>
+          </p></div>
+        </body>
+      </html>
+    `;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const result = await artLoader.fromElement(doc, 'Fake URL');
+    assert.isArray(result);
+    assert.lengthOf(result, 1);
+    assert.containsAllKeys(result[0], ['@type', 'arTarget', 'arContent']);
+  });
+
+  it('decodes mulitple inline scripts', async () => {
+    const html = `
+      <!doctype html>
+      <html>
+      <head>
+      <script type="application/ld+json">
+      {
+        "@type": "ARArtifact",
+        "arTarget": {},
+        "arContent": {}
+      }
+      </script>
+      </head>
+      <body>
+        <div><p>
+          <script type="application/ld+json">
+          {
+            "@type": "ARArtifact",
+            "arTarget": {},
+            "arContent": {}
+          }
+          </script>
+          </p></div>
+        </body>
+      </html>
+    `;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const result = await artLoader.fromElement(doc, 'Fake URL');
+    assert.isArray(result);
+    assert.lengthOf(result, 2);
   });
 });
-

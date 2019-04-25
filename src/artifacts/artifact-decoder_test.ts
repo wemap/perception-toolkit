@@ -61,26 +61,24 @@ describe.only('ArtifactDecoder', () => {
     testArtifact(result[0]);
   });
 
-  describe('Array', () => {
-    it('parses array of AR Artifacts', () => {
-      const result = artDecoder.decode([{
-        '@type': 'ARArtifact',
-        'arTarget': {},
-        'arContent': {},
-      }, {
-        '@type': 'ARArtifact',
-        'arTarget': {},
-        'arContent': {},
-      }]);
-      assert.isArray(result);
-      assert.lengthOf(result, 2);
-      for (let artifact of result) {
-        testArtifact(artifact);
-      }
-    });
+  it('parses array of AR Artifacts', () => {
+    const result = artDecoder.decode([{
+      '@type': 'ARArtifact',
+      'arTarget': {},
+      'arContent': {},
+    }, {
+      '@type': 'ARArtifact',
+      'arTarget': {},
+      'arContent': {},
+    }]);
+    assert.isArray(result);
+    assert.lengthOf(result, 2);
+    for (let artifact of result) {
+      testArtifact(artifact);
+    }
   });
 
-  describe('DataFeed', () => {
+  describe('DataFeed parsing', () => {
     it('parses empty DataFeed', () => {
       const result = artDecoder.decode({
         '@type': 'DataFeed'
@@ -103,7 +101,7 @@ describe.only('ArtifactDecoder', () => {
       testArtifact(result[0]);
     });
 
-    it('parses DataFeed of AR Artifacts', () => {
+    it('parses multi-element DataFeed', () => {
       const result = artDecoder.decode({
         '@type': 'DataFeed',
         'dataFeedElement': [{

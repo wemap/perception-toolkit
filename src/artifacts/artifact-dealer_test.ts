@@ -70,16 +70,18 @@ describe.only('ArtifactDealer', () => {
     });
 
     it('Finds known markers', async () => {
-      const result = await artDealer.markerFound({
-        type: 'qrcode',
-        value: 'Barcode1'
-      });
-      assert.isArray(result.found);
-      assert.lengthOf(result.found, 1);
-      assert.equal(result.found[0].target.text, 'Barcode1');
+      for (const value of ['Barcode1', 'Barcode2', 'Barcode3', 'Barcode4', 'Barcode5']) {
+        const result = await artDealer.markerFound({
+          type: 'qrcode',
+          value
+        });
+        assert.isArray(result.found);
+        assert.lengthOf(result.found, 1);
+        assert.equal(result.found[0].target.text, value);
 
-      assert.isArray(result.lost);
-      assert.isEmpty(result.lost);
+        assert.isArray(result.lost);
+        assert.isEmpty(result.lost);
+      }
     });
 
     it('Loses known markers', async () => {
