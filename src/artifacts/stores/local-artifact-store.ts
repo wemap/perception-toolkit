@@ -28,9 +28,9 @@ export class LocalArtifactStore implements ArtifactStore {
   private readonly markerStore = new LocalMarkerStore();
   private readonly imageStore = new LocalImageStore();
 
-  addArtifact(artifact: ARArtifact): void {
+  addArtifact(artifact: ARArtifact): number {
     if (!artifact.arTarget) {
-      return;
+      return 0;
     }
 
     let targets: ARTargetTypes[];
@@ -40,6 +40,7 @@ export class LocalArtifactStore implements ArtifactStore {
       targets = [artifact.arTarget];
     }
 
+    let totalAdded = 0;
     for (const target of targets) {
       if (!typeIsThing(target)) {
         continue;
@@ -49,6 +50,9 @@ export class LocalArtifactStore implements ArtifactStore {
       switch (targetType) {
         case 'Barcode':
           this.markerStore.addMarker(artifact, target as Barcode);
+          if (this.markerStore.addMarker(artifact, target)) {
+            totalAdded++;
+          }
           break;
 
         case 'ARImageTarget':
@@ -59,6 +63,7 @@ export class LocalArtifactStore implements ArtifactStore {
           break; // We ignore types we don't support, and move on
       }
     }
+    return totalAdded;
   }
 
   findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates, detectedImages: DetectedImage[]): NearbyResult[] {
