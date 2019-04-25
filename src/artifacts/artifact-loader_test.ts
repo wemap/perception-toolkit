@@ -19,14 +19,14 @@ const { assert } = chai;
 
 import { ArtifactLoader } from './artifact-loader.js';
 
-describe.only('ArtifactLoader', () => {
+describe('ArtifactLoader', () => {
   let artLoader: ArtifactLoader;
 
   beforeEach(() => {
     artLoader = new ArtifactLoader();
   });
 
-  it('passes JSON to Artifact Decoder', async () => {
+  it('passes JSON to ArtifactDecoder', async () => {
     const result = await artLoader.fromJson({
       '@type': 'ARArtifact',
       'arTarget': {},

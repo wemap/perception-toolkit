@@ -21,7 +21,7 @@ import { LocalArtifactStore } from './local-artifact-store.js';
 import { Barcode } from '../schema/barcode.js';
 import { ARArtifact } from '../schema/ar-artifact.js';
 
-describe.only('LocalArtifactStore', () => {
+describe('LocalArtifactStore', () => {
   let localArtifactStore: LocalArtifactStore;
 
   beforeEach(() => {

@@ -23,7 +23,7 @@ import { NearbyResult } from '../artifact-dealer.js';
 import { ARArtifact } from '../schema/ar-artifact.js';
 import { Barcode } from '../schema/barcode.js';
 
-describe.only('LocalMarkerStore', () => {
+describe('LocalMarkerStore', () => {
   let localMarkerStore : LocalMarkerStore;
 
   beforeEach(() => {

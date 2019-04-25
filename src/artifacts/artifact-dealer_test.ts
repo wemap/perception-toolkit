@@ -21,7 +21,7 @@ const { assert } = chai;
 
 import { ArtifactDealer } from './artifact-dealer.js';
 
-describe.only('ArtifactDealer', () => {
+describe('ArtifactDealer', () => {
   let artDealer: ArtifactDealer;
 
   beforeEach(() => {
