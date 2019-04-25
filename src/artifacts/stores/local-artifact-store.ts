@@ -45,18 +45,17 @@ export class LocalArtifactStore implements ArtifactStore {
       if (!typeIsThing(target)) {
         continue;
       }
-      const targetType = target['@type'] || '';
-
-      switch (targetType) {
+      switch (target['@type']) {
         case 'Barcode':
-          this.markerStore.addMarker(artifact, target as Barcode);
           if (this.markerStore.addMarker(artifact, target)) {
             totalAdded++;
           }
           break;
 
         case 'ARImageTarget':
-          this.imageStore.addImage(artifact, target as ARImageTarget);
+          if (this.imageStore.addImage(artifact, target)) {
+            totalAdded++;
+          }
           break;
 
         default:

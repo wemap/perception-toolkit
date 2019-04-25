@@ -170,7 +170,12 @@ describe('LocalImageStore', () => {
       }
 
       const idsOfImages = detectableImages.map((detectableImage) => detectableImage.id).sort();
-      assert.deepEqual(idsOfImages, [ 'Id2', 'Id3', 'Id4', 'Id5' ]);
+      assert.deepEqual(idsOfImages, [
+        simpleImageTarget.name,
+        imageObjectTarget.name,
+        imageEncodingTarget.name,
+        imageAssociatedMediaTarget.name
+      ]);
     });
 
     it('returns multiple media when available', () => {
