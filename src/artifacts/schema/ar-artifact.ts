@@ -17,7 +17,10 @@
 
 import { JsonLd } from './json-ld.js';
 
+export type ARTargetTypes = JsonLd;
+export type ARContentTypes = string | URL | JsonLd;
+
 export interface ARArtifact extends JsonLd {
-  arTarget?: JsonLd | JsonLd[];
-  arContent?: JsonLd | JsonLd[];
+  arTarget?: ARTargetTypes | ARTargetTypes[];
+  arContent?: ARContentTypes | ARContentTypes[];
 }

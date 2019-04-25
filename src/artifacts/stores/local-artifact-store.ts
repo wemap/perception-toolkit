@@ -17,7 +17,7 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
+import { ARArtifact, ARTargetTypes } from '../schema/ar-artifact.js';
 import { GeoCoordinates } from '../schema/geo-coordinates.js';
 import { JsonLd } from '../schema/json-ld.js';
 import { ArtifactStore } from './artifact-store.js';
@@ -26,30 +26,35 @@ import { LocalMarkerStore } from './local-marker-store.js';
 export class LocalArtifactStore implements ArtifactStore {
   private readonly markerStore = new LocalMarkerStore();
 
-  addArtifact(artifact: ARArtifact): void {
+  addArtifact(artifact: ARArtifact): number {
     if (!artifact.arTarget) {
-      return;
+      return 0;
     }
 
-    let targets: JsonLd[] = [];
+    let targets: ARTargetTypes[] = [];
     if (Array.isArray(artifact.arTarget)) {
       targets = artifact.arTarget;
     } else {
       targets = [artifact.arTarget];
     }
 
+    let totalAdded = 0;
     for (const target of targets) {
+      // TODO: add support for URL-only targets.  Fetch and get type from mime-type, or embedded schema.
       const targetType = target['@type'] || '';
 
       switch (targetType) {
         case 'Barcode':
-          this.markerStore.addMarker(artifact, target);
+          if (this.markerStore.addMarker(artifact, target)) {
+            totalAdded++;
+          }
           break;
 
         default:
           break; // We ignore types we don't support, and move on
       }
     }
+    return totalAdded;
   }
 
   findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): NearbyResult[] {
