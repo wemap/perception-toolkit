@@ -1,6 +1,8 @@
 # Perception Toolkit
 
-
+<p align="center">
+<img alt="Perception Toolkit running on a phone" src="https://github.com/PolymerLabs/perception-toolkit/raw/master/assets/framed.jpg">
+</p>
 
 This toolkit provides a set of components and utilities for developers to add an augmented experience to their website. For example, a primary use-case supported is the ability to detect barcodes (in -- say -- a real-world store) with the user's device camera, and to show them extended information on a given product.
 
