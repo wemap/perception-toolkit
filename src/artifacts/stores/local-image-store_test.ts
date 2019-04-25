@@ -32,9 +32,33 @@ describe('LocalImageStore', () => {
     arTarget: simpleImageTarget,
     arContent: 'Fake URL'
   };
+  const imageObjectTarget: ARImageTarget = {
+    '@type': 'ARImageTarget',
+    'name': 'Id2',
+    'image': {
+      '@type': 'ImageObject',
+      'contentUrl': 'Fake URL'
+    }
+  };
+  const imageEncodingTarget: ARImageTarget = {
+    '@type': 'ARImageTarget',
+    'name': 'Id3',
+    'encoding': {
+      '@type': 'ImageObject',
+      'contentUrl': 'Fake URL'
+    }
+  };
+  const imageAssociatedMediaTarget: ARImageTarget = {
+    '@type': 'ARImageTarget',
+    'name': 'Id4',
+    'associatedMedia': {
+      '@type': 'ImageObject',
+      'contentUrl': 'Fake URL'
+    }
+  };
   const complexImageTarget: ARImageTarget = {
     '@type': 'ARImageTarget',
-    'name': 'Id1',
+    'name': 'Id5',
     'image': 'Fake URL',
     'encoding': [
       {
@@ -70,58 +94,34 @@ describe('LocalImageStore', () => {
   });
 
   it('accepts image as ImageObject', () => {
-    const imageTarget: ARImageTarget = {
-      '@type': 'ARImageTarget',
-      'name': 'Id1',
-      'image': {
-        '@type': 'ImageObject',
-        'contentUrl': 'Fake URL'
-      }
-    };
     const artifact: ARArtifact = {
-      arTarget: imageTarget,
+      arTarget: imageObjectTarget,
       arContent: 'Fake URL'
     };
     assert.doesNotThrow(() => {
-      const addedImage = localImageStore.addImage(artifact, imageTarget);
+      const addedImage = localImageStore.addImage(artifact, imageObjectTarget);
       assert.isTrue(addedImage);
     });
   });
 
   it('accepts single encoding', () => {
-    const imageTarget: ARImageTarget = {
-      '@type': 'ARImageTarget',
-      'name': 'Id1',
-      'encoding': {
-        '@type': 'ImageObject',
-        'contentUrl': 'Fake URL'
-      }
-    };
     const artifact: ARArtifact = {
-      arTarget: imageTarget,
+      arTarget: imageEncodingTarget,
       arContent: 'Fake URL'
     };
     assert.doesNotThrow(() => {
-      const addedImage = localImageStore.addImage(artifact, imageTarget);
+      const addedImage = localImageStore.addImage(artifact, imageEncodingTarget);
       assert.isTrue(addedImage);
     });
   });
 
   it('accepts single associatedMedia', () => {
-    const imageTarget: ARImageTarget = {
-      '@type': 'ARImageTarget',
-      'name': 'Id1',
-      'associatedMedia': {
-        '@type': 'ImageObject',
-        'contentUrl': 'Fake URL'
-      }
-    };
     const artifact: ARArtifact = {
-      arTarget: imageTarget,
+      arTarget: imageAssociatedMediaTarget,
       arContent: 'Fake URL'
     };
     assert.doesNotThrow(() => {
-      const addedImage = localImageStore.addImage(artifact, imageTarget);
+      const addedImage = localImageStore.addImage(artifact, imageAssociatedMediaTarget);
       assert.isTrue(addedImage);
     });
   });
@@ -146,23 +146,19 @@ describe('LocalImageStore', () => {
 
   it('accepts multiple image targets', () => {
     assert.doesNotThrow(() => {
-      assert.isTrue(localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id2', 'image': 'Fake URL' }));
-      assert.isTrue(localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id3', 'image': 'Fake URL' }));
-      assert.isTrue(localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id4', 'image': 'Fake URL' }));
-      assert.isTrue(localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id5', 'image': 'Fake URL' }));
+      assert.isTrue(localImageStore.addImage({}, simpleImageTarget));
+      assert.isTrue(localImageStore.addImage({}, imageObjectTarget));
+      assert.isTrue(localImageStore.addImage({}, imageEncodingTarget));
+      assert.isTrue(localImageStore.addImage({}, imageAssociatedMediaTarget));
     });
   });
 
   describe('getDetectableImages', () => {
     it('returns all detectable images', () => {
-      localImageStore.addImage({}, {
-        '@type': 'ARImageTarget',
-        'name': 'Id2',
-        'image': 'Fake URL'
-      });
-      localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id3', 'image': 'Fake URL' });
-      localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id4', 'image': 'Fake URL' });
-      localImageStore.addImage({}, { '@type': 'ARImageTarget', 'name': 'Id5', 'image': 'Fake URL' });
+      assert.isTrue(localImageStore.addImage({}, simpleImageTarget));
+      assert.isTrue(localImageStore.addImage({}, imageObjectTarget));
+      assert.isTrue(localImageStore.addImage({}, imageEncodingTarget));
+      assert.isTrue(localImageStore.addImage({}, imageAssociatedMediaTarget));
 
       const detectableImages = localImageStore.getDetectableImages();
       assert.isArray(detectableImages);
