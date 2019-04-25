@@ -20,6 +20,7 @@ import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
 import { fire } from '../src/utils/fire.js';
+import { DEBUG_LEVEL } from '../src/utils/logger.js';
 import {
   cameraAccessDenied,
   captureClosed,
@@ -33,6 +34,7 @@ declare global {
   interface Window {
     PerceptionToolkit: {
       config: {
+        debugLevel?: DEBUG_LEVEL,
         root?: string,
         onboarding?: boolean,
         onboardingImages?: string[],
@@ -70,6 +72,7 @@ declare global {
 
 const deviceNotSupported = 'pt.devicenotsupported';
 
+window.PerceptionToolkit = window.PerceptionToolkit || {};
 window.PerceptionToolkit.config = window.PerceptionToolkit.config || {};
 
 // Expose events.

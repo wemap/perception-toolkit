@@ -51,8 +51,27 @@ window.addEventListener(frameEvent, onCaptureFrame);
 window.addEventListener('offline', onConnectivityChanged);
 window.addEventListener('online', onConnectivityChanged);
 
-// Log errors by default.
-enableLogLevel(DEBUG_LEVEL.ERROR);
+switch (window.PerceptionToolkit.config.debugLevel) {
+  case DEBUG_LEVEL.VERBOSE:
+    enableLogLevel(DEBUG_LEVEL.VERBOSE);
+    break;
+
+  case DEBUG_LEVEL.INFO:
+    enableLogLevel(DEBUG_LEVEL.INFO);
+    break;
+
+  case DEBUG_LEVEL.WARNING:
+    enableLogLevel(DEBUG_LEVEL.WARNING);
+    break;
+
+  case DEBUG_LEVEL.NONE:
+    enableLogLevel(DEBUG_LEVEL.NONE);
+    break;
+
+  default:
+    enableLogLevel(DEBUG_LEVEL.ERROR);
+    break;
+}
 
 // While the onboarding begins, attempt a fake detection. If the polyfill is
 // necessary, or the detection fails, we should find out.
@@ -317,6 +336,8 @@ async function onCaptureFrame(evt: Event) {
     if (markerAlreadyDetected) {
       continue;
     }
+
+    log(value, DEBUG_LEVEL.INFO, 'Detect');
 
     // Only fire the event if the marker is freshly detected.
     fire(markerDetect, capture, value);
