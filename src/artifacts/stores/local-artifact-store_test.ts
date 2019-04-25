@@ -18,8 +18,8 @@
 const { assert } = chai;
 
 import { LocalArtifactStore } from './local-artifact-store.js';
-import { Barcode } from '../schema/barcode.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
+import { ARArtifact, ARTargetTypes, ARImageTarget } from '../schema/extension-ar-artifacts.js';
+import { Barcode } from '../schema/core-schema-org.js';
 
 describe('LocalArtifactStore', () => {
   let localArtifactStore: LocalArtifactStore;
@@ -40,6 +40,22 @@ describe('LocalArtifactStore', () => {
     });
   });
 
+  it('accepts images', () => {
+    const image: ARImageTarget = { '@type': 'ARImageTarget', 'name': 'ID1', 'image': 'Fake URL' };
+    const artifact: ARArtifact = {
+      arTarget: image,
+      arContent: 'Fake URL'
+    };
+    assert.doesNotThrow(() => {
+      const totalAdded = localArtifactStore.addArtifact(artifact);
+      assert.equal(totalAdded, 1);
+
+      const detectableImages = localArtifactStore.getDetectableImages();
+      assert.isArray(detectableImages);
+      assert.lengthOf(detectableImages, 1);
+    });
+  });
+
   it('ignores malformed inputs', () => {
     assert.doesNotThrow(() => {
       const totalAdded = localArtifactStore.addArtifact({});
@@ -52,13 +68,14 @@ describe('LocalArtifactStore', () => {
       arTarget: [
         { '@type': 'Barcode', 'text': 'Barcode1' },
         { '@type': 'Barcode', 'text': 'Barcode2' },
-        { '@type': 'Barcode', 'text': 'Barcode3' },
+        { '@type': 'ARImageTarget', 'name': 'ID1', 'image': 'Fake URL' },
+        { '@type': 'ARImageTarget', 'name': 'ID2', 'image': 'Fake URL' },
       ],
       arContent: 'Fake URL'
     };
     assert.doesNotThrow(() => {
       const totalAdded = localArtifactStore.addArtifact(artifact);
-      assert.equal(totalAdded, artifact.arTarget.length);
+      assert.equal(totalAdded, (artifact.arTarget as ARTargetTypes[]).length);
     });
   });
 
@@ -82,12 +99,26 @@ describe('LocalArtifactStore', () => {
         arTarget: { '@type': 'Barcode', 'text': 'Barcode Value' },
         arContent: 'Fake URL'
       });
+      localArtifactStore.addArtifact({
+        arTarget: { '@type': 'ARImageTarget', 'name': 'ID1', 'image': 'Fake URL' },
+        arContent: 'Fake URL'
+      });
     });
 
-    it('finds barcodess', () => {
-      const results = localArtifactStore.findRelevantArtifacts([{ type: 'qrcode', value: 'Barcode Value' }], {});
+    it('finds barcodes', () => {
+      const results = localArtifactStore.findRelevantArtifacts([{ type: 'qrcode', value: 'Barcode Value' }], {}, []);
       assert.lengthOf(results, 1);
     });
 
+    it('finds images', () => {
+      const results = localArtifactStore.findRelevantArtifacts([], {}, [ { id: 'ID1' } ]);
+      assert.lengthOf(results, 1);
+    });
+
+    it('finds multiple', () => {
+      const results = localArtifactStore.findRelevantArtifacts(
+        [{ type: 'qrcode', value: 'Barcode Value' }], {}, [{ id: 'ID1' }]);
+      assert.lengthOf(results, 2);
+    });
   });
 });

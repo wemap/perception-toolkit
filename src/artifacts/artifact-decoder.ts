@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { ARArtifact } from './schema/ar-artifact.js';
+import { ARArtifact } from './schema/extension-ar-artifacts.js';
 import { JsonLd } from './schema/json-ld.js';
 import { flatMap } from '../utils/flat-map.js';
 

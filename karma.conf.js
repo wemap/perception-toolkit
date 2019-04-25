@@ -74,7 +74,7 @@ module.exports = function(config) {
 
     detectBrowsers: {
       postDetection(availableBrowsers) {
-        const rapidTestingMode = false;
+        const rapidTestingMode = true;
 
         const browsers = ["ChromeHeadless"];
 

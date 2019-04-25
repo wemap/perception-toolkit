@@ -17,11 +17,11 @@
 
 import { Marker } from '../../defs/marker.js';
 import { generateMarkerId } from '../utils/generate-marker-id.js';
-import { ARArtifact, ARContentTypes, ARTargetTypes } from './schema/ar-artifact.js';
-import { GeoCoordinates } from './schema/geo-coordinates.js';
-import { JsonLd } from './schema/json-ld.js';
+import { ARArtifact, ARTargetTypes, ARContentTypes } from './schema/extension-ar-artifacts.js';
+import { GeoCoordinates } from './schema/core-schema-org.js';
 import { ArtifactStore } from './stores/artifact-store.js';
 import { flatMap } from '../utils/flat-map.js';
+import { DetectedImage } from '../../defs/detected-image.js';
 
 export interface NearbyResult {
   target?: ARTargetTypes;
@@ -37,6 +37,7 @@ export interface NearbyResultDelta {
 export class ArtifactDealer {
   private readonly artstores: ArtifactStore[] = [];
   private readonly nearbyMarkers = new Map<string, Marker>();
+  private readonly nearbyImages = new Map<string, DetectedImage>();
   private nearbyResults = new Set<NearbyResult>();
   private currentGeolocation: GeoCoordinates = {};
 
@@ -60,6 +61,16 @@ export class ArtifactDealer {
     return this.generateDiffs();
   }
 
+  async imageFound(detectedImage: DetectedImage): Promise<NearbyResultDelta> {
+    this.nearbyImages.set(detectedImage.id, detectedImage);
+    return this.generateDiffs();
+  }
+
+  async imageLost(detectedImage: DetectedImage): Promise<NearbyResultDelta> {
+    this.nearbyImages.delete(detectedImage.id);
+    return this.generateDiffs();
+  }
+
   // TODO (#34): Change ArtStore's `findRelevantArtifacts` to be async
   // TODO (#33): Replace map+flat with flatMap once it is polyfilled for all platforms.
   private async generateDiffs(): Promise<NearbyResultDelta> {
@@ -67,7 +78,8 @@ export class ArtifactDealer {
     const pendingNearbyResults: Set<NearbyResult> = new Set(flatMap(this.artstores, (artstore) => {
       return artstore.findRelevantArtifacts(
         Array.from(this.nearbyMarkers.values()),
-        this.currentGeolocation
+        this.currentGeolocation,
+        Array.from(this.nearbyImages.values())
       );
     }));
 

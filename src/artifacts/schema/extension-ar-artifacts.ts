@@ -15,12 +15,17 @@
  * limitations under the License.
  */
 
-import { JsonLd } from './json-ld.js';
+import { CreativeWork, Thing } from './core-schema-org.js';
 
-export type ARTargetTypes = JsonLd;
-export type ARContentTypes = string | URL | JsonLd;
+export type ARTargetTypes = string | URL | Thing;
+export type ARContentTypes = string | URL | CreativeWork;
 
-export interface ARArtifact extends JsonLd {
+export interface ARArtifact extends CreativeWork {
   arTarget?: ARTargetTypes | ARTargetTypes[];
   arContent?: ARContentTypes | ARContentTypes[];
+}
+
+export interface ARImageTarget extends CreativeWork {
+  // Use name, description, image from Thing
+  // Use encoding, associatedMedia from CreativeWork
 }

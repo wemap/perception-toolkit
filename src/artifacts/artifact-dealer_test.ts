@@ -20,6 +20,8 @@ import { LocalArtifactStore } from './stores/local-artifact-store.js';
 const { assert } = chai;
 
 import { ArtifactDealer } from './artifact-dealer.js';
+import { Barcode } from './schema/core-schema-org.js';
+import { ARImageTarget } from './schema/extension-ar-artifacts.js';
 
 describe('ArtifactDealer', () => {
   let artDealer: ArtifactDealer;
@@ -56,6 +58,36 @@ describe('ArtifactDealer', () => {
         ],
         arContent: 'Fake URL'
       });
+      store.addArtifact({
+        arTarget: {
+          '@type': 'ARImageTarget',
+          'name': 'Id1',
+          'image': 'Fake URL'
+        },
+        arContent: 'Fake URL'
+      });
+      store.addArtifact({
+        arTarget: {
+          '@type': 'ARImageTarget',
+          'name': 'Id2',
+          'image': {
+            '@type': 'ImageObject',
+            'contentUrl': 'FakeUrl'
+          }
+        },
+        arContent: 'Fake URL'
+      });
+      store.addArtifact({
+        arTarget: {
+          '@type': 'ARImageTarget',
+          'name': 'Id3',
+          'encoding': [{
+            '@type': 'ImageObject',
+            'contentUrl': 'FakeUrl'
+          }]
+        },
+        arContent: 'Fake URL'
+      });
     });
 
     it('Ignores unknown markers', async () => {
@@ -69,7 +101,7 @@ describe('ArtifactDealer', () => {
       assert.isEmpty(result.lost);
     });
 
-    it('Finds known markers', async () => {
+    it('Finds known barcodes', async () => {
       for (const value of ['Barcode1', 'Barcode2', 'Barcode3', 'Barcode4', 'Barcode5']) {
         const result = await artDealer.markerFound({
           type: 'qrcode',
@@ -77,7 +109,19 @@ describe('ArtifactDealer', () => {
         });
         assert.isArray(result.found);
         assert.lengthOf(result.found, 1);
-        assert.equal(result.found[0].target.text, value);
+        assert.equal((result.found[0].target as Barcode).text, value);
+
+        assert.isArray(result.lost);
+        assert.isEmpty(result.lost);
+      }
+    });
+
+    it('Finds known images', async () => {
+      for (const id of ['Id1', 'Id2', 'Id3']) {
+        const result = await artDealer.imageFound({ id });
+        assert.isArray(result.found);
+        assert.lengthOf(result.found, 1);
+        assert.equal((result.found[0].target as ARImageTarget).name, id);
 
         assert.isArray(result.lost);
         assert.isEmpty(result.lost);
@@ -98,7 +142,18 @@ describe('ArtifactDealer', () => {
 
       assert.isArray(result.lost);
       assert.lengthOf(result.lost, 1);
-      assert.equal(result.lost[0].target.text, 'Barcode1');
+      assert.equal((result.lost[0].target as Barcode).text, 'Barcode1');
+    });
+
+    it('Loses known images', async () => {
+      await artDealer.imageFound({ id: 'Id1' });
+      const result = await artDealer.imageLost({ id: 'Id1' });
+      assert.isArray(result.found);
+      assert.isEmpty(result.found);
+
+      assert.isArray(result.lost);
+      assert.lengthOf(result.lost, 1);
+      assert.equal((result.lost[0].target as ARImageTarget).name, 'Id1');
     });
 
     it('Ignores geolocation', async () => {
