@@ -35,7 +35,6 @@
     "karma-typescript": "^4.0.0",
     "magic-string": "^0.25.2",
     "mocha": "^5.2.0",
-    "mockttp": "^0.13.0",
     "node-glob": "^1.2.0",
     "node-gzip": "^1.1.2",
     "sinon": "^7.2.2",

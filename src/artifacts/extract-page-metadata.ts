@@ -8,7 +8,7 @@
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
 
-import { JsonLd } from './schema/json-ld.js';
+import { Thing } from "./schema/core-schema-org.js";
 
 type QuerySelector = string;
 type ElementProcessorFn = (element: Element) => string|null;
@@ -55,15 +55,15 @@ function extractImage(doc: Document): string|undefined {
   ]);
 }
 
-function addPropertyIfDefined(obj: JsonLd, prop: string, value: any|undefined) {
+function addPropertyIfDefined(obj: Thing, prop: string, value: any|undefined) {
   if (value !== undefined) {
     obj[prop] = value;
   }
 }
 
 // TODO: turn relative URLs into absolute URLs?
-export async function extractPageMetadata(doc: Document, url: URL|string = doc.URL): Promise<JsonLd> {
-  const ret: JsonLd = {
+export function extractPageMetadata(doc: Document, url: URL|string = doc.URL): Thing {
+  const ret: Thing = {
     '@type': 'WebPage',
     'url': url.toString(),
   };

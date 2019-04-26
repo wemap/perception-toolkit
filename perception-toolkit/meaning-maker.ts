@@ -61,9 +61,10 @@ export class MeaningMaker {
    * This could just a small set of Artifacts defined in an external script, but often this is used to load a large
    * set of Artifacts for an entire site ("artifact sitemap").
    */
-  async loadArtifactsFromJsonldUrl(url: URL) {
+  async loadArtifactsFromJsonldUrl(url: URL): Promise<ARArtifact[]> {
     const artifacts = await this.artloader.fromJsonUrl(url);
     this.saveArtifacts(artifacts);
+    return artifacts;
   }
 
   /**
@@ -71,9 +72,14 @@ export class MeaningMaker {
    * This could be used to manualy crawl a site, but usually this is just used to index a single page, for which a URL
    * was discovered at runtime.  E.g. QRCode with URL in it, or an OCR-ed URL on a poster.
    */
-  async loadArtifactsFromHtmlUrl(url: URL) {
-    // TODO: save page metadata while we are at it
-    const artifacts = await this.artloader.fromHtmlUrl(url);
+  async loadArtifactsFromHtmlUrl(url: URL): Promise<ARArtifact[]> {
+    const doc = await fetchAsDocument(url);
+    if (!doc) {
+      return [];
+    }
+    this.savePageMetadata(doc, url);
+
+    const artifacts = await this.artloader.fromElement(doc, url);
     this.saveArtifacts(artifacts);
     return artifacts;
   }
@@ -100,17 +106,9 @@ export class MeaningMaker {
   ): Promise<NearbyResultDelta> {
     shouldFetchArtifactsFrom = this.normalizeShouldFetchFn(shouldFetchArtifactsFrom);
 
-    // If this marker is a URL, try loading artifacts from that URL
-    try {
-      // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
-      // Do not supply a base url argument, since we do not want to support relative URLs,
-      // and because that would turn lots of normal string values into valid relative URLs.
-      const url = new URL(marker.value);
-      if (shouldFetchArtifactsFrom(url)) {
-        await this.loadArtifactsFromHtmlUrl(url);
-      }
-    } catch (_) {
-      // Do nothing if this isn't a valid URL
+    const url = this.checkIsFetchableURL(marker.value, shouldFetchArtifactsFrom);
+    if (url) {
+      await this.loadArtifactsFromHtmlUrl(url);
     }
 
     const results = await this.artdealer.markerFound(marker);
@@ -168,7 +166,6 @@ export class MeaningMaker {
     return this.artdealer.imageLost(detectedImage);
   }
 
-
   private saveArtifacts(artifacts: ARArtifact[]) {
     for (const artifact of artifacts) {
       this.artstore.addArtifact(artifact);
@@ -209,23 +206,23 @@ export class MeaningMaker {
         shouldFetchArtifactsFrom: ShouldFetchArtifactsFromCallback
       ): Promise<Thing | null> {
     const url = this.checkIsFetchableURL(potentialUrl, shouldFetchArtifactsFrom);
-    if (url) {
-      this.extractPageMetadata(url);
+    if (!url) {
+      return null;
     }
-    return null;
-  }
-
-  private async extractPageMetadata(url: URL): Promise<Thing | null> {
     if (this.pageMetadataCache.has(url)) {
       return this.pageMetadataCache.get(url) as Thing;
     }
     const doc = await fetchAsDocument(url);
-    if (doc) {
-      const pageMetadata = await extractPageMetadata(doc, url);
-      this.pageMetadataCache.set(url, pageMetadata);
-      return pageMetadata;
+    if (!doc) {
+      return null;
     }
-    return null;
+    return this.savePageMetadata(doc, url);
+  }
+
+  private savePageMetadata(doc: Document, url: URL): Thing {
+    const pageMetadata = extractPageMetadata(doc, url);
+    this.pageMetadataCache.set(url, pageMetadata);
+    return pageMetadata;
   }
 
   private async attemptEnrichContentWithPageMetadata(
