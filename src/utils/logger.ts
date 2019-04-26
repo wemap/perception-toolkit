@@ -22,27 +22,27 @@ export enum DEBUG_LEVEL {
   /**
    * All messages.
    */
-  VERBOSE = 4,
+  VERBOSE = 'verbose',
 
   /**
    * Info.
    */
-  INFO = 3,
+  INFO = 'info',
 
   /**
    * Warnings.
    */
-  WARNING = 2,
+  WARNING = 'warning',
 
   /**
    * Errors.
    */
-  ERROR = 1,
+  ERROR = 'error',
 
   /**
    * No messages.
    */
-  NONE = 0
+  NONE = 'none'
 }
 
 /**

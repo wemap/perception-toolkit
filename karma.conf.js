@@ -74,13 +74,15 @@ module.exports = function(config) {
 
     detectBrowsers: {
       postDetection(availableBrowsers) {
+        const rapidTestingMode = true;
+
         const browsers = ["ChromeHeadless"];
 
-        if (availableBrowsers.includes("Safari")) {
+        if (!rapidTestingMode && availableBrowsers.includes("Safari")) {
           browsers.push("Safari");
         }
 
-        if (availableBrowsers.includes("Firefox")) {
+        if (!rapidTestingMode && availableBrowsers.includes("Firefox")) {
           browsers.push("Firefox");
         }
 

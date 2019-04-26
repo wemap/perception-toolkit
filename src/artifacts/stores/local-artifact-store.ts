@@ -15,44 +15,64 @@
  * limitations under the License.
  */
 
+import { DetectableImage, DetectedImage } from '../../../defs/detected-image.js';
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
-import { GeoCoordinates } from '../schema/geo-coordinates.js';
-import { JsonLd } from '../schema/json-ld.js';
+import { Barcode, GeoCoordinates, Thing, typeIsThing } from '../schema/core-schema-org.js';
+import { ARArtifact, ARImageTarget, ARTargetTypes } from '../schema/extension-ar-artifacts.js';
 import { ArtifactStore } from './artifact-store.js';
+import { LocalImageStore } from './local-image-store.js';
 import { LocalMarkerStore } from './local-marker-store.js';
 
 export class LocalArtifactStore implements ArtifactStore {
   private readonly markerStore = new LocalMarkerStore();
+  private readonly imageStore = new LocalImageStore();
 
-  addArtifact(artifact: ARArtifact): void {
+  addArtifact(artifact: ARArtifact): number {
     if (!artifact.arTarget) {
-      return;
+      return 0;
     }
 
-    let targets: JsonLd[] = [];
+    let targets: ARTargetTypes[];
     if (Array.isArray(artifact.arTarget)) {
       targets = artifact.arTarget;
     } else {
       targets = [artifact.arTarget];
     }
 
+    let totalAdded = 0;
     for (const target of targets) {
-      const targetType = target['@type'] || '';
-
-      switch (targetType) {
+      if (!typeIsThing(target)) {
+        continue;
+      }
+      switch (target['@type']) {
         case 'Barcode':
-          this.markerStore.addMarker(artifact, target);
+          if (this.markerStore.addMarker(artifact, target)) {
+            totalAdded++;
+          }
+          break;
+
+        case 'ARImageTarget':
+          if (this.imageStore.addImage(artifact, target)) {
+            totalAdded++;
+          }
           break;
 
         default:
           break; // We ignore types we don't support, and move on
       }
     }
+    return totalAdded;
   }
 
-  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates): NearbyResult[] {
-    return this.markerStore.findRelevantArtifacts(nearbyMarkers);
+  findRelevantArtifacts(nearbyMarkers: Marker[], geo: GeoCoordinates, detectedImages: DetectedImage[]): NearbyResult[] {
+    return [
+      ...this.markerStore.findRelevantArtifacts(nearbyMarkers),
+      ...this.imageStore.findRelevantArtifacts(detectedImages),
+    ];
+  }
+
+  getDetectableImages(): DetectableImage[] {
+    return this.imageStore.getDetectableImages();
   }
 }

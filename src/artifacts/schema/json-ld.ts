@@ -15,6 +15,14 @@
  * limitations under the License.
  */
 
+export function typeIsJsonLd(type: any): type is JsonLd {
+  if (!type) {
+    return false;
+  }
+  const jsonld = type as JsonLd;
+  return jsonld.hasOwnProperty('@type');
+}
+
 export interface JsonLd {
   '@type'?: string;
   [propName: string]: any; // string | boolean | number | JsonLd | JsonLd[]

@@ -15,34 +15,34 @@
  * limitations under the License.
  */
 
-import { Marker } from '../defs/marker';
-import { ArtifactDealer, NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer';
-import { ArtifactLoader } from '../src/artifacts/artifact-loader';
+import { Marker } from '../defs/marker.js';
+import { ArtifactDealer, NearbyResultDelta, NearbyResult } from '../src/artifacts/artifact-dealer.js';
+import { ArtifactLoader } from '../src/artifacts/artifact-loader.js';
+import { ARArtifact } from '../src/artifacts/schema/extension-ar-artifacts.js';
+import { GeoCoordinates, Thing, typeIsThing } from '../src/artifacts/schema/core-schema-org.js';
+import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store.js';
+import { DetectedImage, DetectableImage } from '../defs/detected-image.js';
 import { extractPageMetadata } from '../src/artifacts/extract-page-metadata.js';
-import { ARArtifact } from '../src/artifacts/schema/ar-artifact';
-import { GeoCoordinates } from '../src/artifacts/schema/geo-coordinates';
-import { JsonLd } from '../src/artifacts/schema/json-ld';
-import { LocalArtifactStore } from '../src/artifacts/stores/local-artifact-store';
-import { fetchAsDocument } from '../src/utils/fetch-as-document';
-import { ContentMetadataManager } from './content-metadata-manager';
+import { fetchAsDocument } from '../src/utils/fetch-as-document.js';
 
 type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean);
 
 /*
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
- * It providess a good set of default behaviours, and can be replaced with alternative
- * strategies in some demos.
+ * It provides a good set of default behaviours, but can be replaced with alternative
+ * strategies in advanced cases.
  *
- * Things MeaningMaker does:
+ * Things MeaningMaker adds in addition to just exposing `src/artficts/`:
  * * Creates a default Artifact Loader, Store, and Dealer.
- * * Loads Artifacts from Document automatically on init.
- * * Attempts to index Pages automatically when Markers are URLs.
+ * * Automatically loads Artifacts from embedding Document on init.
+ * * Attempts to index Pages when Markers are URLs.
+ * * Makes sure to only index content from supported domains/URLs.
  */
 export class MeaningMaker {
   private readonly artloader = new ArtifactLoader();
   private readonly artstore = new LocalArtifactStore();
   private readonly artdealer = new ArtifactDealer();
-  private readonly pageMetadataCache = new Map<URL, JsonLd>();
+  private readonly pageMetadataCache = new Map<URL, Thing>();
 
   constructor() {
     this.artdealer.addArtifactStore(this.artstore);
@@ -72,69 +72,120 @@ export class MeaningMaker {
    * was discovered at runtime.  E.g. QRCode with URL in it, or an OCR-ed URL on a poster.
    */
   async loadArtifactsFromHtmlUrl(url: URL) {
+    // TODO: save page metadata while we are at it
     const artifacts = await this.artloader.fromHtmlUrl(url);
     this.saveArtifacts(artifacts);
     return artifacts;
   }
 
   /*
-   * This will extract page metadata
+   * Returns the full set of potential images which are worthy of detection at this moment.
+   * Each DetectableImage has one unique id, and also a list of potential Media which encodes it.
+   * It is up to the caller to select the correct media encoding.
    */
-  async getPageMetadata(url: URL, doc?: Document): Promise<JsonLd | null> {
-    if (this.pageMetadataCache.has(url)) {
-      return this.pageMetadataCache.get(url) as JsonLd;
+  async getDetectableImages(): Promise<DetectableImage[]> {
+    return this.artstore.getDetectableImages();
+  }
+
+  /*
+   * Inform MeaningMaker that `marker` has been detected in camera feed.
+   * `shouldFetchArtifactsFrom` is called if marker is a URL value.  If it returns `true`, MeaningMaker will index that
+   * URL and extract Artifacts, if it has not already done so.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async markerFound(
+      marker: Marker,
+      shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback | string[]
+  ): Promise<NearbyResultDelta> {
+    shouldFetchArtifactsFrom = this.normalizeShouldFetchFn(shouldFetchArtifactsFrom);
+
+    // If this marker is a URL, try loading artifacts from that URL
+    try {
+      // Attempt to convert markerValue to URL.  This will throw if markerValue isn't a valid URL.
+      // Do not supply a base url argument, since we do not want to support relative URLs,
+      // and because that would turn lots of normal string values into valid relative URLs.
+      const url = new URL(marker.value);
+      if (shouldFetchArtifactsFrom(url)) {
+        await this.loadArtifactsFromHtmlUrl(url);
+      }
+    } catch (_) {
+      // Do nothing if this isn't a valid URL
     }
-    return this.tryExtractPageMetadata(url)
+
+    const results = await this.artdealer.markerFound(marker);
+    results.found = await this.attemptEnrichContentWithPageMetadata(results.found, shouldFetchArtifactsFrom);
+    return results;
+  }
+
+  /*
+   * Inform MeaningMaker that `marker` has been lost from camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async markerLost(marker: Marker): Promise<NearbyResultDelta> {
+    return this.artdealer.markerLost(marker);
+  }
+
+  /*
+   * Inform MeaningMaker that geo `coords` have changed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async updateGeolocation(
+      coords: GeoCoordinates,
+      shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback | string[]
+  ): Promise<NearbyResultDelta> {
+    shouldFetchArtifactsFrom = this.normalizeShouldFetchFn(shouldFetchArtifactsFrom);
+
+    const results = await this.artdealer.updateGeolocation(coords);
+    results.found = await this.attemptEnrichContentWithPageMetadata(results.found, shouldFetchArtifactsFrom);
+    return results;
+  }
+
+  /*
+   * Inform MeaningMaker that `detectedImage` has been found in camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async imageFound(
+      detectedImage: DetectedImage,
+      shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback | string[]
+  ): Promise<NearbyResultDelta> {
+    shouldFetchArtifactsFrom = this.normalizeShouldFetchFn(shouldFetchArtifactsFrom);
+
+    const results = await this.artdealer.imageFound(detectedImage);
+    results.found = await this.attemptEnrichContentWithPageMetadata(results.found, shouldFetchArtifactsFrom);
+    return results;
+  }
+
+  /*
+   * Inform MeaningMaker that `detectedImage` has been lost from camera feed.
+   *
+   * returns `NearbyResultDelta` which can be used to update UI.
+   */
+  async imageLost(detectedImage: DetectedImage) {
+    return this.artdealer.imageLost(detectedImage);
   }
 
 
-  /*
-   * Let meaning-maker know that a new marker was discovered in the environment.
-   * Returns a list of results based on this new information.
-   */
-  async markerFound(marker: Marker, shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback | string[]):
-    Promise<NearbyResultDelta> {
+  private saveArtifacts(artifacts: ARArtifact[]) {
+    for (const artifact of artifacts) {
+      this.artstore.addArtifact(artifact);
+    }
+  }
+
+  private normalizeShouldFetchFn(
+      shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback | string[]): ShouldFetchArtifactsFromCallback {
+    // If there's no callback provided, match to current origin.
     if (!shouldFetchArtifactsFrom) {
-      // If there's no callback provided, match to current origin.
       shouldFetchArtifactsFrom = (url: URL) => url.origin === window.location.origin;
     } else if (Array.isArray(shouldFetchArtifactsFrom)) {
       // If an array of strings, remap it.
       const origins = shouldFetchArtifactsFrom;
       shouldFetchArtifactsFrom = (url: URL) => !!origins.find(o => o === url.origin);
     }
-
-    // If this marker is a URL, try loading artifacts from that URL
-    const url = this.checkIsFetchableURL(marker.value, shouldFetchArtifactsFrom);
-    if (url) {
-      // TODO: fetchAsDocument here, pass that into loader.  Reuse doc below.
-
-      const artifacts = await this.loadArtifactsFromHtmlUrl(url);
-    }
-
-    const results = await this.artdealer.markerFound(marker);
-
-    // If any results have URL-only content -- try loading from the page itself
-    for (const result of results.found) {
-      // TODO: if this result is the same URL as the one we just fetched, re-use the doc.
-      await this.attemptEnrichContentWithPageMetadata(result, shouldFetchArtifactsFrom);
-    }
-    // Do not enrich lost content.  Should only need target info.
-
-    return results;
-  }
-
-  async markerLost(marker: Marker): Promise<NearbyResultDelta> {
-    return this.artdealer.markerLost(marker);
-  }
-
-  async updateGeolocation(coords: GeoCoordinates): Promise<NearbyResultDelta> {
-    return this.artdealer.updateGeolocation(coords);
-  }
-
-  private saveArtifacts(artifacts: ARArtifact[]) {
-    for (const artifact of artifacts) {
-      this.artstore.addArtifact(artifact);
-    }
+    return shouldFetchArtifactsFrom;
   }
 
   private checkIsFetchableURL(potentialUrl: string,
@@ -156,7 +207,7 @@ export class MeaningMaker {
   private async tryExtractPageMetadata(
         potentialUrl: string,
         shouldFetchArtifactsFrom: ShouldFetchArtifactsFromCallback
-      ): Promise<JsonLd | null> {
+      ): Promise<Thing | null> {
     const url = this.checkIsFetchableURL(potentialUrl, shouldFetchArtifactsFrom);
     if (url) {
       this.extractPageMetadata(url);
@@ -164,28 +215,35 @@ export class MeaningMaker {
     return null;
   }
 
-  private async extractPageMetadata(url: URL): Promise<JsonLd | null> {
+  private async extractPageMetadata(url: URL): Promise<Thing | null> {
+    if (this.pageMetadataCache.has(url)) {
+      return this.pageMetadataCache.get(url) as Thing;
+    }
     const doc = await fetchAsDocument(url);
     if (doc) {
       const pageMetadata = await extractPageMetadata(doc, url);
+      this.pageMetadataCache.set(url, pageMetadata);
       return pageMetadata;
     }
     return null;
   }
 
   private async attemptEnrichContentWithPageMetadata(
-        result: NearbyResult,
+        results: NearbyResult[],
         shouldFetchArtifactsFrom: ShouldFetchArtifactsFromCallback
-      ): Promise<NearbyResult> {
-    if (result.content) {
-      if (typeof result.content === 'string') {
+      ): Promise<NearbyResult[]> {
+    for (const result of results) {
+      if (!result.content) {
+        continue;
+      }
+      if (!typeIsThing(result.content)) {
         // if arContent is a string, try to treat it as a URL
         const pageMetadata = await this.tryExtractPageMetadata(result.content, shouldFetchArtifactsFrom);
         if (pageMetadata) {
           // Override the string URL with the metadata object
           result.content = pageMetadata;
         }
-      } else if ('url' in result.content && !('name' in result.content)) {
+      } else if (result.content.url && !result.content.hasOwnProperty('name')) {
         // if arContent has a 'url' property, but lacks properties, check the page for missing metadata.
         // For now, make sure the @type's match exactly, so we only ever expand metadata.
         const pageMetadata = await this.tryExtractPageMetadata(result.content.url, shouldFetchArtifactsFrom);
@@ -195,6 +253,6 @@ export class MeaningMaker {
         }
       }
     }
-    return result;
+    return results;
   }
 }

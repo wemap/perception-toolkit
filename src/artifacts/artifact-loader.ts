@@ -16,7 +16,7 @@
  */
 
 import { ArtifactDecoder } from './artifact-decoder.js';
-import { ARArtifact } from './schema/ar-artifact.js';
+import { ARArtifact } from './schema/extension-ar-artifacts.js';
 import { JsonLd } from './schema/json-ld.js';
 import { flat } from '../utils/flat.js';
 import { fetchAsDocument } from '../utils/fetch-as-document.js';

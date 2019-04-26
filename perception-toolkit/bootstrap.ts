@@ -20,12 +20,21 @@ import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
 import { fire } from '../src/utils/fire.js';
-import { cameraAccessDenied, captureClosed, captureStopped, markerChanges } from './events.js';
+import { DEBUG_LEVEL } from '../src/utils/logger.js';
+import {
+  cameraAccessDenied,
+  captureClosed,
+  captureStarted,
+  captureStopped,
+  markerChanges,
+  markerDetect
+} from './events.js';
 
 declare global {
   interface Window {
     PerceptionToolkit: {
       config: {
+        debugLevel?: DEBUG_LEVEL,
         root?: string,
         onboarding?: boolean,
         onboardingImages?: string[],
@@ -34,6 +43,8 @@ declare global {
         buttonVisibilityClass?: string,
         cardContainer?: HTMLElement,
         cardUrlLabel?: string,
+        cardMainEntityLabel?: string,
+        cardShouldLaunchNewWindow?: boolean,
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,
@@ -61,15 +72,18 @@ declare global {
 
 const deviceNotSupported = 'pt.devicenotsupported';
 
+window.PerceptionToolkit = window.PerceptionToolkit || {};
 window.PerceptionToolkit.config = window.PerceptionToolkit.config || {};
 
 // Expose events.
 window.PerceptionToolkit.Events = {
   CameraAccessDenied: cameraAccessDenied,
   CaptureClosed: captureClosed,
+  CaptureStarted: captureStarted,
   CaptureStopped: captureStopped,
   DeviceNotSupported: deviceNotSupported,
   MarkerChanges: markerChanges,
+  MarkerDetect: markerDetect
 };
 
 // Expose elements.

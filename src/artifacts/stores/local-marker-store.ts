@@ -17,26 +17,23 @@
 
 import { Marker } from '../../../defs/marker.js';
 import { NearbyResult } from '../artifact-dealer.js';
-import { ARArtifact } from '../schema/ar-artifact.js';
-import { Barcode } from '../schema/barcode.js';
+import { ARArtifact } from '../schema/extension-ar-artifacts.js';
+import { Barcode } from '../schema/core-schema-org.js';
 
 export class LocalMarkerStore {
   private readonly markers = new Map<string, NearbyResult>();
 
-  addMarker(artifact: ARArtifact, barcode: Barcode): void {
+  addMarker(artifact: ARArtifact, barcode: Barcode): boolean {
     if (!barcode.text) {
-      return;
+      return false;
     }
     this.markers.set(barcode.text, { target: barcode, artifact });
+    return true;
   }
 
   findRelevantArtifacts(markers: Marker[]): NearbyResult[] {
     const ret = [];
     for (const marker of markers) {
-      if (!marker.value) {
-        continue;
-      }
-
       const nearbyResult = this.markers.get(marker.value);
 
       if (nearbyResult) {

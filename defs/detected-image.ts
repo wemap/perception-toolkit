@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-import { JsonLd } from './json-ld.js';
+import { MediaObject } from '../src/artifacts/schema/core-schema-org.js';
 
-export interface GeoCoordinates extends JsonLd {
-  address?: string; // PostalAddress
-  addressCountry?: string; // Country
-  elevation?: string | number;
-  latitude?: string | number;
-  longitude?: string | number;
-  postalCode?: string;
+export interface DetectableImage {
+  id: string;
+  media: MediaObject[];
+}
+
+export interface DetectedImage {
+  id: string;
 }
