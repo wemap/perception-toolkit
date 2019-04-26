@@ -30,7 +30,7 @@ function processRulesUntilFirstMatch(doc: Document, rules: ExtractionRules): str
 
 function extractTitle(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['head[itemscope][itemtype="http://schema.org/WebPage"] *[itemprop="name"]', (el) => el.getAttribute('content')],
+    ['head[itemscope] *[itemprop="name"]', (el) => el.getAttribute('content')],
     ['title', (el) => el.textContent],
     ['meta[property="og:title"]', (el) => el.getAttribute('content')],
   ]);
@@ -38,7 +38,7 @@ function extractTitle(doc: Document): string|undefined {
 
 function extractDescription(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['head[itemscope][itemtype="http://schema.org/WebPage"] *[itemprop="description"]',
+    ['head[itemscope] *[itemprop="description"]',
         (el) => el.getAttribute('content')],
     ['meta[name="description"]', (el) => el.getAttribute('content')],
     ['meta[property="og:description"]', (el) => el.getAttribute('content')],
@@ -47,7 +47,7 @@ function extractDescription(doc: Document): string|undefined {
 
 function extractImage(doc: Document): string|undefined {
   return processRulesUntilFirstMatch(doc, [
-    ['head[itemscope][itemtype="http://schema.org/WebPage"] *[itemprop="image"]',
+    ['head[itemscope] *[itemprop="image"]',
         (el) => el.getAttribute('content') || el.getAttribute('href')],
     ['meta[property="og:image:secure_url"]', (el) => el.getAttribute('content')],
     ['meta[property="og:image:url"]', (el) => el.getAttribute('content')],

@@ -31,7 +31,7 @@ describe('ExtractPageMetadata', () => {
     const html = `
       <!doctype html>
       <html>
-      <head>
+      <head itemscope itemtype="https://schema.org/WebPage">
         <title>${expectedPageMetadata.name}</title>
         <meta name="description" content="${expectedPageMetadata.description}" />
         <meta itemprop="image" content="${expectedPageMetadata.image}" />
