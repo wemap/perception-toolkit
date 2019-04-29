@@ -19,6 +19,9 @@ import { OnboardingCard } from '../src/elements/onboarding-card/onboarding-card.
 import { fire } from '../src/utils/fire.js';
 import { loadImages } from '../src/utils/load-images.js';
 
+/**
+ * @hidden
+ */
 export async function startOnboardingProcess(images: string[]) {
   const { config } = window.PerceptionToolkit || { config: { root: '' } };
   const { root = '' } = config;

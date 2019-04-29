@@ -24,6 +24,8 @@ root.innerHTML = `<style>${styles}</style><span class="content"><slot></slot></s
 /**
  * Shows an overlay message. If there is already an overlay message a second
  * call will update the message rather than create a new overlay.
+ *
+ * @hidden
  */
 export function showOverlay(message: string, target = document.body) {
   overlay.textContent = message;
@@ -33,6 +35,8 @@ export function showOverlay(message: string, target = document.body) {
 
 /**
  * Hides the overlay if there is one.
+ *
+ * @hidden
  */
 export function hideOverlay() {
   overlay.remove();

@@ -5,7 +5,7 @@
   "module": "lib/index.js",
   "jsnext:main": "lib/index.js",
   "scripts": {
-    "docs": "typedoc --tsconfig ./tsconfig.docs.json",
+    "docs": "typedoc --theme minimal --tsconfig ./tsconfig.docs.json",
     "build": "npm run compile && npm run bundle && npm run polyfill",
     "bundle": "rollup -c",
     "compile": "rimraf ./lib && tsc",
