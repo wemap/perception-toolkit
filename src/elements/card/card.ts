@@ -25,12 +25,54 @@ import { fade } from '../../utils/fade.js';
 import { DEBUG_LEVEL, log } from '../../utils/logger.js';
 import { html, styles } from './card.template.js';
 
+
+/**
+ * Represents card data, and closely resembles `arContent`.
+ *
+ * @see Card
+ *
+ * Example:
+ * ```
+ * {
+ *   name: 'My card',
+ *   description: 'More information about the contents',
+ *   image: '/path/to/some/image.jpg',
+ *   url: '/path/to/more/details/'
+ * }
+ * ```
+ */
 export interface CardData {
+  /**
+   * The name for the card.
+   */
   name?: string;
+
+  /**
+   * A short description used for disambiguating the item from other similar
+   * items. _Not used for rendering._
+   */
   disambiguatingDescription?: string;
+
+  /**
+   * A description used for the item.
+   */
   description?: string;
+
+  /**
+   * The image for the item. For rendering images that are 16:9 are preferred.
+   */
   image?: string;
+
+  /**
+   * The URL for more information on the item.
+   */
   url?: string;
+
+  /**
+   * An additional entry for more information on the item. For example, if the
+   * `url` property points to a review of a website, `mainEntity`
+   * would point to the website itself.
+   */
   mainEntity?: {
     url?: string;
   };
@@ -43,6 +85,14 @@ export interface CardData {
  * // Text card.
  * const card = new Card();
  * card.src = 'Card Message';
+ *
+ * // Schema card.
+ * card.src = {
+ *   name: 'My card',
+ *   description: 'More information about the contents',
+ *   image: '/path/to/some/image.jpg',
+ *   url: '/path/to/more/details/'
+ * };
  *
  * // Or iframe some content in. By default the card supports same-origin
  * // content.
