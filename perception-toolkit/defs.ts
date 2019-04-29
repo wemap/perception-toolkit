@@ -162,7 +162,7 @@ export interface PerceptionToolkitConfig {
   /**
    * Location of ARArtifact sources which should be loaded on startup.
    * Sources could be individual html pages or json-ld files.
-   * It's better to load a small number of json-ld files defining only the ARAartifacts needed for toolkit.
+   * It's best to load json-ld files, with only the ARAartifacts needed for toolkit.
    *
    * Example (html pages):
    * ```
