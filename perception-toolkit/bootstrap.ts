@@ -48,7 +48,7 @@ declare global {
         hintTimeout?: number,
         detectionMode?: 'active' | 'passive',
         showLoaderDuringBoot?: boolean,
-        sitemapUrl?: string,
+        artifactSources?: string[],
         onload?: () => void,
         shouldLoadArtifactsFrom?: ((url: URL) => boolean) | string[];
       },
@@ -163,7 +163,7 @@ async function initializeExperience() {
 
   const { showLoader, hideLoader } = await import('./loader.js');
   const { config } = window.PerceptionToolkit;
-  const { sitemapUrl, detectionMode = 'passive' } = config;
+  const { artifactSources, detectionMode = 'passive' } = config;
 
   if (config && config.onboardingImages && config.onboarding) {
     hideLoader();
@@ -179,7 +179,7 @@ async function initializeExperience() {
   // Now the experience is inited, update the closeExperience fn.
   window.PerceptionToolkit.Functions.closeExperience = close;
 
-  initialize({ detectionMode, sitemapUrl });
+  initialize({ detectionMode, artifactSources });
 }
 
 function addCardToPage({msg = '', cls = ''}) {

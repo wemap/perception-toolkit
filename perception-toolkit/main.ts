@@ -82,13 +82,24 @@ const attemptDetection = detectBarcodes(new ImageData(1, 1), { polyfillPrefix })
 
 interface InitOpts {
   detectionMode: 'active' | 'passive';
-  sitemapUrl?: string;
+  artifactSources?: string[];
 }
 
 /**
  * Starts the user onboarding.
  */
 export async function initialize(opts: InitOpts) {
+  // Initialize MeaningMaker
+  await meaningMaker.init();
+  if (opts.artifactSources) {
+    if (!Array.isArray(opts.artifactSources)) {
+      opts.artifactSources = [ opts.artifactSources ];
+    }
+    for (const url of opts.artifactSources) {
+      await meaningMaker.loadArtifactsFromUrl(new URL(url, document.URL));
+    }
+  }
+
   const onboarding = document.querySelector(OnboardingCard.defaultTagName);
   if (!onboarding) {
     beginDetection(opts);
@@ -105,16 +116,10 @@ export async function initialize(opts: InitOpts) {
 /**
  * Initializes the main behavior.
  */
-async function beginDetection({ detectionMode = 'passive', sitemapUrl }: InitOpts) {
+async function beginDetection({ detectionMode = 'passive' }: InitOpts) {
   try {
     // Wait for the faked detection to resolve.
     await attemptDetection;
-
-    // Initialize MeaningMaker
-    await meaningMaker.init();
-    if (sitemapUrl) {
-      await meaningMaker.loadArtifactsFromJsonldUrl(new URL(sitemapUrl, document.URL));
-    }
 
     // Create the stream.
     await createStreamCapture(detectionMode);
