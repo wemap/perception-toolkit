@@ -20,6 +20,21 @@ export {
   captureStopped,
   closeEvent as captureClosed
 } from '../src/elements/stream-capture/stream-capture.js';
+
+/**
+ * Exposed through bootstrap.
+ * @hidden
+ */
 export const markerDetect = 'pt.markerdetect';
+
+/**
+ * Exposed through bootstrap.
+ * @hidden
+ */
 export const cameraAccessDenied = 'pt.cameraaccessdenied';
+
+/**
+ * Exposed through bootstrap.
+ * @hidden
+ */
 export const markerChanges = 'pt.markerchanges';

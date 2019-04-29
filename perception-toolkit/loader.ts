@@ -24,10 +24,17 @@ loader.style.setProperty('--color', '#FFF');
 
 // Uncomment for vertical animation.
 // loader.setAttribute('vertical', 'vertical');
+
+/**
+ * @hidden
+ */
 export function showLoader() {
   document.body.appendChild(loader);
 }
 
+/**
+ * @hidden
+ */
 export function hideLoader() {
   loader.remove();
 }

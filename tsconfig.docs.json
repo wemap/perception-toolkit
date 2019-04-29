@@ -18,6 +18,11 @@
   "typedocOptions": {
     "out": "docs",
     "exclude": [
+      "src/artifacts/**/*.*",
+      "src/detectors/**/*.*",
+      "src/polyfill/**/*.*",
+      "src/utils/**/*.*",
+      "src/support/**/*.*",
       "**/*_test.ts",
       "**/*_worker.ts",
       "**/*.template.ts",
@@ -25,7 +30,6 @@
       "**/polyfill/*.ts",
       "lib/**/*.*",
       "bundled/**/*.ts",
-      "barcode-detection/**/*.ts",
       "**/support/**/*.ts",
       "node_modules/**/*.*"
     ],

@@ -25,7 +25,9 @@ import { DetectableImage, DetectedImage } from '../defs/detected-image.js';
 
 type ShouldFetchArtifactsFromCallback = ((url: URL) => boolean) | string[];
 
-/*
+/**
+ * @hidden
+ *
  * MeaningMaker binds the Artifacts components with the rest of the Perception Toolkit.
  * It provides a good set of default behaviours, but can be replaced with alternative
  * strategies in advanced cases.

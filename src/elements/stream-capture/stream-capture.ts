@@ -21,21 +21,29 @@ import { html, styles } from './stream-capture.template.js';
 
 /**
  * The name for captured frame events.
+ *
+ * @hidden
  */
 export const frameEvent = 'pt.captureframe';
 
 /**
  * The name for start capture events.
+ *
+ * @hidden
  */
 export const captureStarted = 'pt.capturestarted';
 
 /**
  * The name for stop capture events.
+ *
+ * @hidden
  */
 export const captureStopped = 'pt.capturestopped';
 
 /**
  * The name for stop capture events.
+ *
+ * @hidden
  */
 export const closeEvent = 'pt.captureclose';
 

@@ -20,7 +20,7 @@ import { DeviceSupport } from '../src/support/device-support.js';
 import { GetUserMediaSupport } from '../src/support/get-user-media.js';
 import { WasmSupport } from '../src/support/wasm.js';
 import { fire } from '../src/utils/fire.js';
-import { DEBUG_LEVEL } from '../src/utils/logger.js';
+import { PerceptionToolkit } from './defs.js';
 import {
   cameraAccessDenied,
   captureClosed,
@@ -32,41 +32,7 @@ import {
 
 declare global {
   interface Window {
-    PerceptionToolkit: {
-      config: {
-        debugLevel?: DEBUG_LEVEL,
-        root?: string,
-        onboarding?: boolean,
-        onboardingImages?: string[],
-        button?: HTMLElement,
-        buttonSelector?: string,
-        buttonVisibilityClass?: string,
-        cardContainer?: HTMLElement,
-        cardUrlLabel?: string,
-        cardMainEntityLabel?: string,
-        cardShouldLaunchNewWindow?: boolean,
-        hintTimeout?: number,
-        detectionMode?: 'active' | 'passive',
-        showLoaderDuringBoot?: boolean,
-        artifactSources?: string[],
-        onload?: () => void,
-        shouldLoadArtifactsFrom?: ((url: URL) => boolean) | string[];
-      },
-
-      Events: {
-        [key: string]: string;
-      };
-
-      Elements: {
-        Card: typeof Card;
-        ActionButton: typeof ActionButton;
-      };
-
-      Functions: {
-        initializeExperience: typeof initializeExperience;
-        closeExperience: () => void;
-      }
-    };
+    PerceptionToolkit: PerceptionToolkit;
   }
 }
 

@@ -87,6 +87,8 @@ interface InitOpts {
 
 /**
  * Starts the user onboarding.
+ *
+ * @hidden
  */
 export async function initialize(opts: InitOpts) {
   // Initialize MeaningMaker
@@ -296,6 +298,9 @@ async function onVisibilityChange() {
   }
 }
 
+/**
+ * @hidden
+ */
 export function close() {
   capture.stop();
   capture.remove();
