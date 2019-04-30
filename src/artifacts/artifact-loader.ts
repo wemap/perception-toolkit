@@ -24,7 +24,27 @@ import { flat } from '../utils/flat.js';
 export class ArtifactLoader {
   private readonly decoder = new ArtifactDecoder();
 
-  // TODO (#35): Change ArtifactsLoader to only "index" URLs where Artifacts could actually exist
+  async fromUrl(url: URL|string): Promise<ARArtifact[]> {
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
+    const contentType = response.headers.get('content-type');
+    if (!contentType) {
+      return [];
+    }
+
+    if (contentType.indexOf('application/json') !== -1 || contentType.indexOf('application/ld+json') !== -1) {
+      const json = await response.json();
+      return this.fromJson(json);
+    } else {
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      return this.fromElement(doc, url);
+    }
+  }
+
   async fromHtmlUrl(url: URL|string): Promise<ARArtifact[]> {
     // Note: according to MDN, can use XHR request to create Document direct from URL
     // This may be better, because could have document.location.href (etc) settings automatically?
@@ -32,6 +52,9 @@ export class ArtifactLoader {
     // Urls are based off this document root, not the fetched source.
 
     const response = await fetch(url.toString());
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');

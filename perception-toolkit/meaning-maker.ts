@@ -58,16 +58,17 @@ export class MeaningMaker {
   /**
    * Load artifact content for initial set.
    */
-  async loadArtifactsFromJsonldUrl(url: URL) {
-    const artifacts = await this.artloader.fromJsonUrl(url);
+  async loadArtifactsFromUrl(url: URL) {
+    const artifacts = await this.artloader.fromUrl(url);
     this.saveArtifacts(artifacts);
+    return artifacts;
   }
 
   /**
    * Load artifact content from url on same origin, usually discovered from environment.
    */
-  async loadArtifactsFromSupportedUrls(url: URL,
-                                       shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback) {
+  async loadArtifactsFromSupportedUrl(url: URL,
+                                      shouldFetchArtifactsFrom?: ShouldFetchArtifactsFromCallback) {
     // If there's no callback provided, match to current origin.
     if (!shouldFetchArtifactsFrom) {
       shouldFetchArtifactsFrom = (url: URL) => url.origin === window.location.origin;
@@ -81,10 +82,7 @@ export class MeaningMaker {
       return;
     }
 
-    const artifacts = await this.artloader.fromHtmlUrl(url);
-    for (const artifact of artifacts) {
-      this.artstore.addArtifact(artifact);
-    }
+    return this.loadArtifactsFromUrl(url);
   }
 
   /*
@@ -111,7 +109,7 @@ export class MeaningMaker {
       // Do not supply a base url argument, since we do not want to support relative URLs,
       // and because that would turn lots of normal string values into valid relative URLs.
       const url = new URL(marker.value);
-      await this.loadArtifactsFromSupportedUrls(url, shouldFetchArtifactsFrom);
+      await this.loadArtifactsFromSupportedUrl(url, shouldFetchArtifactsFrom);
     } catch (_) {
       // Do nothing if this isn't a valid URL
     }
