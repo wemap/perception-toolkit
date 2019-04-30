@@ -19,27 +19,28 @@
     <meta charset="utf-8">
     <meta name="theme-color" content="#1A3230">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Toolkit - OTHER PAGE</title>
+    <title>Product Page</title>
 
     <script type="application/ld+json">
     {
-      "@context": "http://schema.org",
+      "@context": "https://schema.googleapis.com/",
       "@type": "ARArtifact",
-      "arTarget": [{
+      "arTarget": {
         "@type": "Barcode",
-        "text": "http://localhost:8080/demo/other.html"
-      }],
+        "text": "012345678905"
+      },
       "arContent": {
         "@type": "WebPage",
-        "url": "http://localhost:8080/demo/other.html",
-        "name": "This is a Result!",
-        "description": "Description",
-        "image": "http://localhost:8080/demo/images/step2.jpg"
+        "url": "./product1.html",
+        "name": "Product Info",
+        "description": "This is a product with a barcode",
+        "image": ""
       }
     }
     </script>
   </head>
 <body>
-  OTHER PAGE
+  This is a product page.
+  <img src="./barcode.gif"></img>
 </body>
 </html>

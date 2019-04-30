@@ -25,11 +25,15 @@
       Step 1: Include default style sheet.
     -->
     <link rel="stylesheet" href="/styles/perception-toolkit.css">
-
     <link rel="stylesheet" href="/demo/style.css">
 
     <!--
-      Step 2: Set up webcomponents-loader.js
+      Step 2: Include a structured-data listing of your ARArtifacts ("artifact map").
+    -->
+    <script type="application/ld+json" src="ar-artifact-map.jsonld"></script>
+
+    <!--
+      Step 3: Set up webcomponents-loader.js
     -->
     <script>
       window.WebComponents = window.WebComponents || {};
@@ -40,27 +44,42 @@
 <body>
 
   <!--
-    Step 3: Create DOM nodes for:
+    Step 4: Create DOM nodes for:
     * result cards (.container)
     * a scan button (#get-started).
   -->
   <div class="container"></div>
   <button id="get-started">Get started</button>
 
+  <script src="/third_party/idb-keyval/idb-keyval-iife.min.js"></script>
+
   <!--
-    Step 4: Initialize Perception Toolkit
+    Step 5: Initialize Perception Toolkit
   -->
   <script>
     async function init() {
+      const onboarded = await idbKeyval.get('onboarded');
+      if (!onboarded) {
+        // Store for next time.
+        await idbKeyval.set('onboarded', true);
+      }
+
       const cardContainer = document.body.querySelector('.container');
 
       window.PerceptionToolkit = window.PerceptionToolkit || {};
       window.PerceptionToolkit.config = {
-        // The element to use to launch.  (Step 3, above)
+        // Debug level.
+        debugLevel: 'info',
+
+        // The element to use to launch.  (Step 4, above)
         button: document.getElementById('get-started'),
 
-        // The container for generated cards.  (Step 3, above)
+        // The container for generated cards.  (Step 4, above)
         cardContainer,
+
+        // Whether to show the onboarding flow. Note that this is superseded
+        // internally by a flag
+        onboarding: !onboarded,
 
         // Which images to show in carousel during onboarding
         onboardingImages: [
@@ -68,9 +87,13 @@
           '/demo/_images/step2.jpg',
           '/demo/_images/step3.jpg'
         ],
+
+        // How long after launching camera should we should instructions to user (in ms).
+        // If a result is scanned before this timeout, hint will be cancelled.
+        hintTimeout: 7000,
         
         // Sources from which to load AR ARtifacts.  Will load after Perception init.
-        artifactSources: ['./product.html'],
+        artifactSources: ['./products/product.html'],
         
         onload() {
           addEventListeners();
@@ -96,6 +119,7 @@
             return;
           }
 
+          // There is no recognized result.  Let's create an "error" card.
           const card = new Elements.Card();
           card.src = 'Sorry, this item was not recognized.';
           cardContainer.appendChild(card);

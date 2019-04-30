@@ -1,0 +1,47 @@
+[
+  {
+    "@context": "https://schema.googleapis.com/",
+    "@type": "ARArtifact",
+    "arTarget": {
+      "@type": "Barcode",
+      "text": "012345678905"
+    },
+    "arContent": {
+      "@type": "WebPage",
+      "url": "./products/product1.html",
+      "name": "Product Info",
+      "description": "This is a product with a barcode",
+      "image": ""
+    }
+  },
+  {
+    "@context": "https://schema.googleapis.com/",
+    "@type": "ARArtifact",
+    "arTarget": {
+      "@type": "Barcode",
+      "text": "012345678905"
+    },
+    "arContent": {
+      "@type": "WebPage",
+      "url": "./products/product2.html",
+      "name": "Product Info",
+      "description": "This is a product with a barcode",
+      "image": ""
+    }
+  },
+  {
+    "@context": "https://schema.googleapis.com/",
+    "@type": "ARArtifact",
+    "arTarget": {
+      "@type": "Barcode",
+      "text": "012345678905"
+    },
+    "arContent": {
+      "@type": "WebPage",
+      "url": "./products/product3.html",
+      "name": "Product Info",
+      "description": "This is a product with a barcode",
+      "image": ""
+    }
+  }
+]
