@@ -20,13 +20,18 @@ const glob = require('glob').Glob;
 const path = require('path');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
-const { files, dest, verbose } = require('yargs')
+const { files, dest, start, verbose } = require('yargs')
     .option('files', {
       alias: 'f'
     })
     .option('dest', {
       alias: 'd',
       default: './targets'
+    })
+    .option('start', {
+      alias: 's',
+      type: 'number',
+      default: 0
     })
     .option('verbose', {
       alias: 'v',
@@ -86,9 +91,13 @@ glob(srcPath, {}, async (err, srcFiles) => {
 
       let count = 0;
       const files = srcFiles.map((file) => {
-        const id = count++;
+        const id = start + count;
         const imageData = imageDecode(fs.readFileSync(file));
         indexer.processImageFrame(imageData, id);
+
+        // Increment the count for next time.
+        count++;
+
         const result = indexer.extractIndex();
         const fileName = path.parse(file).name;
         return {
