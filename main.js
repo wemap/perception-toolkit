@@ -153,7 +153,7 @@ async function visitUrls({ start, followLinks, remap, verbose } = opts) {
         for (const json of jsonLd) {
           try {
             const obj = JSON.parse(json);
-            const text = obj.arTarget.text;
+            const text = obj.arTarget.text || obj.arTarget.name;
 
             if (verbose) {
               console.log(`[Target]: ${text}`);
