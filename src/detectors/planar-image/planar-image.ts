@@ -44,6 +44,7 @@ class Detector {
 
   detect(data: ImageData): Promise<Marker[]> {
     return new Promise((resolve) => {
+      const startTime = performance.now();
       this.worker.postMessage({ type: 'process', data });
       this.worker.onmessage = (e) => {
         if (e.data === null) {
@@ -65,8 +66,9 @@ class Detector {
           };
         }).filter(value => !!value.value) as Marker[];
 
-        // log(`Targets found: ${ids}`, DEBUG_LEVEL.VERBOSE);
         resolve(ids);
+        log(`Time taken (ms): ${performance.now() - startTime}`,
+            DEBUG_LEVEL.VERBOSE);
       };
     });
   }
