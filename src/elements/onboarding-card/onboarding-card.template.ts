@@ -50,6 +50,7 @@ export const styles = `
   border-radius: var(--contentBorderRadius);
   display: block;
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 slot {
