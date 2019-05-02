@@ -70,8 +70,8 @@ class Detector {
         }).filter(value => !!value.value) as Marker[];
 
         resolve(ids);
-        log(`Time taken (ms): ${performance.now() - startTime}`,
-            DEBUG_LEVEL.VERBOSE);
+        log(`Time taken (ms): ${performance.now() - startTime} ` +
+            `for ${data.width} * ${data.height}`, DEBUG_LEVEL.VERBOSE);
       };
     });
   }
