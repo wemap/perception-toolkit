@@ -16,13 +16,15 @@
  */
 
 import { PlanarTargetWasmModule } from '../../defs/planar-target.js';
-import { DEBUG_LEVEL, log } from '../utils/logger.js';
+import { DEBUG_LEVEL, enableLogLevel, log } from '../utils/logger.js';
 import { PlanarTargetDetector } from './planar-detector.js';
 
 declare global {
   function importScripts(...urls: string[]): void;
   function ModuleFactory(seed: {}): PlanarTargetWasmModule;
 }
+
+enableLogLevel(DEBUG_LEVEL.WARNING);
 
 let addCount = 1010;
 let detector: PlanarTargetDetector;
@@ -54,8 +56,6 @@ self.onmessage = (e: MessageEvent) => {
     }
     return;
   }
-
-  log('Tick', DEBUG_LEVEL.VERBOSE, 'Planar Image Detector Worker');
 
   const host = (self as any);
   const { type, data } = e.data;
