@@ -448,10 +448,6 @@ async function onCaptureFrame(evt: Event) {
 
       const marker: Marker = { value: markerValue.value, type: markerValue.format };
       switch (marker.type) {
-        case 'Barcode':
-          removals.push(meaningMaker.markerLost(marker));
-          break;
-
         case 'ARImageTarget':
           const image = await getTarget(marker.value);
           if (!image) {
@@ -459,6 +455,10 @@ async function onCaptureFrame(evt: Event) {
           }
 
           removals.push(meaningMaker.imageLost(image));
+          break;
+
+        default:
+          removals.push(meaningMaker.markerLost(marker));
           break;
       }
 
