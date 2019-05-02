@@ -16,6 +16,7 @@
  */
 
 import { PlanarTargetWasmModule } from '../../defs/planar-target.js';
+import { DEBUG_LEVEL, log } from '../utils/logger.js';
 import { PlanarTargetDetector } from './planar-detector.js';
 
 declare global {
@@ -60,13 +61,18 @@ self.onmessage = (e: MessageEvent) => {
   switch (type) {
     // Process image data.
     case 'process':
-      const processResult = detector.process(data, Date.now());
-      const detections: number[] = [];
-      for (let r = 0; r < processResult.size(); r++) {
-        detections.push(processResult.get(r).id);
-      }
+      try {
+        const processResult = detector.process(data, Date.now());
+        const detections: number[] = [];
+        for (let r = 0; r < processResult.size(); r++) {
+          detections.push(processResult.get(r).id);
+        }
 
-      host.postMessage(detections);
+        host.postMessage(detections);
+      } catch (e) {
+        log(e.message, DEBUG_LEVEL.ERROR);
+        host.postMessage([]);
+      }
       break;
 
     // Add a target.
