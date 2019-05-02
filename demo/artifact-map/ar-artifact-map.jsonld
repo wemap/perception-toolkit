@@ -14,6 +14,7 @@
       "image": ""
     }
   },
+
   {
     "@context": "https://schema.googleapis.com/",
     "@type": "ARArtifact",
@@ -29,6 +30,7 @@
       "image": ""
     }
   },
+  
   {
     "@context": "https://schema.googleapis.com/",
     "@type": "ARArtifact",

@@ -21,16 +21,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Perception Toolkit - Demo</title>
 
-    <!--
-      Step 1: Include default style sheet.
-    -->
     <link rel="stylesheet" href="/styles/perception-toolkit.css">
-
-    <link rel="stylesheet" href="/demo/style.css">
+    <link rel="stylesheet" href="/demo/common/style.css">
 
     <!--
-      Step 2: Set up webcomponents-loader.js
+      Include a JSON-LD file which contains definitions for all the ARArtifacts across the site.
+      Note: this should ideally be a machine-generate file, and a copy of what is on the html content pages.
     -->
+    <script type="application/ld+json" src="./ar-artifact-map.jsonld"></script>
+
     <script>
       window.WebComponents = window.WebComponents || {};
       window.WebComponents.root = '/node_modules/@webcomponents/webcomponentsjs/';
@@ -39,47 +38,19 @@
   </head>
 <body>
 
-  <!--
-    Step 3: Create DOM nodes for:
-    * result cards (.container)
-    * a scan button (#get-started).
-  -->
   <div class="container"></div>
   <button id="get-started">Get started</button>
 
-  <!--
-    Step 4: Initialize Perception Toolkit
-  -->
   <script>
     window.PerceptionToolkit = window.PerceptionToolkit || {};
     window.PerceptionToolkit.config = {
-      // The element to use to launch.  (Step 3, above)
       button: document.getElementById('get-started'),
-
-      // The container for generated cards.  (Step 3, above)
       cardContainer: document.body.querySelector('.container'),
 
-      // Which images to show in carousel during onboarding
-      onboardingImages: [
-        '/demo/common/images/step1.jpg',
-        '/demo/common/images/step2.jpg',
-        '/demo/common/images/step3.jpg'
-      ],
-      
       // Sources from which to load AR ARtifacts.  Will load after Perception init.
+      // Note: Since we have already have an 1ar-artifact-map.jsonld` file included in the dom (above), do not need to
+      // list out all the artifactSources at all.
       artifactSources: [],
-
-      // For URLs which are discovered, but which are not in `sitemapUrl` (above), should we attempt to fetch?
-      shouldLoadArtifactsFrom(url) {
-        switch (url.origin) {
-          case 'http://localhost:8080':
-          case 'http://localhost:8081':
-            return true;
-
-          default:
-            return false;
-        }
-      }
     };
   </script>
   <script src="/lib/bundled/bootstrap.js"></script>
