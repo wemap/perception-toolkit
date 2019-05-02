@@ -21,20 +21,125 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Perception Toolkit - Demo</title>
 
-    <!--
-      Step 1: Include default style sheet.
-    -->
-    <link rel="stylesheet" href="/styles/perception-toolkit.css">
-    <link rel="stylesheet" href="/demo/style.css">
+    <link rel="stylesheet" href="../styles/perception-toolkit.css">
+    <style>
+      html, body {
+        background: rgb(40, 74, 72);
+        width: 100%;
+        height: 100%;
+      }
 
-    <!--
-      Step 2: Include a structured-data listing of your ARArtifacts ("artifact map").
-    -->
-    <script type="application/ld+json" src="ar-artifact-map.jsonld"></script>
+      body {
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-    <!--
-      Step 3: Set up webcomponents-loader.js
-    -->
+      #get-started {
+        display: none;
+        padding: 8px 12px;
+        background: #FFF;
+        border: none;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.4);
+        border-radius: 3px;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      #get-started.visible {
+        display: block;
+      }
+
+      dot-loader {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      data-card.no-support {
+        opacity: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 90vw;
+      }
+
+      onboarding-card {
+        --background: #82C4CA;
+        --buttonActiveColor: #323662;
+        --buttonHoverColor: #323662c8;
+        --buttonInactiveColor: #32366294;
+        --buttonBottomMargin: 12px;
+        --padding: 0 0 36px 0;
+        --contentBorderRadius: 4px 4px 0 0;
+        opacity: 0;
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.3s cubic-bezier(0, 0, 0.3, 1) forwards 0.2s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+
+    <script type="application/ld+json">
+    [{
+      "@context": "http://schema.org",
+      "@type": "ARArtifact",
+      "arTarget": {
+        "@type": "Barcode",
+        "text": "Inline Barcode"
+      },
+      "arContent": {
+        "@type": "WebPage",
+        "url": "http://localhost:8080/demo/index.html",
+        "name": "This is Barcode Result",
+        "description": "Description",
+        "image": "http://localhost:8080/demo/images/step1.jpg"
+      }
+    },
+    {
+      "@context": "http://schema.org",
+      "@type": "ARArtifact",
+      "arTarget": {
+        "@type": "ARImageTarget",
+        "name": "Lighthouse",
+        "image": "http://localhost:8080/demo/images/lighthouse.jpg",
+        "encoding": [
+          {
+            "@type": "MediaObject",
+            "contentUrl": "http://localhost:8080/demo/planar/lighthouse.pb",
+            "encodingFormat": "application/octet+pd"
+          }
+        ]
+      },
+      "arContent": {
+        "@type": "WebPage",
+        "url": "https://developers.google.com/web/tools/lighthouse/",
+        "name": "Lighthouse",
+        "description": "Test your website",
+        "image": "http://localhost:8080/demo/images/lighthouse.jpg"
+      }
+    }]
+    </script>
+
+    <script type="application/ld+json" src="barcode-listing-linked.jsonld"></script>
+
     <script>
       window.WebComponents = window.WebComponents || {};
       window.WebComponents.root = '/node_modules/@webcomponents/webcomponentsjs/';
@@ -69,7 +174,7 @@
       window.PerceptionToolkit = window.PerceptionToolkit || {};
       window.PerceptionToolkit.config = {
         // Debug level.
-        debugLevel: 'info',
+        debugLevel: 'verbose',
 
         // The element to use to launch.  (Step 4, above)
         button: document.getElementById('get-started'),
@@ -112,6 +217,11 @@
           // ignore. For the zero case we know there was a
           // scan of something we don't currently recognize.
           if (found.length !== 0 || lost.length !== 0) {
+            const notRecognizedCard =
+                cardContainer.querySelector('[data-not-recognized]');
+            if (notRecognizedCard) {
+              notRecognizedCard.remove();
+            }
             return;
           }
 
@@ -120,8 +230,12 @@
           }
 
           // There is no recognized result.  Let's create an "error" card.
+          // Take ownership of rendering.
+          evt.preventDefault();
+
           const card = new Elements.Card();
           card.src = 'Sorry, this item was not recognized.';
+          card.dataset.notRecognized = true;
           cardContainer.appendChild(card);
         });
 
