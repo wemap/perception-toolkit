@@ -45,6 +45,9 @@ export class BarcodeDetectorPolyfill {
     this.worker = new Worker(path);
     this.worker.postMessage(prefix);
 
+    // Attempt to prevent worker GC.
+    (window as any).barcodeDetectorWorker = this.worker;
+
     this.isReadyInternal = new Promise((resolve, reject) => {
       this.worker.onmessage = (e: MessageEvent) => {
         if (e.data === 'ready') {

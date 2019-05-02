@@ -35,6 +35,9 @@ class Detector {
       };
 
       this.worker.postMessage(root);
+
+      // Attempt to prevent worker GC.
+      (window as any).planarWorker = this.worker;
     });
   }
 
