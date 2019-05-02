@@ -254,6 +254,8 @@ async function onMarkerFound(evt: Event) {
   const marker: Marker = { type: format, value };
   const { shouldLoadArtifactsFrom } = window.PerceptionToolkit.config;
 
+  console.log('MARKER FOUND', evt);
+
   // Update the UI
   const lost: NearbyResult[] = [];
   const found: NearbyResult[] = [];
@@ -269,7 +271,7 @@ async function onMarkerFound(evt: Event) {
       found.push(...imageDiff.found);
       break;
 
-    case 'Barcode':
+    default:
       const markerDiff = await meaningMaker.markerFound(marker, shouldLoadArtifactsFrom);
       lost.push(...markerDiff.lost);
       found.push(...markerDiff.found);
