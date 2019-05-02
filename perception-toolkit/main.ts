@@ -254,8 +254,6 @@ async function onMarkerFound(evt: Event) {
   const marker: Marker = { type: format, value };
   const { shouldLoadArtifactsFrom } = window.PerceptionToolkit.config;
 
-  console.log('MARKER FOUND', evt);
-
   // Update the UI
   const lost: NearbyResult[] = [];
   const found: NearbyResult[] = [];
