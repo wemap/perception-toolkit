@@ -20,6 +20,7 @@ declare global {
 }
 
 import { BarcodeWasmModule } from '../../defs/barcode.js';
+import { DEBUG_LEVEL, log } from '../utils/logger.js';
 
 function getDetectorModule() {
   return (self as any).Module as BarcodeWasmModule;
@@ -28,7 +29,6 @@ function getDetectorModule() {
 class WasmBarcodeDetector {
   process(data: ImageData) {
     const Module = getDetectorModule();
-    const format = '';
     const fileData = data.data;
     const buffer = Module._malloc(fileData.length);
     Module.HEAPU8.set(fileData, buffer);
@@ -70,6 +70,7 @@ self.onmessage = (e: MessageEvent) => {
     return;
   }
 
+  log('Tick', DEBUG_LEVEL.VERBOSE, 'Barcode Detector Worker');
   const data = detector.process(e.data);
   (self as any).postMessage(data);
 };

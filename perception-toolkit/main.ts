@@ -78,8 +78,9 @@ switch (window.PerceptionToolkit.config.debugLevel) {
 const root = window.PerceptionToolkit.config.root || '';
 
 // TODO: Attempt the correct detection based on the target types.
-const attemptMarkerDetection = detectBarcodes(new ImageData(1, 1), { root });
-const attemptPlanarDetection = detectPlanarImages(new ImageData(1, 1), { root });
+const attemptData = new ImageData(640, 480);
+const attemptMarkerDetection = detectBarcodes(attemptData, { root });
+const attemptPlanarDetection = detectPlanarImages(attemptData, { root });
 let planarDetectionReady = false;
 
 interface InitOpts {

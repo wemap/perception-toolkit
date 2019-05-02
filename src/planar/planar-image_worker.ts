@@ -55,6 +55,8 @@ self.onmessage = (e: MessageEvent) => {
     return;
   }
 
+  log('Tick', DEBUG_LEVEL.VERBOSE, 'Planar Image Detector Worker');
+
   const host = (self as any);
   const { type, data } = e.data;
 
