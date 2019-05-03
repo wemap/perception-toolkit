@@ -5,11 +5,12 @@ This demo showcases the simplest way to load Perception Toolkit.  Start by takin
 ## Instructions
 
 First, print out (or, open on a second screen) these real world targets:
+
 * [barcode.gif](./pages/barcode.gif), which targets [pages/barcode.html](./pages/barcode.html).
 * [lighthouse.jpg](./pages/lighthouse.jpg), which targets [pages/lighthouse.html](./pages/lighthouse.html).
-* [life-before-google.jpeg](./pages/life-before-google.jpeg), which targets [pages/life-before-google.html](./pages/life-before-google.html).
 
 Next, open the page which hosts the Perception Toolkit:
+
 1. Run `npm run build && npm run serve`
 2. Open [`https://localhost:8080/demo/simple/index.html`](https://localhost:8080/demo/simple/index.html)
 3. Hit "Getting Started" and follow the onboarding steps.
@@ -26,4 +27,4 @@ Next, open the page which hosts the Perception Toolkit:
 1. Try changing the Barcode `text` property to some other Barcode value (try using an existing product!), and refresh the page.
 2. Try changing the property values of `WebPage` to see the Card content change when you scan the barcode.
 
-Sorry, creating your own image targets requires a bit of pre-processing work, which we will dig into later.
+TODO: Guide on creating your own image targets.
