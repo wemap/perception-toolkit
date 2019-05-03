@@ -24,13 +24,4 @@ Adds support for scanning unrecognized Markers -- scan a random barcode to see a
 Change the `Event.MarkerChanges` event to:
 
 * Handle errors your own way.  Perhaps offer a link to text-based search, or full product listing?
-* Customize the UI by adding a custom share button.
-
-```javascript
-  const button = document.createElement('button');
-  button.textContent = 'Share';
-  button.addEventListener('click', () => {
-    console.log('clicked');
-  })
-  card.appendChild(button);
-```
+* Customize the UI by adding a custom share button to all Result Cards.

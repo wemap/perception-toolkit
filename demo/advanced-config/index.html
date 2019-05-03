@@ -109,6 +109,10 @@
             // Take ownership of rendering.
             evt.preventDefault();
 
+            /* 
+             * Dig In here.  Customize what to do in case of error!
+             */
+
             const card = new Elements.Card();
             card.src = 'Sorry, this item was not recognized.';
             card.dataset.notRecognized = true;
@@ -124,6 +128,19 @@
             const card = new Elements.Card();
             card.src = found[0].content;
             cardContainer.appendChild(card);
+
+            /* 
+
+            // Dig In here.  Customize the Card UI yourself!
+            const button = document.createElement('button');
+            button.textContent = 'Share';
+            button.addEventListener('click', () => {
+              console.log('clicked');
+            })
+            card.appendChild(button);
+
+            */
+
 
             return;
           }
