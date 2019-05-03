@@ -1,18 +1,14 @@
 # Perception Toolkit Demo's
 
-## Starting simple: Single Barcode
+## Starting simple: Single page barcode and image targets
 
-See [`simple-barcode/`](./simple-barcode/).
-
-## Still simple: Single Image
-
-See [`simple-image/`](./simple-image/).
+See [`simple/`](./simple/).
 
 ## Diving deeper: More Toolkit configuration
 
 See [`advanced-config/`](./advanced-config/).
 
-## Diving deeper: Defining multiple artifacts using a json+ld file
+## Defining many artifacts using a json+ld file
 
 See [`artifact-map`](./artifact-map).
 
