@@ -80,7 +80,7 @@ const root = window.PerceptionToolkit.config.root || '';
 // TODO: Attempt the correct detection based on the target types.
 const attemptData = new ImageData(640, 480);
 const attemptMarkerDetection = detectBarcodes(attemptData, { root });
-// const attemptPlanarDetection = detectPlanarImages(attemptData, { root });
+const attemptPlanarDetection = detectPlanarImages(attemptData, { root });
 let planarDetectionReady = false;
 
 interface InitOpts {
@@ -130,50 +130,50 @@ async function beginDetection({ detectionMode = 'passive' }: InitOpts) {
     // Create the stream.
     await createStreamCapture(detectionMode);
 
-    // const detectableImages = await meaningMaker.getDetectableImages();
-    // if (detectableImages.length) {
-    //   const overlayInit = { id: 'pt.imagedetect', small: true };
-    //   showOverlay('Initializing image detector...', overlayInit);
+    const detectableImages = await meaningMaker.getDetectableImages();
+    if (detectableImages.length) {
+      const overlayInit = { id: 'pt.imagedetect', small: true };
+      showOverlay('Initializing image detector...', overlayInit);
 
-    //   // Wait for fake detection.
-    //   await attemptPlanarDetection;
+      // Wait for fake detection.
+      await attemptPlanarDetection;
 
-    //   showOverlay('Initializing image targets...', overlayInit);
+      showOverlay('Initializing image targets...', overlayInit);
 
-    //   // Enable detection for any targets.
-    //   let imageCount = 0;
-    //   for (const image of detectableImages) {
-    //     for (const media of image.media) {
-    //       // If the object does not match our requirements, bail.
-    //       if (!media['@type'] || media['@type'] !== 'MediaObject' ||
-    //           !media.contentUrl || !media.encodingFormat ||
-    //           media.encodingFormat !== 'application/octet+pd') {
-    //         continue;
-    //       }
+      // Enable detection for any targets.
+      let imageCount = 0;
+      for (const image of detectableImages) {
+        for (const media of image.media) {
+          // If the object does not match our requirements, bail.
+          if (!media['@type'] || media['@type'] !== 'MediaObject' ||
+              !media.contentUrl || !media.encodingFormat ||
+              media.encodingFormat !== 'application/octet+pd') {
+            continue;
+          }
 
-    //       const url = media.contentUrl.toString();
-    //       log(`Loading ${url}`, DEBUG_LEVEL.VERBOSE);
+          const url = media.contentUrl.toString();
+          log(`Loading ${url}`, DEBUG_LEVEL.VERBOSE);
 
-    //       // Obtain a Uint8Array for the file.
-    //       try {
-    //         const bytes = await fetch(url, { credentials: 'include' })
-    //             .then(r => r.arrayBuffer())
-    //             .then(b => new Uint8Array(b));
+          // Obtain a Uint8Array for the file.
+          try {
+            const bytes = await fetch(url, { credentials: 'include' })
+                .then(r => r.arrayBuffer())
+                .then(b => new Uint8Array(b));
 
-    //         // Switch on detection.
-    //         log(`Adding detection target: ${image.id}`);
-    //         addDetectionTarget(bytes, image);
-    //         imageCount++;
-    //       } catch (e) {
-    //         log(`Unable to load ${url}`, DEBUG_LEVEL.WARNING);
-    //       }
-    //     }
-    //   }
+            // Switch on detection.
+            log(`Adding detection target: ${image.id}`);
+            addDetectionTarget(bytes, image);
+            imageCount++;
+          } catch (e) {
+            log(`Unable to load ${url}`, DEBUG_LEVEL.WARNING);
+          }
+        }
+      }
 
-    //   hideOverlay(overlayInit);
-    //   planarDetectionReady = true;
-    //   log(`${imageCount} target(s) added`, DEBUG_LEVEL.INFO);
-    // }
+      hideOverlay(overlayInit);
+      planarDetectionReady = true;
+      log(`${imageCount} target(s) added`, DEBUG_LEVEL.INFO);
+    }
   } catch (e) {
     log(e.message, DEBUG_LEVEL.ERROR, 'Begin detection');
   }
