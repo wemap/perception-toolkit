@@ -8,7 +8,7 @@ Adds support for scanning unrecognized Markers -- scan a random barcode to see a
 
 1. Print out [barcode.gif](./products/barcode.gif), which represents the [product page](./products/product.html).
 2. Run `npm run build && npm run serve`
-3. Open [`https://localhost:8080/demo/2-advanced-config/index.html`](https://localhost:8080/demo/2-advanced-config/index.html)
+3. Open [`https://localhost:8080/demo/advanced-config/index.html`](https://localhost:8080/demo/advanced-config/index.html)
 4. Hit "Getting Started" and follow the onboarding instructions.
 5. Scan the barcode!
 6. Try scanning other barcodes, without registering them.
