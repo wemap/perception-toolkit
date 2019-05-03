@@ -21,4 +21,16 @@ Adds support for scanning unrecognized Markers -- scan a random barcode to see a
 
 ## Bonus: Dig In!
 
-1. Try changing the event handling code to take your own fallback actions.  Perhaps redirect to aa text-based product search page?
+Change the `Event.MarkerChanges` event to:
+
+* Handle errors your own way.  Perhaps offer a link to text-based search, or full product listing?
+* Customize the UI by adding a custom share button.
+
+```javascript
+  const button = document.createElement('button');
+  button.textContent = 'Share';
+  button.addEventListener('click', () => {
+    console.log('clicked');
+  })
+  card.appendChild(button);
+```
