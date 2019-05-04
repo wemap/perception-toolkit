@@ -27,4 +27,24 @@ Next, open the page which hosts the Perception Toolkit:
 1. Try changing the Barcode `text` property to some other Barcode value (try using an existing product!), and refresh the page.
 2. Try changing the property values of `WebPage` to see the Card content change when you scan the barcode.
 
-TODO: Guide on creating your own image targets.
+## Bonus: Create your own Image Target
+
+Unlike Barcodes, Images require a bit of pre-processing work before loading into the toolkit.  Lets try creating a new page with a new image target.
+
+1. Create a new HTML page in `./pages/` by copying the current image target demo [`./pages/lighthouse.html`](./pages/lighthouse.html).
+2. Find an image you like, and copy it into the `./pages` directory.
+
+> Note: This should be a digital original, not just a photograph.  Try picking an image thats very rich in detail, and high contrast.
+
+3. Pre-process the image using [this guide](../../target-generation/README.md).  This creates a new file, ending in `.pd`, which is actually used at runtime.  Quick instructions:
+
+```bash
+$ cd perception-toolkit
+$ node target-generation/generator.js --files=./demo/simple/pages/YOUR_IMAGE --dest=./demo/simple/pages
+```
+
+4. Update all the image links inside the page you copied in step 1 to use your new image files.  Search for `lighthouse.jpg` and `lighthouse.pd` to know what to change.
+
+5. Finally, lets add your new page to the lists of `artifactSources` in [`index.html`](./index.html).
+
+
