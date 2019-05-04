@@ -32,6 +32,12 @@ Next, open the page which hosts the Perception Toolkit:
 Unlike Barcodes, Images require a bit of pre-processing work before loading into the toolkit.  Lets try creating a new page with a new image target.
 
 1. Create a new HTML page in `./pages/` by copying the current image target demo [`./pages/lighthouse.html`](./pages/lighthouse.html).
+
+```bash
+$ cd perception-toolkit/demo/simple
+$ cp ./pages/lighthouse.html YOUR_PAGE.html
+```
+
 2. Find an image you like, and copy it into the `./pages` directory.
 
 > Note: This should be a digital original, not just a photograph.  Try picking an image thats very rich in detail, and high contrast.
