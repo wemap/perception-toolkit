@@ -58,10 +58,15 @@ export class MeaningMaker {
   /**
    * Load artifact content for initial set.
    */
-  async loadArtifactsFromUrl(url: URL) {
-    const artifacts = await this.artloader.fromUrl(url);
-    this.saveArtifacts(artifacts);
-    return artifacts;
+  async loadArtifactsFromUrl(url: URL): Promise<ARArtifact[]> {
+    try {
+      const artifacts = await this.artloader.fromUrl(url);
+      this.saveArtifacts(artifacts);
+      return artifacts;
+    } catch (ex) {
+      console.error(ex);
+    }
+    return [];
   }
 
   /**
