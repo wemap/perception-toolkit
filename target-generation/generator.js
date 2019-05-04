@@ -26,7 +26,7 @@ const { files, dest, start, verbose } = require('yargs')
     })
     .option('dest', {
       alias: 'd',
-      default: './targets'
+      default: path.resolve(__dirname, './targets')
     })
     .option('start', {
       alias: 's',
@@ -50,16 +50,20 @@ if (!dest) {
   process.exit(1);
 }
 
-function log(msg) {
+function log(...msg) {
   if (!verbose) {
     return;
   }
 
-  console.log(msg);
+  console.log(...msg);
 }
 
 log('Generating [Verbose]');
-const srcPath = path.isAbsolute(files) ? files : path.join(__dirname, files);
+const srcPath = path.isAbsolute(files) ? files : path.join(process.cwd(), files);
+const destPath = path.isAbsolute(dest) ? dest : path.join(process.cwd(), dest);
+
+log('srcPath:', srcPath);
+log('destPath:', destPath);
 
 /*
  * Start by searching through the files given.
@@ -107,9 +111,8 @@ glob(srcPath, {}, async (err, srcFiles) => {
       });
 
       for (const file of files) {
-        const filePath = path.resolve(__dirname, dest, file.name);
-        const dirPath = path.dirname(filePath);
-        mkdirp(dirPath);
+        const filePath = path.resolve(destPath, file.name);
+        mkdirp(destPath);
         fs.writeFileSync(filePath, file.data);
       }
 
