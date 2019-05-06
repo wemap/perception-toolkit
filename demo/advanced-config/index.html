@@ -129,18 +129,16 @@
             card.src = found[0].content;
             cardContainer.appendChild(card);
 
-            /* 
-
+            /*
             // Dig In here.  Customize the Card UI yourself!
-            const button = document.createElement('button');
-            button.textContent = 'Share';
+            const button = new Elements.ActionButton();
+            button.label = 'Share';
             button.addEventListener('click', () => {
               console.log('clicked');
+              card.close();
             })
             card.appendChild(button);
-
             */
-
 
             return;
           }
