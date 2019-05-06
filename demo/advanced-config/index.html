@@ -86,7 +86,7 @@
         const { Events, Elements } = window.PerceptionToolkit;
 
         // Fires with a diff of markers found & lost.
-        window.addEventListener(Events.MarkerChanges, (evt) => {
+        window.addEventListener(Events.PerceivedResults, (evt) => {
           const { found, lost } = evt.detail;
 
           // First, automatically remove any "not recognized" cards if we now have content.

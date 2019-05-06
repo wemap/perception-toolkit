@@ -37,4 +37,4 @@ export const cameraAccessDenied = 'pt.cameraaccessdenied';
  * Exposed through bootstrap.
  * @hidden
  */
-export const markerChanges = 'pt.markerchanges';
+export const perceivedResults = 'pt.perceivedresults';

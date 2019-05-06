@@ -36,7 +36,7 @@ import { Marker } from '../defs/marker.js';
 import { NearbyResult, NearbyResultDelta } from '../src/artifacts/artifact-dealer.js';
 import { MeaningMaker } from './meaning-maker.js';
 
-import { cameraAccessDenied, markerChanges, markerDetect } from './events.js';
+import { cameraAccessDenied, perceivedResults, markerDetect } from './events.js';
 
 const detectedTargets = new Map<{value: string, format: string}, number>();
 const meaningMaker = new MeaningMaker();
@@ -277,7 +277,7 @@ async function onMarkerFound(evt: Event) {
       break;
   }
   const contentDiffs = { lost, found };
-  const markerChangeEvt = fire(markerChanges, capture, contentDiffs);
+  const markerChangeEvt = fire(perceivedResults, capture, contentDiffs);
 
   // If the developer prevents default on the marker changes event then don't
   // handle the UI updates; they're doing it themselves.
