@@ -218,15 +218,16 @@ export interface PerceptionToolkitEvents {
   DeviceNotSupported: string;
 
   /**
-   * The markers have changed. The event contains two arrays: `lost` and
-   * `found`, the contents of which are the markers which have been lost or
+   * Results have changed. This event contains two arrays: `lost` and
+   * `found`, the contents of which are the results which have been lost or
    * found respectively.
    *
-   * By default found markers will have a card generated for them. If you wish
-   * to prevent the default behavior you should call `preventDefault()` on the
-   * event when dispatched.
+   * By default, new found results will have a card generated for them.
+   *
+   * If you wish to prevent this default behavior, you should listen for this
+   * event and call `preventDefault()` on the event when dispatched.
    */
-  MarkerChanges: string;
+  PerceivedResults: string;
 
   /**
    * A marker has been detected. Provides the type and value of the marker.

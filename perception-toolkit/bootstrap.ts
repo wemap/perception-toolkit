@@ -26,7 +26,7 @@ import {
   captureClosed,
   captureStarted,
   captureStopped,
-  markerChanges,
+  perceivedResults,
   markerDetect
 } from './events.js';
 
@@ -48,7 +48,7 @@ window.PerceptionToolkit.Events = {
   CaptureStarted: captureStarted,
   CaptureStopped: captureStopped,
   DeviceNotSupported: deviceNotSupported,
-  MarkerChanges: markerChanges,
+  PerceivedResults: perceivedResults,
   MarkerDetect: markerDetect
 };
 

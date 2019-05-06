@@ -17,11 +17,15 @@ Adds support for scanning unrecognized Markers -- scan a random barcode to see a
 
 1. Dig in to the script on [`index.html`](./index.html) to see how the `PerceptionToolkit` is created.
 2. Take a look at how onboarding it toggled, using a saved setting in indexeddb.
-3. Take a look at how events such as `Events.MarkerChanges` are handled, and how the case of "no results" is addressed.
+3. Take a look at how events are handled (especially `Events.PerceivedResults`).
 
 ## Bonus: Dig In!
 
-Change the `Event.MarkerChanges` event to:
+Change the `Event.PerceivedResults` event in order to:
 
-* Handle errors your own way.  Perhaps offer a link to text-based search, or full product listing?
-* Customize the UI by adding a custom share button to all Result Cards.
+* Handle errors your own way.
+  * Perhaps offer a link to text-based search, or full product listing?
+  * See code comments in `index.html` for clues where to modify code.
+* Customize the UI for normal results.
+  * Perhaps by adding a custom share button?
+  * See code comments in `index.html` for clues where to modify code.
