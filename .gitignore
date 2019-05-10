@@ -8,4 +8,4 @@ docs
 .rpt2_cache
 *.swp
 lib
-*.pb
+target-generation/targets/*.pb
