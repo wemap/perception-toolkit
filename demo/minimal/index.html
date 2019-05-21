@@ -1,0 +1,57 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Perception Toolkit - Demo</title>
+
+  <style>
+    html,
+    body {
+      background: rgb(40, 74, 72);
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      padding: 0;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+  </style>
+
+  <script src="/lib/bundled/bootstrap.js"></script>
+
+  <script>
+
+    window.PerceptionToolkit = window.PerceptionToolkit || {};
+    window.PerceptionToolkit.config = {
+
+      cardContainer: document.createElement('div'), // Mandatory
+
+      onload() {
+        window.addEventListener(window.PerceptionToolkit.Events.MarkerDetect,
+          (evt) => dataScanned(evt.detail)
+        );
+      }
+    };
+
+    const dataScanned = (data) => {
+      alert('Value: ' + data.value + '\nFormat: ' + data.format);
+      // window.PerceptionToolkit.Functions.closeExperience();
+    };
+
+    window.addEventListener("load", () => {
+      window.PerceptionToolkit.Functions.initializeExperience();
+    });
+
+  </script>
+</head>
+
+<body>
+
+</body>
+
+</html>
